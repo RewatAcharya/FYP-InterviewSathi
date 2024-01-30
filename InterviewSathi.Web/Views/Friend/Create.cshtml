@@ -1,0 +1,56 @@
+﻿@using System.Security.Claims
+@model InterviewSathi.Web.Models.Entities.Friend
+
+@{
+
+    ViewData["Title"] = "Create";
+    var users = ViewBag.Users;
+}
+
+<div>
+    <a asp-action="Index" asp-controller="Friend" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()">Back to List</a>
+</div>
+<h1>Create</h1>
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in users)
+        {
+            <tr>
+                <td>
+                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                    @item.Name
+                </td>
+                <td>
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <input asp-for="SentBy" class="form-control" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="SentTo" class="form-control" value="@item.Id" hidden>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Add Friend" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

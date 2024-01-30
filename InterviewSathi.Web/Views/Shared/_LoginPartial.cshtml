@@ -1,7 +1,9 @@
 ﻿@using InterviewSathi.Web.Models.Entities
 @using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -9,15 +11,10 @@
         <a class="nav-link text-dark" asp-controller="#" asp-action="#">Chat</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="#" asp-action="#">Notifications</a>
+        <a class="nav-link text-dark" asp-controller="Notification" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()">Notifications</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="#" asp-action="#">Profiles</a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
-            <button type="submit" class="btn btn-dark">Logout</button>
-        </form>
+        <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index" asp-route-username="@User.FindFirstValue(ClaimTypes.Name)">Profiles</a>
     </li>
 }
 else

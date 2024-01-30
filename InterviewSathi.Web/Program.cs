@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Adding services to the container.

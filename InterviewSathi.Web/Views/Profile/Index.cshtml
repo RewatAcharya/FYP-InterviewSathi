@@ -1,0 +1,105 @@
+﻿@model InterviewSathi.Web.Models.Entities.ApplicationUser
+
+@{
+    var blogs = ViewBag.Blogs;
+}
+
+<div class="container mt-4">
+ @*    <div class="row h-50">
+        <!-- Cover photo -->
+        <div class="col-md-12">
+           <img src="~/images/covers/@Model.CoverURL" class="img-fluid w-100" alt="Cover Photo">
+        </div>
+    </div> *@
+
+    <div class="row mt-3">
+        <div class="col-md-2">
+            <!-- Profile picture -->
+                <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture">
+        </div>
+
+        <div class="col-md-8">
+            <!-- User information -->
+            <h2>@Model.Name</h2>
+            <p>@Model.Bio</p>
+            <!-- Button group with "Edit Profile" button -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    <span>Options</span>
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a asp-route-Id="@Model.Id" asp-action="EditProfile" asp-controller="Profile" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Profile</a>
+                    </li>
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Friend">My Friends</a></li>
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Schedule">My Schedule</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
+                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline section -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+        @foreach (var item in blogs)
+        {
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-text">
+                            @item.Content                        
+                            <small class="justify-content-end align-items-end text-body-secondary">@((int)DateTime.UtcNow.Subtract(item.CreatedAt).TotalHours) hours ago.</small>
+                            <div class="position-absolute top-0 end-0">
+                                <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a asp-route-Id="@item.Id" asp-action="Edit" asp-controller="Blog" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Blog</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-route-Id="@item.Id" asp-action="Delete" asp-controller="Blog" data-ajax="true" data-ajax-method="post" data-ajax-confirm="Are you sure?" data-ajax-complete="deletePage">Delete Blog</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </p>
+                    </div>
+                    @if (item.ImgPath != null)
+                    {
+                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" />
+                    }
+                    <div class="d-md-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like (@item.LikeCount)</button>
+                        <button class="btn btn-secondary" style="width: 50%;">Comment</button>
+                    </div>
+
+                    <div class="card-footer">
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+
+</div>
+
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" id="page">
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        deletePage = function (xhr) {
+            location.reload();
+        }
+    });
+</script>

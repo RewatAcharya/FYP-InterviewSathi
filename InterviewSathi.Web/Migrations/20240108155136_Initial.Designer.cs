@@ -4,6 +4,7 @@ using InterviewSathi.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InterviewSathi.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240108155136_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.1")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -131,98 +134,6 @@ namespace InterviewSathi.Web.Migrations
                     b.HasIndex("PostedBy");
 
                     b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LikedBlog")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LikedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LikedBlog");
-
-                    b.HasIndex("LikedBy");
-
-                    b.ToTable("LikeCounts");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("Accepted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SentBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SentTo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SentBy");
-
-                    b.HasIndex("SentTo");
-
-                    b.ToTable("Friends");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Notification", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SentBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SentTo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SentBy");
-
-                    b.HasIndex("SentTo");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Skill", b =>
@@ -389,63 +300,6 @@ namespace InterviewSathi.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
-                {
-                    b.HasOne("InterviewSathi.Web.Models.Entities.BlogsEntity.Blog", "Blog")
-                        .WithMany()
-                        .HasForeignKey("LikedBlog")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("LikedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Blog");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
-                {
-                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingBy")
-                        .WithMany()
-                        .HasForeignKey("SentBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingTo")
-                        .WithMany()
-                        .HasForeignKey("SentTo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SendingBy");
-
-                    b.Navigation("SendingTo");
-                });
-
-            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Notification", b =>
-                {
-                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingBy")
-                        .WithMany()
-                        .HasForeignKey("SentBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingTo")
-                        .WithMany()
-                        .HasForeignKey("SentTo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SendingBy");
-
-                    b.Navigation("SendingTo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

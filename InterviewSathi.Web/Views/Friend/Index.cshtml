@@ -1,0 +1,77 @@
+﻿@using System.Security.Claims
+@model IEnumerable<InterviewSathi.Web.Models.Entities.Friend>
+
+@{
+    string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+    ViewData["Title"] = "Index";
+}
+
+<h4>New requests</h4>
+
+<p>
+    <a asp-action="Create" asp-route-id="@loggedUser">Create new friends</a>
+</p>
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Where(x => x.Accepted == false  && x.SentBy != loggedUser).OrderByDescending(x => x.CreatedAt))
+        {
+            <tr>
+                <td>
+                    @if (loggedUser == item.SendingTo.Id)
+                    {
+                        <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                        
+                        @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                    }
+                    else
+                    {
+                        <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                        
+                        @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                    }
+                </td>
+                <td>
+                    <form asp-action="Edit" asp-route-id="@item.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Accept</button>
+                    </form>              
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<h4>Friends</h4>
+
+@foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
+{
+    <tr>
+        <td>
+            @if (loggedUser == item.SendingTo.Id)
+            {
+                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                
+                @Html.DisplayFor(modelItem => item.SendingBy.Name)
+            }
+            else
+            {
+                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                
+                @Html.DisplayFor(modelItem => item.SendingTo.Name)
+            }
+        </td>
+        <td>
+            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-dark">Unfriend</button>
+            </form>
+        </td>
+    </tr>
+}

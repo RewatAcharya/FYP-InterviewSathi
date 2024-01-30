@@ -26,6 +26,11 @@ namespace InterviewSathi.Web.Controllers
             _signInManager = signInManager;
         }
 
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -62,6 +67,8 @@ namespace InterviewSathi.Web.Controllers
                     NormalizedEmail = registerVM.Email.ToUpper(),
                     EmailConfirmed = true,
                     UserName = registerVM.Email,
+                    ProfileURL = "ProfilePic.jpeg",
+                    CoverURL = "coverpic.jpg",
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -81,7 +88,7 @@ namespace InterviewSathi.Web.Controllers
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     if (string.IsNullOrEmpty(registerVM.RedirectUrl))
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Blog");
                     }
                     else
                     {
@@ -109,7 +116,7 @@ namespace InterviewSathi.Web.Controllers
                         var role = await _userManager.GetRolesAsync(user);
                         var claims = new List<Claim>
                                {
-                                   new(ClaimTypes.Name, user.Id.ToString()),
+                                   new(ClaimTypes.Name, user.Id),
                                    new("UserName", user.Name),
                                    new(ClaimTypes.Role, role.FirstOrDefault())
                                };
@@ -122,13 +129,13 @@ namespace InterviewSathi.Web.Controllers
                     }
                     if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
-                        return RedirectToAction("Index", "Dashboard");
+                        return RedirectToAction("Dashboard");
                     }
                     else
                     {
                         if (string.IsNullOrEmpty(loginVM.RedirectUrl))
                         {
-                            return RedirectToAction("Index", "Home");
+                            return RedirectToAction("Index", "Blog");
                         }
                         else
                         {
@@ -150,9 +157,9 @@ namespace InterviewSathi.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ExternalLoginAsync(string provider, string returnurl = null)
         {
-            returnurl = returnurl ?? Url.Content("~/");
+            returnurl = returnurl ?? Url.Content("~/Blog/Index");
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { returnurl });
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            var properties =  _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
 
@@ -220,6 +227,8 @@ namespace InterviewSathi.Web.Controllers
                     Email = model.Email,
                     Name = model.Name,
                     NormalizedEmail = model.Email.ToUpper(),
+                    ProfileURL = "ProfilePic.jpeg",
+                    CoverURL = "coverpic.jpg",
                     CreatedAt = DateTime.UtcNow
                 };
 
