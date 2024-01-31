@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Versioning;
 using System.Drawing;
+using System.Security.Claims;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -27,7 +28,25 @@ namespace InterviewSathi.Web.Controllers
             string userId = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == username).Id;
             var blogs = _dbContext.Blogs.Where(x => x.PostedBy == userId).ToList();
             ViewBag.Blogs = blogs;
+            ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == userId).Include(x => x.Skill).ToList();
             return View(_dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == username));
+        }
+
+        [Authorize]
+        public IActionResult UserProfile(string Id)
+        {
+            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == Id).ToList();
+            ViewBag.Blogs = blogs;
+            ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == Id).Include(x => x.Skill).ToList();
+
+            string? myId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+
+            ViewBag.FriendId = _dbContext.Friends.FirstOrDefault(x => (x.SentTo == Id && x.SentBy == myId) || (x.SentBy == Id && x.SentTo == myId))?.Id;
+
+            ViewBag.Count = _dbContext.Friends
+                .Where(x => (x.SentTo == Id && x.SentBy == myId) || (x.SentBy == Id && x.SentTo == myId)).Count();
+
+            return View(_dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == Id));
         }
 
         [HttpGet]

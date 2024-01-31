@@ -48,38 +48,50 @@ namespace InterviewSathi.Web.Controllers
             return View();
         }
 
+        private async Task CreateFriendRequestAsync(string sentBy, string sentTo)
+        {
+            Friend friend = new Friend()
+            {
+                SentBy = sentBy,
+                SentTo = sentTo,
+                Id = Guid.NewGuid().ToString()
+            };
+
+            _context.Add(friend);
+            await _context.SaveChangesAsync();
+
+            string? email = _context.ApplicationUsers.Where(x => x.Id == friend.SentTo).First().Email;
+            string? name = _context.ApplicationUsers.Where(x => x.Id == friend.SentBy).First().Name;
+
+            Notification notification = new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                SentBy = friend.SentBy,
+                SentTo = friend.SentTo,
+                Type = "Friend",
+                Content = $"You have a new friend request from {name}!!",
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            _context.Notifications.Add(notification);
+            _context.SaveChanges();
+
+            EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
+                $"Click the link below to view: </br>" +
+                $"<a href=\"https://localhost:7236/Friend/Index/\" + {friend.SentTo}\">Link to follow</a>");
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Friend friend)
         {
             var transaction = _context.Database.BeginTransaction();
+
             try
             {
                 transaction.CreateSavepoint("BeforeAddingFriend");
-
-                friend.Id = Guid.NewGuid().ToString();
-                _context.Add(friend);
-                var result = await _context.SaveChangesAsync();
-
-                string? email = _context.ApplicationUsers.Where(x => x.Id == friend.SentTo).First().Email;
-                string? name = _context.ApplicationUsers.Where(x => x.Id == friend.SentBy).First().Name;
-
-                Notification notification = new()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    SentBy = friend.SentBy,
-                    SentTo = friend.SentTo,
-                    Type = "Friend",
-                    Content = $"You have a new friend request from {name}!!",
-                    CreatedAt = DateTime.UtcNow,
-                };
-                _context.Notifications.Add(notification);
-                _context.SaveChanges();
-
-                EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
-                    $"Click the link below to view: </br>" +
-                    $"<a href=\"https://localhost:7236/Friend/Index/\" + {friend.SentTo}\">Link to follow</a>");
+                await CreateFriendRequestAsync(friend.SentBy, friend.SentTo);
 
                 transaction.Commit();
             }
@@ -88,7 +100,30 @@ namespace InterviewSathi.Web.Controllers
                 transaction.RollbackToSavepoint("BeforeAddingFriend");
                 Console.WriteLine(ex.ToString());
             }
+
             return RedirectToAction("Index", "Friend", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateFriend(string sendBy, string sendTo)
+        {
+            var transaction = _context.Database.BeginTransaction();
+
+            try
+            {
+                transaction.CreateSavepoint("BeforeAddingFriend");
+                await CreateFriendRequestAsync(sendBy, sendTo);
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.RollbackToSavepoint("BeforeAddingFriend");
+                Console.WriteLine(ex.ToString());
+            }
+
+            return RedirectToAction("UserProfile", "Profile", new { id = sendTo });
         }
 
         public async Task<IActionResult> Edit(string id)
@@ -100,6 +135,20 @@ namespace InterviewSathi.Web.Controllers
                 _context.Friends.Update(friend);
             }
             await _context.SaveChangesAsync();
+            string? name = _context.ApplicationUsers.Where(x => x.Id == friend.SentTo).First().Name;
+
+            Notification notification = new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                SentBy = friend.SentTo,
+                SentTo = friend.SentBy,
+                Type = "Friend",
+                Content = $"Your friend request is accepted by {name}!!",
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            _context.Notifications.Add(notification);
+            _context.SaveChanges();
             return RedirectToAction("Index", "Friend", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
         }
 
@@ -112,6 +161,18 @@ namespace InterviewSathi.Web.Controllers
             }
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Friend", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
+        }
+
+        public async Task<IActionResult> DeleteFriend(string id)
+        {
+            Friend friend = await _context.Friends.FindAsync(id);
+            string friendId = friend.SentBy;
+            if (friend != null)
+            {
+                _context.Friends.Remove(friend);
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("UserProfile", "Profile", new { id = friendId });
         }
     }
 

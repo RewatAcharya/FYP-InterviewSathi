@@ -1,0 +1,28 @@
+﻿@using InterviewSathi.Web.Models.Entities
+
+@{
+    var userSkills = ViewBag.UserSkills as List<UserSkill>; 
+    var skills = ViewBag.Skills as List<Skill>; 
+}
+
+<form asp-action="AddSkill" asp-controller="Skill">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Add Skills</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            @foreach (var skill in skills)
+            {
+                <div>
+                    <input type="checkbox" name="skillSelected" value="@skill.Id" />
+                    <label>@skill.NameOfSkill | @skill.DescofSkill</label>
+                </div>
+            }
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </div>
+</form>

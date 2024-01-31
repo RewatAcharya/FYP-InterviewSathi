@@ -1,8 +1,10 @@
 ﻿@model InterviewSathi.Web.Models.Entities.ApplicationUser
 
 @{
-    var skills = ViewBag.Skills;
+    ViewBag.Tilte = "User Profile";
     var blogs = ViewBag.Blogs;
+    var skills = ViewBag.Skills;
+    int count = ViewBag.Count;
 }
 
 <div class="container mt-4">
@@ -35,18 +37,31 @@
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="ListUserSkill" asp-controller="Skill">Send Message</a></li>
                     <li>
-                        <a asp-route-Id="@Model.Id" asp-action="EditProfile" asp-controller="Profile" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Profile</a>
+                        @if (count == 0)
+                        {
+                            <form asp-action="CreateFriend" asp-controller="Friend">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <input name="sendBy" class="form-control" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden>
+                                </div>
+                                <div class="form-group">
+                                    <input name="sendTo" class="form-control" value="@Model.Id" hidden>
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="Add Friend" class="dropdown-item" />
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="DeleteFriend" asp-controller="Friend" asp-route-id="@ViewBag.FriendId" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item">Unfriend</button>
+                            </form>
+                        }
                     </li>
-                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="ListUserSkill" asp-controller="Skill">Skills</a></li>
-                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Friend">Friends</a></li>
-                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Schedule">Schedule</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
-                        </form>
-                    </li>
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Schedule">Schedule an Interview</a></li>
                 </ul>
             </div>
         </div>
@@ -62,18 +77,6 @@
                         <p class="card-text">
                             @item.Content
                             <small class="justify-content-end align-items-end text-body-secondary">@((int)DateTime.UtcNow.Subtract(item.CreatedAt).TotalHours) hours ago.</small>
-                            <div class="position-absolute top-0 end-0">
-                                <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a asp-route-Id="@item.Id" asp-action="Edit" asp-controller="Blog" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Blog</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-route-Id="@item.Id" asp-action="Delete" asp-controller="Blog" data-ajax="true" data-ajax-method="post" data-ajax-confirm="Are you sure?" data-ajax-complete="deletePage">Delete Blog</a>
-                                    </li>
-                                </ul>
-                            </div>
                         </p>
                     </div>
                     @if (item.ImgPath != null)
@@ -83,9 +86,6 @@
                     <div class="d-md-flex justify-content-between align-items-center">
                         <button class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like (@item.LikeCount)</button>
                         <button class="btn btn-secondary" style="width: 50%;">Comment</button>
-                    </div>
-
-                    <div class="card-footer">
                     </div>
                 </div>
             </div>

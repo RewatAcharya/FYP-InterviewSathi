@@ -1,0 +1,50 @@
+﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.UserSkill>
+
+@{
+    ViewData["Title"] = "User skill";
+}
+
+<h1>Skills</h1>
+
+<p>
+    <a asp-action="AddSkill" asp-controller="Skill" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Add Skill</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Skill.NameOfSkill)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Skill.DescofSkill)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Skill.NameOfSkill
+                </td>
+                <td>
+                    @item.Skill.DescofSkill
+                </td>
+                <td>
+                    <form asp-action="DeleteSkill" asp-controller="Skill" asp-route-id="@item.Id">
+                        <button class="btn" type="submit">
+                            <span>&times;</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" id="page">
+    </div>
+</div>

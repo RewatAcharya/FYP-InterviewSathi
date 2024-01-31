@@ -15,6 +15,7 @@ namespace InterviewSathi.Web.Data
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Skill> Skills { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<LikeCount> LikeCounts { get; set; }
         public DbSet<Friend> Friends { get; set; }

@@ -8,7 +8,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">New Skill</a> 
 </p>
 <table class="table">
     <thead>
@@ -19,30 +19,47 @@
             <th>
                 @Html.DisplayNameFor(model => model.DescofSkill)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NameOfSkill)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DescofSkill)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameOfSkill)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DescofSkill)
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <span>Options</span>
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form class="form-inline" asp-action="Delete" asp-controller="Skill" asp-route-id="@item.Id">
+                                    <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" id="page">
+    </div>
+</div>

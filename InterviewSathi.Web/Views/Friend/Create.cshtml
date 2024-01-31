@@ -23,8 +23,11 @@
         {
             <tr>
                 <td>
-                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-                    @item.Name
+                    <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.Id" class="text-decoration-none">
+
+                        <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+                        @item.Name
+                    </a>
                 </td>
                 <td>
                     <form asp-action="Create">

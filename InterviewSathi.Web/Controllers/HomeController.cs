@@ -1,6 +1,7 @@
 using InterviewSathi.Web.Data;
 using InterviewSathi.Web.Models;
 using InterviewSathi.Web.Models.Entities;
+using InterviewSathi.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +14,15 @@ namespace InterviewSathi.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext applicationDbContext, RoleManager<IdentityRole> roleManager)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext applicationDbContext, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _context = applicationDbContext;
             _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
@@ -34,29 +37,29 @@ namespace InterviewSathi.Web.Controllers
             return View();
         }
 
-        //public IActionResult Experts()
-        //{
-        //    // Assuming _roleManager is an instance of RoleManager<IdentityRole>
-        //    var interviewerRoleId = _roleManager.Roles.SingleOrDefault(r => r.Name == "Interviewer")?.Id;
+        public async Task<IActionResult> Experts()
+        {
+            // Getting the "Interviewer" role
+            var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
 
-        //    if (interviewerRoleId != null)
-        //    {
-        //        // Retrieve users with the "Interviewer" role
-        //        var experts = _context.ApplicationUsers
-        //            .Where(user => user.UserRoles.Any(ur => ur.RoleId == interviewerRoleId))
-        //            .ToList();
+            if (interviewerRole == null)
+            {
+                return NotFound("Role not found");
+            }
 
-        //        return View(experts);
-        //    }
-        //    else
-        //    {
-        //        // Handle the case where the "Interviewer" role doesn't exist
-        //        // You might want to log an error or handle it appropriately
-        //        return RedirectToAction("Error");
-        //    }
-        //}
+            // Getting users with the "Interviewer" role
+            var usersWithInterviewerRole = await _userManager.GetUsersInRoleAsync("Interviewer");
 
+            var interviewerUsers = usersWithInterviewerRole.Select(user => new ExpertVM
+            {
+                UserId = user.Id,
+                UserName = user.Name,
+                Profile = user.ProfileURL,
+                Skills = _context.UserSkills.Where(x => x.UserId == user.Id).Include(x => x.Skill).ToList()
+            }).ToList();
 
+            return View(interviewerUsers);
+        }
 
         [Authorize]
         public IActionResult NewsFeed()

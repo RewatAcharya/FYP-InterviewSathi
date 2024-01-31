@@ -22,9 +22,11 @@
                                 <small class="text-muted">@item.CreatedAt.ToString("yyyy-MM-dd")</small>
                             </div>
                         </div>
-                        <button class="btn" type="button">
-                            <span>&times;</span>
-                        </button>
+                        <form asp-action="Delete" asp-controller="Notification" asp-route-id="@item.Id">
+                            <button class="btn" type="submit">
+                                <span>&times;</span>
+                            </button>
+                        </form>
                     </div>
                 </a>
             }

@@ -19,27 +19,33 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Where(x => x.Accepted == false  && x.SentBy != loggedUser).OrderByDescending(x => x.CreatedAt))
+        @foreach (var item in Model.Where(x => x.Accepted == false && x.SentBy != loggedUser).OrderByDescending(x => x.CreatedAt))
         {
             <tr>
                 <td>
                     @if (loggedUser == item.SendingTo.Id)
                     {
-                        <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-                        
-                        @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+
+                            <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                            @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                        </a>
                     }
                     else
                     {
-                        <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-                        
-                        @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
+
+                            <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                            @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                        </a>
                     }
                 </td>
                 <td>
                     <form asp-action="Edit" asp-route-id="@item.Id" method="post" class="d-inline">
                         <button type="submit" class="btn btn-outline-dark">Accept</button>
-                    </form>              
+                    </form>
                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
                         <button type="submit" class="btn btn-outline-dark">Reject</button>
                     </form>
@@ -57,15 +63,21 @@
         <td>
             @if (loggedUser == item.SendingTo.Id)
             {
-                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-                
-                @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+
+                    <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                    @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                </a>
             }
             else
             {
-                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-                
-                @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
+
+                    <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                    @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                </a>
             }
         </td>
         <td>
