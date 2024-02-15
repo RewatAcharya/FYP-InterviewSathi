@@ -133,6 +133,36 @@ namespace InterviewSathi.Web.Migrations
                     b.ToTable("Blogs");
                 });
 
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.Comment", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentBlog")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentBlog");
+
+                    b.HasIndex("CommentBy");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
                 {
                     b.Property<string>("Id")
@@ -186,6 +216,48 @@ namespace InterviewSathi.Web.Migrations
                     b.HasIndex("SentTo");
 
                     b.ToTable("Friends");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Meeting", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InterviewType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("MeetingDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("MeetingStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeOnly>("MeetingTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("SentBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SentTo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SentBy");
+
+                    b.HasIndex("SentTo");
+
+                    b.ToTable("Meetings");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Notification", b =>
@@ -417,6 +489,25 @@ namespace InterviewSathi.Web.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.Comment", b =>
+                {
+                    b.HasOne("InterviewSathi.Web.Models.Entities.BlogsEntity.Blog", "Blog")
+                        .WithMany()
+                        .HasForeignKey("CommentBlog")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("CommentBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
                 {
                     b.HasOne("InterviewSathi.Web.Models.Entities.BlogsEntity.Blog", "Blog")
@@ -437,6 +528,25 @@ namespace InterviewSathi.Web.Migrations
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
+                {
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingBy")
+                        .WithMany()
+                        .HasForeignKey("SentBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingTo")
+                        .WithMany()
+                        .HasForeignKey("SentTo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SendingBy");
+
+                    b.Navigation("SendingTo");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Meeting", b =>
                 {
                     b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingBy")
                         .WithMany()

@@ -2,9 +2,11 @@
 using InterviewSathi.Web.Models.Entities;
 using InterviewSathi.Web.Models.Entities.BlogsEntity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Versioning;
+using System.Data;
 using System.Drawing;
 using System.Security.Claims;
 
@@ -12,33 +14,37 @@ namespace InterviewSathi.Web.Controllers
 {
     public class ProfileController : Controller
     {
-        ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
 
-        public ProfileController(ApplicationDbContext dbContext, IWebHostEnvironment env)
+        public ProfileController(ApplicationDbContext dbContext, UserManager<ApplicationUser> manager, IWebHostEnvironment env)
         {
             _dbContext = dbContext;
+            _userManager = manager;
             _env = env;
         }
 
         [Authorize]
-        public IActionResult Index(string username)
+        public async Task<IActionResult> Index(string id)
         {
-            string userId = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == username).Id;
-            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == userId).ToList();
+            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == id).ToList();
             ViewBag.Blogs = blogs;
-            ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == userId).Include(x => x.Skill).ToList();
-            return View(_dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == username));
+            ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == id);
+            ViewBag.Role = await _userManager.GetRolesAsync(user);
+            ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == id).Include(x => x.Skill).ToList();
+            return View(_dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == id));
         }
 
         [Authorize]
-        public IActionResult UserProfile(string Id)
+        public async Task<IActionResult> UserProfile(string Id)
         {
             var blogs = _dbContext.Blogs.Where(x => x.PostedBy == Id).ToList();
             ViewBag.Blogs = blogs;
             ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == Id).Include(x => x.Skill).ToList();
-
+            ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == Id);            
+            ViewBag.Role = await _userManager.GetRolesAsync(user);
             string? myId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
 
             ViewBag.FriendId = _dbContext.Friends.FirstOrDefault(x => (x.SentTo == Id && x.SentBy == myId) || (x.SentBy == Id && x.SentTo == myId))?.Id;
@@ -96,7 +102,7 @@ namespace InterviewSathi.Web.Controllers
 
                 _dbContext.Update(applicationUser);
                 await _dbContext.SaveChangesAsync();
-                return RedirectToAction("Index", "Profile", new { username = applicationUser.UserName });
+                return RedirectToAction("Index", "Profile", new { id = applicationUser.Id });
             }
             return View(appUser);
         }

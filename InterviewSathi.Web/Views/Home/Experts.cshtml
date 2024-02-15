@@ -2,18 +2,38 @@
 @model IEnumerable<ExpertVM>
 
 
+<div class="container mt-4">
+    <div class="row text-center">
+        <div class="col-md-6">
+            <h1 class="display-4">Experts we have!!</h1>
+        </div>
+        <div class="col-md-6 p-3">
+            <form asp-action="Experts" asp-controller="Home" method="get" class="mb-4">
+                <div class="input-group">
+                    <select asp-items="@ViewBag.skillList" name="searchSkill" class="form-control">
+                        <option value="" selected>Select a skill</option>
+                    </select>
+                    <input name="searchName" type="text" placeholder="Search by User Name" class="form-control" />
+                    <button type="submit" class="btn btn-outline-dark">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
     @foreach (var item in Model)
     {
         @if (item.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString())
         {
             <div class="col">
-                <div class="card text-center shadow">
+                <div class="card text-center shadow bg-transparent">
                     <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.UserId" class="text-decoration-none text-black">
 
                         @if (item.Profile != null)
                         {
-                            <img src="~/Images/Profiles/@item.Profile" class="card-img-top" />
+                            <img src="~/Images/Profiles/@item.Profile" class="card-img-top rounded-4" height="300px" width="300px" />
                         }
                         <div class="card-body d-flex flex-column align-items-center">
                             <p class="card-text">
@@ -21,11 +41,17 @@
                                 @foreach (var skill in item.Skills)
                                 {
                                     @skill.Skill.NameOfSkill
+
+                                    <span> </span>
                                 }
                             </p>
                         </div>
                     </a>
-                    <div class="card-footer mt-auto"><button class="btn btn-primary">Schedule</button></div>
+                    <div class="card-footer mt-auto">
+                        <a asp-action="Create" asp-controller="Meeting" asp-route-id="@item.UserId" class="btn btn-primary">
+                            Schedule
+                        </a>
+                    </div>
                 </div>
             </div>
         }

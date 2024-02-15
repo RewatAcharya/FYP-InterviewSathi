@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Net;
 using System.Security.Policy;
+using InterviewSathi.Web.Models;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -28,7 +29,7 @@ namespace InterviewSathi.Web.Controllers
                 );
         }
 
-        public IActionResult Create(string id)
+        public IActionResult Create(string id, string searchUser)
         {
             // Getting the list of user IDs who are already friends or have pending friend requests
             var excludedUserIds = _context.Friends
@@ -42,6 +43,7 @@ namespace InterviewSathi.Web.Controllers
             // Getting the list of users excluding those who are already friends or have pending requests
             List<ApplicationUser> users = _context.ApplicationUsers
                 .Where(x => !excludedUserIds.Contains(x.Id))
+                .Where(x => x.Name.Contains(searchUser) || searchUser == null)
                 .ToList();
 
             ViewBag.Users = users;
@@ -68,7 +70,7 @@ namespace InterviewSathi.Web.Controllers
                 Id = Guid.NewGuid().ToString(),
                 SentBy = friend.SentBy,
                 SentTo = friend.SentTo,
-                Type = "Friend",
+                Type = NotificationType.Friend.ToString(),
                 Content = $"You have a new friend request from {name}!!",
                 CreatedAt = DateTime.UtcNow,
             };
@@ -142,7 +144,7 @@ namespace InterviewSathi.Web.Controllers
                 Id = Guid.NewGuid().ToString(),
                 SentBy = friend.SentTo,
                 SentTo = friend.SentBy,
-                Type = "Friend",
+                Type = NotificationType.Friend.ToString(),
                 Content = $"Your friend request is accepted by {name}!!",
                 CreatedAt = DateTime.UtcNow,
             };

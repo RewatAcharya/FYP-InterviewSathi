@@ -8,13 +8,13 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="#" asp-action="#">Chat</a>
+        <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()">Chat</a>
     </li>
     <li class="nav-item">
         <a class="nav-link text-dark" asp-controller="Notification" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()">Notifications</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index" asp-route-username="@User.FindFirstValue(ClaimTypes.Name)">Profiles</a>
+        <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()">Profiles</a>
     </li>
 }
 else

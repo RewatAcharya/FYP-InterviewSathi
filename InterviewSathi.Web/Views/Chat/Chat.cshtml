@@ -1,0 +1,115 @@
+﻿<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        text-align: center;
+    }
+</style>
+
+
+<div id="callModal" class="modal">
+    <div class="modal-content">
+        <h2>Incoming Call</h2>
+        <p>You have an incoming call from <span id="callerName"></span>.</p>
+        <button onclick="answerCall()">Answer</button>
+        <button onclick="rejectCall()">Reject</button>
+    </div>
+</div>
+
+
+<h2>Chat with @Model.Name</h2>
+<div id="chat-container">
+    <div id="messages-container"></div>
+    <div id="message-input">
+        <input type="text" id="ddlSelUser" value="@Model.Id">
+        <input type="text" id="ddlSelUserName" value="@Model.Name">
+        <input type="text" id="txtPrivateMessage" placeholder="Type your message...">
+        <button id="sendButton" onclick="sendPrivateMessage()">Send</button>
+    </div>
+</div>
+
+<div class="container border m-3 p-4 bg-light">
+    <div class="row" style="min-height:200px;">
+        <div class="col-12">
+            Message List:
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div>
+<div>
+    <video id="localVideo" autoplay muted width="50%" height="100px"></video>
+    <video id="remoteVideo" autoplay width="50%" height="100px"></video>
+</div>
+<div>
+    <button onclick="startCall()">Start Video Call</button>
+</div>
+
+<script>
+    var callModal = document.getElementById("callModal");
+
+    function showCallModal(callerName) {
+        document.getElementById("callerName").innerText = callerName;
+        callModal.style.display = "flex";
+    }
+
+    function hideCallModal() {
+        callModal.style.display = "none";
+    }
+
+    function answerCall() {
+        hideCallModal();
+        // Implement the logic to answer the call
+        console.log("User clicked 'Answer Call'");
+        // Handle the answer logic here (e.g., starting the video call)
+    }
+
+    function rejectCall() {
+        hideCallModal();
+        // Implement the logic to reject the call
+        console.log("User clicked 'Reject Call'");
+        // Handle the reject logic here
+    }
+</script>
+@*
+<div class="container">
+    <div class="row p-1">
+        <div class="col-1">User</div>
+        <div class="col-5"><input type="text" value="@Model.Id" id="userInput" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-1">Name</div>
+        <div class="col-5"><input type="text" value="@Model.Name" id="userName" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-1">Message</div>
+        <div class="col-5"><input type="text" class="w-100" id="messageInput" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6 text-end">
+            <input type="button" id="sendButton" value="Send Message" />
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <hr />
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div> *@
+<script src="~/js/chatvideo.js"></script>

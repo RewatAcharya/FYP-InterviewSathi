@@ -1,19 +1,19 @@
 ﻿@model InterviewSathi.Web.Models.Entities.ApplicationUser
 
 @{
-    ViewBag.Tilte = "User Profile";
+    ViewData["Title"] = "User Profile";
     var blogs = ViewBag.Blogs;
     var skills = ViewBag.Skills;
     int count = ViewBag.Count;
 }
 
 <div class="container mt-4">
-    @*    <div class="row h-50">
-    <!-- Cover photo -->
-    <div class="col-md-12">
-    <img src="~/images/covers/@Model.CoverURL" class="img-fluid w-100" alt="Cover Photo">
+    <div class="row">
+        <!-- Cover photo -->
+        <div class="col-md-12">
+            <img src="~/images/covers/@Model.CoverURL" class="opacity-75" height="200px" width="100%" alt="Cover Photo">
+        </div>
     </div>
-    </div> *@
 
     <div class="row mt-3">
         <div class="col-md-2">
@@ -23,12 +23,19 @@
 
         <div class="col-md-8">
             <!-- User information -->
-            <h2>@Model.Name</h2>
+            <h2>
+                @Model.Name - @foreach (var role in ViewBag.Role)
+                {
+                    @role
+                }
+            </h2>
             <p>@Model.Bio</p>
+            <p>
             @foreach (var skill in skills)
             {
-                <p>@skill.Skill.NameOfSkill<span>,</span></p>
+                @skill.Skill.NameOfSkill<span>,</span>
             }
+            </p>
             <!-- Button group with "Edit Profile" button -->
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
@@ -61,7 +68,7 @@
                             </form>
                         }
                     </li>
-                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Schedule">Schedule an Interview</a></li>
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Create" asp-controller="Meeting">Schedule an Interview</a></li>
                 </ul>
             </div>
         </div>
@@ -74,18 +81,18 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <p class="card-text">
-                            @item.Content
-                            <small class="justify-content-end align-items-end text-body-secondary">@((int)DateTime.UtcNow.Subtract(item.CreatedAt).TotalHours) hours ago.</small>
-                        </p>
+                        <small class="justify-content-end align-items-end text-body-secondary">
+                            @item.CreatedAt.Date.ToString("MMM") @Model.CreatedAt.Year
+                        </small><br />
+                        @item.Content
                     </div>
                     @if (item.ImgPath != null)
                     {
-                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" />
+                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" height="250px" width="100%"/>
                     }
                     <div class="d-md-flex justify-content-between align-items-center">
                         <button class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like (@item.LikeCount)</button>
-                        <button class="btn btn-secondary" style="width: 50%;">Comment</button>
+                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary" style="width: 50%;">Comment</a>
                     </div>
                 </div>
             </div>

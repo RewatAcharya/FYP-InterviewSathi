@@ -1,0 +1,51 @@
+﻿@model InterviewSathi.Web.Models.Entities.Meeting
+
+
+<form asp-action="Edit" asp-controller="Meeting">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Edit Schedule if needed</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MeetingTime" class="control-label"></label>
+                <input asp-for="MeetingTime" type="time" class="form-control" />
+                <span asp-validation-for="MeetingTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MeetingDate" class="control-label"></label>
+                <input asp-for="MeetingDate" type="Date" class="form-control" />
+                <span asp-validation-for="MeetingDate" class="text-danger"></span>
+            </div> 
+            <div class="form-group">
+                <label asp-for="InterviewType" class="control-label"></label>
+                <input asp-for="InterviewType" class="form-control" readonly />
+                <span asp-validation-for="InterviewType" class="text-danger"></span>
+            </div>
+
+            <input asp-for="SentBy" class="form-control" hidden />
+
+            <input asp-for="SentTo" class="form-control" hidden />
+
+            <input asp-for="Id" class="form-control" hidden />
+
+            <input asp-for="CreatedAt" class="form-control" hidden />
+            <input asp-for="MeetingStatus" class="form-control" hidden />
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <input type="submit" value="Accept" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

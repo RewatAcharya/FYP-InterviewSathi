@@ -9,6 +9,8 @@ using InterviewSathi.Web.Data;
 using InterviewSathi.Web.Models.Entities.BlogsEntity;
 using InterviewSathi.Web.Models;
 using InterviewSathi.Web.Models.Entities;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -27,8 +29,9 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> Index(int? page)
         {
             int pageSize = 5;
-            var blogsWithUsers = _context.Blogs.Include(blog => blog.User);
+            var blogsWithUsers = _context.Blogs.OrderByDescending(x => x.CreatedAt).Include(blog => blog.User);
             var paginatedBlogs = await PaginatedList<Blog>.CreateAsync(blogsWithUsers.AsNoTracking(), page ?? 1, pageSize);
+            ViewBag.like = _context.LikeCounts.ToList();
             return View(paginatedBlogs);
         }
 
@@ -105,13 +108,44 @@ namespace InterviewSathi.Web.Controllers
                 };
                 _context.LikeCounts.Add(likeCount);
                 _context.SaveChanges();
-                return View(nameof(Index));
+
+                Blog blog = _context.Blogs.FirstOrDefault(x => x.Id == BlogId);
+                blog.LikeCount += 1;
+                _context.Blogs.Update(blog);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index", "Home");
             }
             else
             {
                 TempData["success"] = "Already liked thanks";
-                return View(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
+        }
+
+        [Authorize]
+        public IActionResult Comment(string id, string backurl)
+        {
+            string myId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+            ViewBag.MyId = _context.ApplicationUsers.FirstOrDefault(x => x.Id == myId);
+            ViewBag.result = _context.Comments.Where(x => x.CommentBlog == id).Include(x => x.User).ToList().OrderByDescending(x => x.CreatedAt).ToList();
+            ViewBag.BackUrl = backurl;
+            var blogs = _context.Blogs.Include(blog => blog.User).FirstOrDefault(x => x.Id == id);
+            return View(blogs);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Comment(string UserId, string BlogId, string Content, string Backurl)
+        {
+            Comment comment = new()
+            {
+                CommentBy = UserId,
+                CommentBlog = BlogId,
+                Content = Content
+            };
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("comment", "Blog", new { id = comment.CommentBlog, backUrl = Backurl });
         }
 
 
@@ -190,6 +224,20 @@ namespace InterviewSathi.Web.Controllers
             }
 
             return PartialView(blog);
+        }
+
+
+        [HttpPost, ActionName("DeleteComment")]
+        public async Task<IActionResult> DeleteComment(string id, string backurl)
+        {
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment != null)
+            {
+                _context.Comments.Remove(comment);
+            }
+            ViewBag.BackUrl = backurl;
+            await _context.SaveChangesAsync();
+            return RedirectToAction("comment", "Blog", new { id = comment.CommentBlog, backUrl = backurl });
         }
 
         // POST: Blog/Delete/5

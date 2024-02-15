@@ -1,0 +1,124 @@
+﻿@using InterviewSathi.Web.Models.Entities
+@using InterviewSathi.Web.Models.Entities.BlogsEntity
+@model Blog;
+
+@{
+    ViewData["Title"] = "Comment";
+    var comments = ViewBag.result as List<Comment>;
+    var myId = ViewBag.MyId as ApplicationUser;
+}
+
+
+<div class="container py-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-6 col-lg-6 col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-start align-items-center">
+                        <a href="@ViewBag.BackUrl" class="btn btn-outline-dark">
+                            <i class="bi bi-arrow-return-left"></i>
+                        </a>
+                        <img class="rounded-circle shadow-1-strong me-3"
+                             src="~/images/Profiles/@Model.User.ProfileURL" alt="avatar" width="60"
+                             height="60" />
+                        <div>
+                            <h6 class="fw-bold text-primary mb-1">@Model.User.Name</h6>
+                            <p class="text-muted small mb-0">
+                                @Model.CreatedAt.Date.ToString("MMM") @Model.CreatedAt.Year
+                            </p>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-4 pb-2">
+                        @Model.Content
+                    </p>
+                    @if (Model.ImgPath != null)
+                    {
+                        <img src="~/Images/Blogs/@Model.ImgPath" class="bd-placeholder-img card-img-top" width="100%" height="225" />
+                    }
+                    <div class="small d-flex justify-content-start">
+                        <a href="#!" class="d-flex align-items-center me-3">
+                            <i class="far fa-thumbs-up me-2"></i>
+                            <p class="mb-0">Likes</p>
+                        </a>
+                    </div>
+                    <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+                        <div class="d-flex flex-start w-100">
+                            <img class="rounded-circle shadow-1-strong me-3" src="~/images/Profiles/@myId.ProfileURL" alt="avatar" width="40" height="40" />
+                            <form asp-action="Comment" asp-controller="Blog" method="post" class="w-100">
+                                <div class="form-outline">
+                                    <input name="UserId" value="@myId.Id" hidden />
+                                    <input name="BlogId" value="@Model.Id" hidden />
+                                    <input name="BackUrl" value="@ViewBag.BackUrl" hidden />
+                                    <textarea class="form-control" name="Content" id="textAreaExample" rows="4" style="background: #fff;"></textarea>
+                                    <label class="form-label" for="textAreaExample">Comment</label>
+                                </div>
+                                <div class="float-end mt-2 pt-1">
+                                    <button type="submit" class="btn btn-outline-dark">Post comment</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-6 col-xl-6" style="max-height: 625px; overflow-y: auto;">
+            @if (comments.Count() > 0)
+            {
+                foreach (var item in comments)
+                {
+                    if(item.CommentBy == myId.Id || Model.User.Id == myId.Id)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <p>@item.Content</p>
+
+                                <div class="d-flex justify-content-between">
+                                    <div class="d-flex flex-row align-items-center">
+                                        <img src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="25" height="25" />
+                                        <p class="small mb-0 ms-2">@item.User.Name</p>
+                                    </div>
+                                    <form asp-action="DeleteComment" asp-controller="Blog" asp-route-id="@item.Id">
+                                        <input name="BackUrl" value="@ViewBag.BackUrl" hidden />
+                                        <button class="btn btn-outline-danger" type="submit">
+                                            <span>
+                                                <i class="bi bi-trash"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <p>@item.Content</p>
+
+                                <div class="d-flex justify-content-between">
+                                    <div class="d-flex flex-row align-items-center">
+                                        <img src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="25" height="25" />
+                                        <p class="small mb-0 ms-2">@item.User.Name</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p>No Comments Yet</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+

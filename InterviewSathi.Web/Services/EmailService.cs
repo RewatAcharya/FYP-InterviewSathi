@@ -10,23 +10,20 @@ namespace InterviewSathi.Web.Services
             string fromMail = "zackzig55@gmail.com";
             string password = "cocr zhew jitc ceyk";
 
-            MailMessage message = new()
-            {
-                From = new MailAddress(fromMail),
-                Subject = sub 
-            };
-            message.To.Add(new MailAddress(to)); 
+            using MailMessage message = new();
+            message.From = new MailAddress(fromMail);
+            message.Subject = sub;
+            message.To.Add(new MailAddress(to));
             message.Body = $"<html><body>{body}</body></html>";
             message.IsBodyHtml = true;
 
-            var smptClient = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                Credentials = new NetworkCredential(fromMail, password),
-                EnableSsl = true
-            };
+            using SmtpClient smtpClient = new("smtp.gmail.com");
+            smtpClient.Port = 587;
+            smtpClient.Credentials = new NetworkCredential(fromMail, password);
+            smtpClient.EnableSsl = true;
 
-            smptClient.Send(message);
+            smtpClient.Send(message);
         }
+
     }
 }

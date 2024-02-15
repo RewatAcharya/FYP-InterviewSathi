@@ -1,5 +1,7 @@
 using InterviewSathi.Web.Data;
+using InterviewSathi.Web.Hubs;
 using InterviewSathi.Web.Models.Entities;
+using InterviewSathi.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
@@ -47,6 +49,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+builder.Services.AddScoped<MeetingService>();
+builder.Services.AddHostedService<EmailNotificationService>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -70,5 +76,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapHub<ChatHub>("/hubs/chat");
 app.Run();

@@ -1,0 +1,48 @@
+﻿@using InterviewSathi.Web.Models.Entities
+@model Meeting;
+
+@{
+    ViewData["Title"] = "Schedule - Meeting";
+    var user = ViewBag.SelectedUser as ApplicationUser;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <!-- Image Div -->
+        <div class="card">
+            <img src="~/Images/Profiles/@user.ProfileURL" alt="@user.Name" class="img-fluid" />
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-5 mt-5">
+        <div class="form-container">
+
+            <form asp-action="Create" asp-controller="Meeting">
+                <input asp-for="SentTo" value="@user.Id" hidden />
+                <input asp-for="SentBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
+                
+                <h5 class="fw-normal mb-4">Schedule a meeting with @user.Name</h5>
+                <div class="form-group">
+                    <label asp-for="MeetingDate"></label>
+                    <input type="date" class="form-control" asp-for="MeetingDate">
+                    <span asp-validation-for="MeetingDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MeetingTime"></label>
+                    <input type="time" class="form-control" asp-for="MeetingTime">
+                    <span asp-validation-for="MeetingTime" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="SelectedOption">Select Interview Type</label>
+                    <select asp-for="InterviewType" class="form-control">
+                        <option value="Technical">Technical</option>
+                        <option value="Pratical">Practical</option>
+                        <option value="Behavioural">Behavioural</option>
+                    </select>
+                </div>
+                <div class="pt-3">
+                    <button class="btn btn-dark btn-block" type="submit">Schedule Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

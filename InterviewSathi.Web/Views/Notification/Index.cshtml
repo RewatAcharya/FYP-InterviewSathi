@@ -10,7 +10,54 @@
 
             @foreach (var item in Model)
             {
-                <a asp-controller="Friend" asp-action="Index" asp-route-id="@item.SentTo" class="list-group-item list-group-item-action flex-column align-items-start">
+                @if (item.Type == NotificationType.Friend.ToString())
+                {
+                    <a asp-controller="Friend" asp-action="Index" asp-route-id="@item.SentTo" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div class="rounded-circle mr-3 mt-2" style="width: 80px; height: 80px; background-color: lightgray;">
+                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle" alt="Profile Picture" height="80px" width="80px" />
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">@item.SendingBy.Name</h5>
+                                <p class="mb-1">@item.Content</p>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">@item.CreatedAt.ToString("yyyy-MM-dd")</small>
+                                </div>
+                            </div>
+                            <form asp-action="Delete" asp-controller="Notification" asp-route-id="@item.Id">
+                                <button class="btn btn-lg" type="submit">
+                                    <span>&times;</span>
+                                </button>
+                            </form>
+                        </div>
+                    </a>
+                }
+                else if (item.Type == NotificationType.Meeting.ToString())
+                {
+                    <a asp-controller="Meeting" asp-action="Index" asp-route-id="@item.SentTo" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div class="rounded-circle mr-3 mt-2" style="width: 80px; height: 80px; background-color: lightgray;">
+                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle" alt="Profile Picture" height="80px" width="80px" />
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">@item.SendingBy.Name</h5>
+                                <p class="mb-1">@item.Content</p>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">@item.CreatedAt.ToString("yyyy-MM-dd")</small>
+                                </div>
+                            </div>
+                            <form asp-action="Delete" asp-controller="Notification" asp-route-id="@item.Id">
+                                <button class="btn btn-outline-danger" type="submit">
+                                    <span>
+                                        <i class="bi bi-trash"></i>
+                                    </span>
+                                </button>
+                            </form>
+                        </div>
+                    </a>
+                }
+                else
+                {
                     <div class="d-flex w-100 justify-content-between">
                         <div class="rounded-circle mr-3 mt-2" style="width: 80px; height: 80px; background-color: lightgray;">
                             <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle" alt="Profile Picture" height="80px" width="80px" />
@@ -23,12 +70,12 @@
                             </div>
                         </div>
                         <form asp-action="Delete" asp-controller="Notification" asp-route-id="@item.Id">
-                            <button class="btn" type="submit">
+                            <button class="btn btn-lg" type="submit">
                                 <span>&times;</span>
                             </button>
                         </form>
                     </div>
-                </a>
+                }
             }
         </div>
     </div>

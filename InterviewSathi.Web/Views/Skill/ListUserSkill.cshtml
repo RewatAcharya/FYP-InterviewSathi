@@ -33,8 +33,10 @@
                 </td>
                 <td>
                     <form asp-action="DeleteSkill" asp-controller="Skill" asp-route-id="@item.Id">
-                        <button class="btn" type="submit">
-                            <span>&times;</span>
+                        <button class="btn btn-outline-danger" type="submit">
+                            <span>
+                                <i class="bi bi-trash"></i>
+                            </span>
                         </button>
                     </form>
                 </td>

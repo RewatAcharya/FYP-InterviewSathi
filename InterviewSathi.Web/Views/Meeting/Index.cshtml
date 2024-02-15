@@ -1,0 +1,81 @@
+﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.Meeting>
+
+@{
+    string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+    ViewData["Title"] = "Index";
+}
+
+<h1>Interview-Schedules</h1>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Interview with</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeetingTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeetingDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InterviewType)
+                </td>
+                <td>
+                    @if (loggedUser == item.SendingTo.Id)
+                    {
+                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+
+                            <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                            @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
+
+                            <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+
+                            @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                        </a>
+                    }
+                </td>
+                <td>
+                    @if (loggedUser == item.SendingTo.Id && item.Status == false)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" asp-controller="Meeting" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Accept</a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-dark">Reject</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-dark">
+                                <span>
+                                    <i class="bi bi-trash"></i>
+                                </span>
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" id="page">
+    </div>
+</div>

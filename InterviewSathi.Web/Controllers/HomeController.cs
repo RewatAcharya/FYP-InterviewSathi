@@ -5,8 +5,11 @@ using InterviewSathi.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -37,7 +40,7 @@ namespace InterviewSathi.Web.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Experts()
+        public async Task<IActionResult> Experts(string? searchName = null, string? searchSkill = null)
         {
             // Getting the "Interviewer" role
             var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
@@ -58,15 +61,17 @@ namespace InterviewSathi.Web.Controllers
                 Skills = _context.UserSkills.Where(x => x.UserId == user.Id).Include(x => x.Skill).ToList()
             }).ToList();
 
-            return View(interviewerUsers);
-        }
+            var searchedExperts = interviewerUsers
+                .Where(x => (searchName == null || x.UserName.Contains(searchName, StringComparison.OrdinalIgnoreCase)))
+                .Where(x => (searchSkill == null || x.Skills.Any(y => y.Skill.NameOfSkill.Contains(searchSkill, StringComparison.OrdinalIgnoreCase))))
+            .ToList();
 
-        [Authorize]
-        public IActionResult NewsFeed()
-        {
-            return View();
-        }
+            var skills = _context.Skills.ToList();
+            ViewBag.skillList = new SelectList(skills, nameof(Skill.NameOfSkill), nameof(Skill.NameOfSkill));
 
+            return View(searchedExperts);
+        }
+       
         public IActionResult Privacy()
         {
             return View();

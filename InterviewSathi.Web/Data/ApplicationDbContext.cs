@@ -18,8 +18,10 @@ namespace InterviewSathi.Web.Data
         public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<LikeCount> LikeCounts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Meeting> Meetings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

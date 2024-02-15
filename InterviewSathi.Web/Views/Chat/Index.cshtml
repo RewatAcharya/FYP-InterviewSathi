@@ -1,0 +1,70 @@
+﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.Friend>
+@{
+    string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+    ViewData["Title"] = "Chat";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 bg-light">
+            <ul class="nav flex-column">
+                @foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
+                {
+                    <li class="nav-item">
+                        @if (loggedUser == item.SendingTo.Id)
+                        {
+                            <a href="#" class="nav-link py-3 border-bottom user-link"
+                               data-user-id="@item.SentBy">
+                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid"
+                                     alt="Profile Picture" height="30px" width="40px" />
+                                @Html.DisplayFor(Item => item.SendingBy.Name)
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" class="nav-link py-3 border-bottom user-link"
+                               data-user-id="@item.SentTo">
+                                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid"
+                                     alt="Profile Picture" height="30px" width="40px" />
+                                @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                            </a>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="col">
+            <div id="chat-container" class="container" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="postEvent">
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Click event on user links
+        $(".user-link").click(function (e) {
+            e.preventDefault();
+
+            var userId = $(this).data("user-id");
+
+            $.ajax({
+                url: "/Chat/Chat/"+userId,
+                data: { userId: userId },
+                type: "GET",
+                success: function (result) {
+                    $("#chat-container").html(result);
+                },
+                error: function (error) {
+                    console.error("Error loading chat:", error);
+                }
+            });
+        });
+    });
+</script>
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>

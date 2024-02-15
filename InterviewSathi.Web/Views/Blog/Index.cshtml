@@ -1,14 +1,15 @@
 ﻿@using System.Security.Claims
+@using InterviewSathi.Web.Models.Entities.BlogsEntity
 @model PaginatedList<InterviewSathi.Web.Models.Entities.BlogsEntity.Blog>
 
 @{
     ViewData["Title"] = "Index";
+    var likes = ViewBag.like as List<LikeCount>;
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
-
 }
 
 <p class="justify-content-center text-center">
-    <a asp-action="Create" asp-controller="Blog" class="btn btn-primary" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Create a blog</a>
+    <a asp-action="Create" asp-controller="Blog" class="btn btn-primary" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Create a blog</a>
 </p>
 
 @foreach (var item in Model)
@@ -18,28 +19,59 @@
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">@item.User.Name</h5>
-                    <p class="card-text">@item.Content</p>
-                    <p class="card-text"><small class="text-body-secondary">@((int)DateTime.UtcNow.Subtract(item.CreatedAt).TotalHours) hours ago.</small></p>
+                    <div class="d-flex flex-start align-items-center">
+                        @if (item.User.Id == userId)
+                        {
+                            <img class="rounded-circle shadow-1-strong me-3"
+                                 src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
+                                 height="60" />
+                            <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                <h6 class="fw-bold text-primary mb-1">@item.User.Name</h6>
+                                <p class="text-muted small mb-0">
+                                    @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
+                                </p>
+                            </a>
+                        }
+                        else
+                        {
+                            <img class="rounded-circle shadow-1-strong me-3"
+                                 src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
+                                 height="60" />
+                            <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                <h6 class="fw-bold text-primary mb-1">@item.User.Name</h6>
+                                <p class="text-muted small mb-0">
+                                    @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
+                                </p>
+                            </a>
+                        }
+                    </div>
+                    <p class="card-text mt-1">@item.Content</p>
                 </div>
                 @if (item.ImgPath != null)
                 {
-                    <img src="~/Images/Blogs/@item.ImgPath" class="bd-placeholder-img card-img-top" width="100%" height="225" />
+                    <img src="~/Images/Blogs/@item.ImgPath" class="bd-placeholder-img card-img-top img-fluid" alt="Blog Image" />
                 }
-                <div class="d-md-flex justify-content-between align-items-center">
-                    <form id="likeForm" asp-action="Like" asp-controller="Blog">
-                        <input id="blogIdInput" name="BlogId" value="@item.Id" />
-                        <input id="userIdInput" name="UserId" value="@userId" hidden />
-                        
-                        <button type="submit" class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like @item.LikeCount</button>
+                <div class="card-footer d-md-flex justify-content-between align-items-center">
+                    <form class="likeForm" asp-action="Like" asp-controller="Blog">
+                        <input name="BlogId" value="@item.Id" hidden />
+                        <input name="UserId" value="@userId" hidden />
+                        @if (likes.Any(x => x.LikedBy == userId && x.LikedBlog == item.Id))
+                        {
+                            <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                        }
                     </form>
-                    <button class="btn btn-secondary" style="width: 50%;">Comment</button>
+                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
                 </div>
             </div>
         </div>
         <div class="col-md-3"></div>
     </div>
 }
+
 
 
 <div class="pagination justify-content-center">
@@ -90,4 +122,41 @@
     <div class="modal-dialog" id="page">
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $(".likeButton").click(function () {
+            // Capture the context of the button
+            var likeButton = $(this);
+
+            // Disable the button to prevent multiple submissions
+            likeButton.prop("disabled", true);
+
+            // Get form data within the same parent div
+            var formData = likeButton.closest("div").find(".likeForm").serialize();
+
+            // Send AJAX request
+            $.ajax({
+                type: "POST",
+                url: likeButton.closest("div").find(".likeForm").attr("action"),
+                data: formData,
+                success: function (result) {
+                    // Increment the like count on success
+                    var currentLikeCount = parseInt(likeButton.text().match(/\d+/)[0]);
+                    likeButton.text("Liked " + (currentLikeCount + 1));
+                },
+                error: function (error) {
+                    console.error("Error submitting like:", error);
+                    // Re-enable the button on error
+                    likeButton.prop("disabled", false);
+                }
+            });
+        });
+    });
+
+</script>
+
+
 
