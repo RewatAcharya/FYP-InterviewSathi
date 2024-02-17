@@ -66,10 +66,6 @@ function sendPrivateMessage() {
     let message = txtPrivateMessage.value;
 
     connection.invoke("SendPrivateMessage", receiverId, message, receiverName)
-        .then(() => {
-            console.log(`Sent private message to ${receiverId}: ${message}`);
-        })
-        .catch(err => console.error(err));
 
     txtPrivateMessage.value = '';
 }

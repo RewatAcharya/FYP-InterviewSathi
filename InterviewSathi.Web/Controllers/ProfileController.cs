@@ -31,6 +31,7 @@ namespace InterviewSathi.Web.Controllers
         {
             var blogs = _dbContext.Blogs.Where(x => x.PostedBy == id).ToList();
             ViewBag.Blogs = blogs;
+            ViewBag.like = _dbContext.LikeCounts.ToList();
             ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == id);
             ViewBag.Role = await _userManager.GetRolesAsync(user);
             ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == id).Include(x => x.Skill).ToList();
@@ -43,6 +44,7 @@ namespace InterviewSathi.Web.Controllers
             var blogs = _dbContext.Blogs.Where(x => x.PostedBy == Id).ToList();
             ViewBag.Blogs = blogs;
             ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == Id).Include(x => x.Skill).ToList();
+            ViewBag.like = _dbContext.LikeCounts.ToList();
             ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == Id);            
             ViewBag.Role = await _userManager.GetRolesAsync(user);
             string? myId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();

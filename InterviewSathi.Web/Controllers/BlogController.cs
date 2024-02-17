@@ -32,6 +32,7 @@ namespace InterviewSathi.Web.Controllers
             var blogsWithUsers = _context.Blogs.OrderByDescending(x => x.CreatedAt).Include(blog => blog.User);
             var paginatedBlogs = await PaginatedList<Blog>.CreateAsync(blogsWithUsers.AsNoTracking(), page ?? 1, pageSize);
             ViewBag.like = _context.LikeCounts.ToList();
+            ViewBag.MyProfile = _context.ApplicationUsers.FirstOrDefault(x => x.Id == User.FindFirstValue(ClaimTypes.NameIdentifier).ToString());
             return View(paginatedBlogs);
         }
 
@@ -98,8 +99,8 @@ namespace InterviewSathi.Web.Controllers
         [HttpPost]
         public IActionResult Like(string BlogId, string UserId)
         {
-            int likes = _context.LikeCounts.Count(x => x.LikedBlog == BlogId && x.LikedBy == UserId);
-            if (likes == 0)
+            var likes = _context.LikeCounts.FirstOrDefault(x => x.LikedBlog == BlogId && x.LikedBy == UserId);
+            if (likes == null)
             {
                 LikeCount likeCount = new()
                 {
@@ -118,7 +119,14 @@ namespace InterviewSathi.Web.Controllers
             }
             else
             {
-                TempData["success"] = "Already liked thanks";
+                _context.LikeCounts.Remove(likes);
+                _context.SaveChanges();
+
+                Blog blog = _context.Blogs.FirstOrDefault(x => x.Id == BlogId);
+                blog.LikeCount -= 1;
+                _context.Blogs.Update(blog);
+                _context.SaveChanges();
+
                 return RedirectToAction("Index", "Home");
             }
         }

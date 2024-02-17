@@ -1,27 +1,31 @@
-﻿@model InterviewSathi.Web.Models.Entities.ApplicationUser
+﻿@using InterviewSathi.Web.Models.Entities.BlogsEntity
+@model InterviewSathi.Web.Models.Entities.ApplicationUser
 
 @{
     ViewData["Title"] = "User Profile";
     var blogs = ViewBag.Blogs;
     var skills = ViewBag.Skills;
+    var likes = ViewBag.like as List<LikeCount>;
     int count = ViewBag.Count;
+    string myId = @User.FindFirstValue(ClaimTypes.NameIdentifier).ToString();
 }
 
 <div class="container mt-4">
-    <div class="row">
+    <div class="row" style="z-index: 1; position: relative">
         <!-- Cover photo -->
         <div class="col-md-12">
             <img src="~/images/covers/@Model.CoverURL" class="opacity-75" height="200px" width="100%" alt="Cover Photo">
         </div>
     </div>
 
-    <div class="row mt-3">
+    <div class="row mt-3" style="z-index: 2; position: relative; top:-50px">
         <div class="col-md-2">
             <!-- Profile picture -->
-            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture">
+            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle" width="150"
+                 height="150" alt="Profile Picture">
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-8 mt-3 text-dark p-3">
             <!-- User information -->
             <h2>
                 @Model.Name - @foreach (var role in ViewBag.Role)
@@ -29,12 +33,12 @@
                     @role
                 }
             </h2>
-            <p>@Model.Bio</p>
             <p>
-            @foreach (var skill in skills)
-            {
-                @skill.Skill.NameOfSkill<span>,</span>
-            }
+                @Model.Bio : @foreach (var skill in skills)
+                {
+                    @skill.Skill.NameOfSkill
+                    <span>,</span>
+                }
             </p>
             <!-- Button group with "Edit Profile" button -->
             <div class="btn-group">
@@ -75,7 +79,7 @@
     </div>
 
     <!-- Timeline section -->
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var item in blogs)
         {
             <div class="col">
@@ -88,31 +92,85 @@
                     </div>
                     @if (item.ImgPath != null)
                     {
-                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" height="250px" width="100%"/>
+                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" height="250px" width="100%" />
                     }
-                    <div class="d-md-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like (@item.LikeCount)</button>
-                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary" style="width: 50%;">Comment</a>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <form class="likeForm" asp-action="Like" asp-controller="Blog">
+                            <input name="BlogId" value="@item.Id" hidden />
+                            <input name="UserId" value="@myId" hidden />
+                            @if (likes.Any(x => x.LikedBy == myId && x.LikedBlog == item.Id))
+                            {
+                                <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                            }
+                        </form>
+                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
                     </div>
                 </div>
             </div>
         }
     </div>
-
-
 </div>
 
 
-
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog" id="page">
-    </div>
-</div>
-
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     $(document).ready(function () {
-        deletePage = function (xhr) {
-            location.reload();
-        }
+        // Retrieve the like button state from local storage
+        var likeButtonState = localStorage.getItem('likeButtonState');
+
+        // Handling the click for .likeButton
+        $(document).on("click", ".likeButton", function () {
+            var likeButton = $(this);
+
+            var formData = likeButton.closest("div").find(".likeForm").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: likeButton.closest("div").find(".likeForm").attr("action"),
+                data: formData,
+                success: function (result) {
+                    var currentLikeCount = parseInt(likeButton.text().match(/\d+/)[0]);
+                    likeButton.text("Liked " + (currentLikeCount + 1));
+
+                    likeButton.removeClass("likeButton").addClass("likedButton");
+
+                    // Save the updated state to local storage
+                    localStorage.setItem('likeButtonState', 'liked');
+                },
+                error: function (error) {
+                    console.error("Error submitting like:", error);
+                }
+            });
+        });
+
+        // Handling the click for .likedButton
+        $(document).on("click", ".likedButton", function () {
+            var likedButton = $(this);
+
+            var formData = likedButton.closest("div").find(".likeForm").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: likedButton.closest("div").find(".likeForm").attr("action"),
+                data: formData,
+                success: function (result) {
+                    var currentLikeCount = parseInt(likedButton.text().match(/\d+/)[0]);
+                    likedButton.text("Like " + (currentLikeCount - 1));
+
+                    likedButton.removeClass("likedButton").addClass("likeButton");
+
+                    // Save the updated state to local storage
+                    localStorage.setItem('likeButtonState', 'like');
+                },
+                error: function (error) {
+                    console.error("Error submitting like:", error);
+                }
+            });
+        });
     });
+
 </script>

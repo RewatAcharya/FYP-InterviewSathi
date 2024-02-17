@@ -1,8 +1,10 @@
-﻿@model InterviewSathi.Web.Models.Entities.ApplicationUser
+﻿@using InterviewSathi.Web.Models.Entities.BlogsEntity
+@model InterviewSathi.Web.Models.Entities.ApplicationUser
 
 @{
     ViewData["Title"] = "MyProfile";
     var skills = ViewBag.Skills;
+    var likes = ViewBag.like as List<LikeCount>;
     var blogs = ViewBag.Blogs;
 }
 
@@ -94,29 +96,95 @@
                     {
                         <img src="~/Images/Blogs/@item.ImgPath" class="card-img" height="250px" width="100%" />
                     }
-                    <div class="d-md-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary mb-2 mb-md-0" style="width: 50%;">Like (@item.LikeCount)</button>
-                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary" style="width: 50%;">Comment</a>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <form class="likeForm" asp-action="Like" asp-controller="Blog">
+                            <input name="BlogId" value="@item.Id" hidden />
+                            <input name="UserId" value="@Model.Id" hidden />
+                            @if (likes.Any(x => x.LikedBy == Model.Id && x.LikedBlog == item.Id))
+                            {
+                                <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                            }
+                        </form>
+                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
                     </div>
                 </div>
             </div>
         }
     </div>
-
-
 </div>
-
-
 
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" id="page">
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     $(document).ready(function () {
         deletePage = function (xhr) {
             location.reload();
         }
     });
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Retrieve the like button state from local storage
+        var likeButtonState = localStorage.getItem('likeButtonState');
+
+        // Handling the click for .likeButton
+        $(document).on("click", ".likeButton", function () {
+            var likeButton = $(this);
+
+            var formData = likeButton.closest("div").find(".likeForm").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: likeButton.closest("div").find(".likeForm").attr("action"),
+                data: formData,
+                success: function (result) {
+                    var currentLikeCount = parseInt(likeButton.text().match(/\d+/)[0]);
+                    likeButton.text("Liked " + (currentLikeCount + 1));
+
+                    likeButton.removeClass("likeButton").addClass("likedButton");
+
+                    // Save the updated state to local storage
+                    localStorage.setItem('likeButtonState', 'liked');
+                },
+                error: function (error) {
+                    console.error("Error submitting like:", error);
+                }
+            });
+        });
+
+        // Handling the click for .likedButton
+        $(document).on("click", ".likedButton", function () {
+            var likedButton = $(this);
+
+            var formData = likedButton.closest("div").find(".likeForm").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: likedButton.closest("div").find(".likeForm").attr("action"),
+                data: formData,
+                success: function (result) {
+                    var currentLikeCount = parseInt(likedButton.text().match(/\d+/)[0]);
+                    likedButton.text("Like " + (currentLikeCount - 1));
+
+                    likedButton.removeClass("likedButton").addClass("likeButton");
+
+                    // Save the updated state to local storage
+                    localStorage.setItem('likeButtonState', 'like');
+                },
+                error: function (error) {
+                    console.error("Error submitting like:", error);
+                }
+            });
+        });
+    });
+
 </script>
