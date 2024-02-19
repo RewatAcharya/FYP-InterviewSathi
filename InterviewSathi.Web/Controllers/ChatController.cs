@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
 using System.Security.Claims;
 
 namespace InterviewSathi.Web.Controllers
@@ -25,6 +26,15 @@ namespace InterviewSathi.Web.Controllers
 
         public IActionResult Chat(string id)
         {
+            var receiverId = User.FindFirstValue(ClaimTypes.NameIdentifier).ToString();
+
+            var messages = _context.PrivateMessages
+                .Where(m => (m.SenderId == id && m.ReceiverId == receiverId) || (m.SenderId == receiverId && m.ReceiverId == id))
+                .OrderBy(m => m.CreatedAt)
+                .ToList();
+
+            ViewBag.Messages = messages;
+
             return PartialView(_context.ApplicationUsers.First(x => x.Id == id));
         }
     }

@@ -19,7 +19,7 @@
 
     <a asp-action="Create" asp-controller="Blog" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" class="btn shadow-lg btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
         <i class="bi bi-share-fill fs-4 me-2"></i>
-        <span class="d-none d-sm-inline">Motivate other.. @myProfile.Name</span>
+        <span class="d-none d-sm-inline">What's New...? @myProfile.Name</span>
     </a>
 </div>
 
@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-6">
-            <div class="card mb-3">
+            <div class="card mb-3 shadow-lg rounded-1">
                 <div class="card-body">
                     <div class="d-flex flex-start align-items-center">
                         @if (item.User.Id == userId)
@@ -39,7 +39,7 @@
                                  src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
                                  height="60" />
                             <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                <h6 class="fw-bold text-primary mb-1">@item.User.Name</h6>
+                                <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
                                 <p class="text-muted small mb-0">
                                     @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
                                 </p>
@@ -51,33 +51,33 @@
                                  src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
                                  height="60" />
                             <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                <h6 class="fw-bold text-primary mb-1">@item.User.Name</h6>
+                                <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
                                 <p class="text-muted small mb-0">
                                     @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
                                 </p>
                             </a>
                         }
                     </div>
-                    <p class="card-text mt-1">@item.Content</p>
+                    <p class="card-text p-2 bg-light">@item.Content</p>
                 </div>
                 @if (item.ImgPath != null)
                 {
                     <img src="~/Images/Blogs/@item.ImgPath" class="bd-placeholder-img card-img-top img-fluid" alt="Blog Image" />
                 }
-                <div class="card-footer d-flex justify-content-between align-items-center">
+                <div class="blog-footer card-footer d-flex justify-content-between align-items-center">
                     <form class="likeForm" asp-action="Like" asp-controller="Blog">
                         <input name="BlogId" value="@item.Id" hidden />
                         <input name="UserId" value="@userId" hidden />
                         @if (likes.Any(x => x.LikedBy == userId && x.LikedBlog == item.Id))
                         {
-                            <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                            <button type="button" class="likedButton btn btn-outline-dark mb-2 mb-md-0">Liked @item.LikeCount</button>
                         }
                         else
                         {
-                            <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                            <button type="button" class="likeButton btn btn-outline-dark mb-2 mb-md-0">Like @item.LikeCount</button>
                         }
                     </form>
-                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
+                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-outline-dark mb-2 mb-md-0">Comment</a>
                 </div>
             </div>
         </div>

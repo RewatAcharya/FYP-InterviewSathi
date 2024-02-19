@@ -6,7 +6,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-3 bg-light">
+        <div class="col-3 bg-light h-100">
             <ul class="nav flex-column">
                 @foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
                 {
@@ -43,15 +43,18 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
+<script>
+    var loggedUser = '@loggedUser';
+    var userId;
+</script>
 <script>
     $(document).ready(function () {
         // Click event on user links
+        
         $(".user-link").click(function (e) {
             e.preventDefault();
 
-            var userId = $(this).data("user-id");
-
+            userId = $(this).data("user-id");
             $.ajax({
                 url: "/Chat/Chat/"+userId,
                 data: { userId: userId },
@@ -68,3 +71,4 @@
 </script>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/chatvideo.js"></script>

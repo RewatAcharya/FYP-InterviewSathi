@@ -1,0 +1,10 @@
+
+.main-div {
+    background-color: ghostwhite;
+    padding:30px;
+    box-shadow:0px 5px 5px;
+}
+
+.form-group label{
+    margin: 10px 0px;
+}

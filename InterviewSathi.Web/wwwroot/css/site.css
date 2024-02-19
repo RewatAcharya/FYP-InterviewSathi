@@ -1,5 +1,5 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
 html {
     font-size: 14px;
@@ -8,7 +8,7 @@ html {
 @media (min-width: 768px) {
     html {
         font-size: 16px;
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
 }
 
@@ -22,7 +22,11 @@ html {
 }
 
 body {
-    font-family: 'Montserrat', sans-serif;
-    background-image: url('..\\images\\statics\\backgroundpic.jpg');
+    font-family: 'Poppins', sans-serif;
+    background: #dfe3ee;
+}
 
+.blog-footer {
+    background: #dfe3ee;
+    border-radius: 30px;
 }

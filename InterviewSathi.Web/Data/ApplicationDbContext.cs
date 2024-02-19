@@ -22,6 +22,7 @@ namespace InterviewSathi.Web.Data
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
+        public DbSet<PrivateMessage> PrivateMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

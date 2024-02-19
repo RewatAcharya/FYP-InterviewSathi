@@ -34,7 +34,8 @@
                 }
             </h2>
             <p>
-                @Model.Bio : @foreach (var skill in skills)
+                @Model.Bio 
+                @foreach (var skill in skills)
                 {
                     @skill.Skill.NameOfSkill
                     <span>,</span>

@@ -24,8 +24,22 @@ namespace InterviewSathi.Web.Hubs
             string? senderName = _db.ApplicationUsers.FirstOrDefault(x => x.Id == senderId)?.Name;
 
             var users = new string[] { senderId, receiverId };
+            // Save the message to the database
 
-            await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, Guid.NewGuid(), receiverName);
+            string id = Guid.NewGuid().ToString();
+
+            var newMessage = new PrivateMessage
+            {
+                Id = id,
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                MessageContent = message,
+            };
+
+            _db.PrivateMessages.Add(newMessage);
+            await _db.SaveChangesAsync();
+            
+            await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, id, receiverName);
         }
 
         public async Task JoinRoom(string roomName)

@@ -34,6 +34,12 @@ namespace InterviewSathi.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            {
+                _roleManager.CreateAsync(new IdentityRole("Admin")).Wait();
+                _roleManager.CreateAsync(new IdentityRole("Interviewer")).Wait();
+                _roleManager.CreateAsync(new IdentityRole("Interviewee")).Wait();
+            }
             return View();
         }
 

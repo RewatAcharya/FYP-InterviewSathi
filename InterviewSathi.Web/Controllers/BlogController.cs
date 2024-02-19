@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace InterviewSathi.Web.Controllers
 {
+    [Authorize]
     public class BlogController : Controller
     {
         private readonly ApplicationDbContext _context;
