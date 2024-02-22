@@ -1,8 +1,6 @@
 ﻿using InterviewSathi.Web.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Plugins;
 using System.Security.Claims;
 
 namespace InterviewSathi.Web.Controllers
@@ -17,11 +15,30 @@ namespace InterviewSathi.Web.Controllers
             _context = context;
         }
 
-        public IActionResult Index(string id)
+        public IActionResult Index(string id, string? chat = null)
         {
-            var friends = _context.Friends.Include(friend => friend.SendingTo).Include(friend => friend.SendingBy)
-                .Where(x => x.SentTo == id || x.SentBy == id).ToList();
-            return View(friends);
+            // Assuming id is the user ID for whom you want to find recent chat users
+            var recentChatUsers = _context.PrivateMessages
+                .Where(msg => msg.SenderId == id || msg.ReceiverId == id)
+                .GroupBy(msg => msg.SenderId == id ? msg.ReceiverId : msg.SenderId)
+                .Select(group => group.Key)
+                .Distinct()
+                .Select(userId => _context.Users.FirstOrDefault(u => u.Id == userId))
+                .ToList();
+
+            // Assuming you have a User entity with an Id property
+            var firstUser = recentChatUsers.FirstOrDefault();
+
+            if (chat != null)
+            {
+                ViewBag.ChatWith = chat;
+            }
+            else
+            {
+                ViewBag.ChatWith = firstUser?.Id;
+            }
+
+            return View(recentChatUsers);
         }
 
         public IActionResult Chat(string id)
@@ -35,7 +52,14 @@ namespace InterviewSathi.Web.Controllers
 
             ViewBag.Messages = messages;
 
-            return PartialView(_context.ApplicationUsers.First(x => x.Id == id));
+            if (id != null)
+            {
+                return PartialView(_context.ApplicationUsers.First(x => x.Id == id));
+            }
+            else
+            {
+                return Index(receiverId);
+            }
         }
     }
 }

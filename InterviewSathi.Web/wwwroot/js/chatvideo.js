@@ -43,16 +43,13 @@ function addMessage(msg, isSent, senderId, recipientId) {
         li.textContent = msg;
 
         li.classList.add(isSent ? 'sent' : 'received');
+        li.style.paddingBottom = '4px';
 
         ui.appendChild(li);
     }
 }
 
 connection.start()
-    .then(() => {
-        console.log("SignalR connected");
-    })
-    .catch(err => console.error(err));
 
 function sendPrivateMessage() {
     let ddlSelUser = document.getElementById('ddlSelUser');
@@ -69,4 +66,3 @@ function sendPrivateMessage() {
         txtPrivateMessage.value = '';
     }
 }
-

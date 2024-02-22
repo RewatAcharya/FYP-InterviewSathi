@@ -1,73 +1,132 @@
-﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.Friend>
+﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.ApplicationUser>
 @{
     string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
     ViewData["Title"] = "Chat";
+    string newChat = ViewBag.ChatWith;
 }
+<style>
+    body {
+        margin-top: 20px;
+    }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-3 bg-light h-100">
-            <ul class="nav flex-column">
-                @foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
-                {
-                    <li class="nav-item">
-                        @if (loggedUser == item.SendingTo.Id)
+    .chat-online {
+        color: #34ce57
+    }
+
+    .chat-offline {
+        color: #e4606d
+    }
+
+    .chat-messages {
+        display: flex;
+        flex-direction: column;
+        max-height: 300px;
+        overflow-y: scroll
+    }
+
+    .received,
+    .sent {
+        max-width: 70%;
+        border-radius: 8px;
+        display: flex;
+        margin: 5px;
+        padding: 10px;
+        word-wrap: break-word;
+    }
+
+    .received {
+        margin-right: auto;
+        background-color: #f1f1f1;
+        color: black;
+    }
+
+    .sent {
+        flex-direction: row-reverse;
+        margin-left: auto;
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .flex-grow-0 {
+        flex-grow: 0 !important;
+    }
+
+    .border-top {
+        border-top: 1px solid #dee2e6 !important;
+    }
+</style>
+
+<main class="content">
+    <div class="container p-0">
+
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-12 col-lg-5 col-xl-3 border-right">
+
+                   @*  <div class="px-4 d-none d-md-block">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <input type="text" class="form-control my-3" id="SearchFriend" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div> *@
+                        @foreach (var item in Model)
                         {
-                            <a href="#" class="nav-link py-3 border-bottom user-link"
-                               data-user-id="@item.SentBy">
-                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid"
-                                     alt="Profile Picture" height="30px" width="40px" />
-                                @Html.DisplayFor(Item => item.SendingBy.Name)
+                            <a href="#" class="list-group-item list-group-item-action border-0 user-link" data-user-id="@item.Id">
+                                <div class="badge bg-success float-right">5</div>
+                                <div class="d-flex align-items-start">
+                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid"
+                                         alt="Profile Picture" width="40" height="40">
+                                    <div class="flex-grow-1 ml-3">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                        <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                    </div>
+                                </div>
                             </a>
                         }
-                        else
-                        {
-                            <a href="#" class="nav-link py-3 border-bottom user-link"
-                               data-user-id="@item.SentTo">
-                                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid"
-                                     alt="Profile Picture" height="30px" width="40px" />
-                                @Html.DisplayFor(modelItem => item.SendingTo.Name)
-                            </a>
-                        }
-                    </li>
-                }
-            </ul>
-        </div>
-
-        <div class="col">
-            <div id="chat-container" class="container" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="postEvent">
-               
+                    
+                    <hr class="d-block d-lg-none mt-1 mb-0">
+                </div>
+                <div class="col-12 col-lg-7 col-xl-9">
+                    <div id="chat-container" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="postEvent">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     var loggedUser = '@loggedUser';
-    var userId;
-</script>
-<script>
+    var userId = '@newChat';
+
+    // Load the chat after determining the userId
+    loadChat(userId);
+
     $(document).ready(function () {
         // Click event on user links
-        
         $(".user-link").click(function (e) {
             e.preventDefault();
 
             userId = $(this).data("user-id");
-            $.ajax({
-                url: "/Chat/Chat/"+userId,
-                data: { userId: userId },
-                type: "GET",
-                success: function (result) {
-                    $("#chat-container").html(result);
-                },
-                error: function (error) {
-                    console.error("Error loading chat:", error);
-                }
-            });
+            loadChat(userId);
         });
     });
+
+    function loadChat(userId) {
+        $.ajax({
+            url: "/Chat/Chat/" + userId,
+            data: { userId: userId },
+            type: "GET",
+            success: function (result) {
+                $("#chat-container").html(result);
+            },
+            error: function (error) {
+                console.error("Error loading chat:", error);
+            }
+        });
+    }
 </script>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>

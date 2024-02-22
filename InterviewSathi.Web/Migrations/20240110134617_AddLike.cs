@@ -28,13 +28,13 @@ namespace InterviewSathi.Web.Migrations
                         column: x => x.LikedBy,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_LikeCounts_Blogs_LikedBlog",
                         column: x => x.LikedBlog,
                         principalTable: "Blogs",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
