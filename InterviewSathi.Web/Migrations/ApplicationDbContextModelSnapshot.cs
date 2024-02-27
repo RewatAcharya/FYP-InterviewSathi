@@ -130,7 +130,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("PostedBy");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Blogs", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.Comment", b =>
@@ -160,7 +160,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("CommentBy");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
@@ -186,7 +186,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("LikedBy");
 
-                    b.ToTable("LikeCounts");
+                    b.ToTable("LikeCounts", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
@@ -215,7 +215,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friends", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Meeting", b =>
@@ -257,7 +257,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Meetings");
+                    b.ToTable("Meetings", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Notification", b =>
@@ -294,7 +294,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.PrivateMessage", b =>
@@ -327,7 +327,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("PrivateMessages");
+                    b.ToTable("PrivateMessages", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Skill", b =>
@@ -349,7 +349,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Skills");
+                    b.ToTable("Skills", (string)null);
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.UserSkill", b =>
@@ -375,7 +375,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSkills");
+                    b.ToTable("UserSkills", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

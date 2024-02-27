@@ -61,6 +61,7 @@ namespace InterviewSathi.Web.Controllers
                 };
                 _context.UserSkills.Add(userSkill);
                 await _context.SaveChangesAsync();
+                TempData["success"] = "New Skill Added";
             }
             return RedirectToAction("ListUserSkill", "Skill", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
         }

@@ -32,7 +32,7 @@
                                 <section>
                                     <p>User Gmail service to Login</p>
                                     <form asp-controller="Account" asp-action="ExternalLogin"
-                                          asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" role="form">
+                                          asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
                                         <div>
                                             <p>
                                                 @foreach (var provider in loginProviders)
@@ -51,7 +51,7 @@
                     }
                     <form asp-action="Login" asp-controller="Account">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+                        <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
                         <h5 class="fw-normal mb-4">Login Now</h5>
                         <div class="form-group">
                             <label asp-for="Email">Email</label>
@@ -71,7 +71,7 @@
                         </div>
                         <p class="mt-3 mb-2" style="color: #393f81;">
                             Already have an account?
-                            <a asp-controller="Account" asp-action="Register" style="color: #393f81;">Register here</a>
+                            <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" style="color: #393f81;">Register here</a>
                         </p>
                     </form>
                 </div>

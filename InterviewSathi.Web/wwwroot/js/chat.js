@@ -1,271 +1,300 @@
-﻿// Create SignalR connection
+﻿"use strict";
+
+
 var connection = new signalR.HubConnectionBuilder()
     .withUrl("/hubs/chat")
     .withAutomaticReconnect([0, 1000, 5000, null])
     .build();
 
-// Define functions to handle server-side events
-//connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverId, message, chatId, receiverName) {
-//    console.log(`[Private Message to ${receiverName}] ${senderName} says: ${message}`);
-//    showNotification(`New Private Message from ${senderName}`, message);
-//});
+const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+let peerConnection;
+let remoteConnection;
+let offer;
+let answer;
+let localStream;
+let bufferedIceCandidates = [];
 
-connection.on("ReceiveSignal", function (userFrom, signal) {
-    console.log(`Received signal from ${userFrom}: ${signal}`);
-    // Handle the signal as needed (e.g., start video call)
-});
-
-connection.on("ReceiveCall", function (callerName) {
-    console.log(`Incoming call from ${callerName}`);
-    showNotification(`Incoming call from ${callerName}`, "Click to answer");
-    // Handle the incoming call as needed
-});
-
-// Start the connection
-connection.start().then(() => {
-    console.log("SignalR connected");
-}).catch(err => console.error(err));
-
-//// Function to send a private message
-//function sendPrivateMessage() {
-//    let ddlSelUser = document.getElementById('ddlSelUser');
-//    let ddlSelUserName = document.getElementById('ddlSelUserName');
-//    let txtPrivateMessage = document.getElementById('txtPrivateMessage');
-
-//    let receiverId = ddlSelUser.value;
-//    let receiverName = ddlSelUserName.value;
-//    let message = txtPrivateMessage.value;
-
-//    connection.invoke("SendPrivateMessage", receiverId, message, receiverName)
-//        .then(() => {
-//            console.log(`Sent private message to ${receiverId}: ${message}`);
-//        })
-//        .catch(err => console.error(err));
-
-//    txtPrivateMessage.value = '';
-//}
-
-// Function to start a video call
-
-
-// Function to show browser notifications
-function showNotification(title, message) {
-    if (Notification.permission === "granted") {
-        // Create and show the notification
-        var notification = new Notification(title, { body: message });
-    } else if (Notification.permission !== "denied") {
-        // Request permission to show notifications
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                // Create and show the notification
-                var notification = new Notification(title, { body: message });
-            }
-        });
-    }
-}
 
 connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverId, message, chatId, receiverName) {
-    addMessage(`[Private Message to ${receiverName} ]${senderName} says ${message}`);
-})
+    if (senderId === loggedUser && receiverId === userId) {
+        addMessage(`Sent: ${message}`, true, senderId, receiverId);
+    }
+    else if (senderId === userId && receiverId === loggedUser) {
+        addMessage(`Received: ${message}`, false, senderId, receiverId);
+    }
+    else {
+        // Show a browser notification
+        if (Notification.permission === "granted") {
+            new Notification("New Message", {
+                body: `${senderName}: ${message}`,
+                icon: "../images/notificationicon.png",
+            });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+                if (permission === "granted") {
+                    new Notification("New Message", {
+                        body: `${senderName}: ${message}`,
+                        icon: "../images/notificationicon.png",
+                    });
+                }
+            });
+        }
+    }
+});
 
-function sendPrivateMessage() {
-    let inputMsg = document.getElementById('txtPrivateMessage');
-    let ddlSelUser = document.getElementById('ddlSelUser');
-    let ddlSelUserName = document.getElementById('ddlSelUserName');
+connection.on("ReceiveVideoAnswer", function (message) {
+    const offerObject = JSON.parse(message);
 
-    let receiverId = ddlSelUser.value;
-    let receiverName = ddlSelUserName.value;
-    var message = inputMsg.value;
+    // Assuming offerObject has 'type' and 'sdp' properties
+    const { type, sdp } = offerObject;
 
-    connection.send("SendPrivateMessage", receiverId, message, receiverName);
-    inputMsg.value = '';
-}
+    // Create an RTCSessionDescription object
+    answer = new RTCSessionDescription({
+        type: type,
+        sdp: sdp
+    });
+    console.log("You are receiving a answer:", answer.sdp);
+    peerConnection.setRemoteDescription(answer)
+        .then(console.log("Done!!"));
+    document.getElementById('remoteView').srcObject = peerConnection.getRemoteStreams()[0];
 
-function addMessage(msg) {
-    if (msg == null && msg == '') {
+});
+
+connection.on("ReceiveVideoOffer", function (message) {
+    const offerObject = JSON.parse(message);
+
+    // Assuming offerObject has 'type' and 'sdp' properties
+    const { type, sdp } = offerObject;
+
+    // Create an RTCSessionDescription object
+    offer = new RTCSessionDescription({
+        type: type,
+        sdp: sdp
+    });
+    console.log("You are receiving a offer:", offer.sdp);
+
+    document.getElementById('joinVideoButton').style.display = 'block';
+    document.getElementById('startVideoButton').style.display = 'none';
+
+});
+connection.on("ReceiveIceCandidate", function (message, senderId, receiverId) {
+    const iceCandidate = new RTCIceCandidate(JSON.parse(message));
+    console.log(iceCandidate);
+
+    peerConnection.addIceCandidate(iceCandidate)
+        .then(() => {
+            // Handle success for the local peer
+            console.log("ICE candidate added successfully for the local peer");
+        })
+        .catch((error) => {
+            // Handle errors for the local peer
+            console.error("Error adding ICE candidate for the local peer:", error);
+            // Additional error handling for the local peer (if needed)
+        });
+});
+
+
+connection.on("ReceiveIceCandidateFromLocal", function (message, senderId, receiverId) {
+    const iceCandidate = new RTCIceCandidate(JSON.parse(message));
+    console.log(iceCandidate);
+    console.log("ReceiveIceCandidateFromLocal");
+
+    if (remoteConnection && remoteConnection.signalingState === "stable") {
+        remoteConnection.addIceCandidate(iceCandidate)
+            .then(() => {
+                // Handle success for the remote peer
+                console.log("ICE candidate added successfully for the remote peer");
+            })
+            .catch((error) => {
+                // Handle errors for the remote peer
+                console.error("Error adding ICE candidate for the remote peer:", error);
+                // Additional error handling for the remote peer (if needed)
+            });
+    } else {
+        console.warn("Buffering ICE candidate for the remote peer.");
+        bufferedIceCandidates.push(iceCandidate);
+    }
+    console.log("Buffered ICE candidates:", bufferedIceCandidates);
+});
+
+
+function addMessage(msg, isSent, senderId, recipientId) {
+    if (!msg || !senderId || !recipientId) {
         return;
     }
     let ui = document.getElementById('messagesList');
-    let li = document.createElement("li");
-    li.innerHTML = msg;
-    ui.appendChild(li);
-}
+    if (isSent || recipientId === loggedUser) {
+        let li = document.createElement("li");
+        li.textContent = msg;
 
-////connection.start();
+        li.classList.add(isSent ? 'sent' : 'received');
 
-////const hubUrl = "/hubs/chat";
-////const connection = new signalR.HubConnectionBuilder().withUrl(hubUrl).build();
-//var localVideo = document.getElementById("localVideo");
-//var remoteVideo = document.getElementById("remoteVideo");
-
-//let peerConnection;
-
-async function startCall() {
-
-    let ddlSelUser = document.getElementById('ddlSelUser').value;
-    connection.invoke("SendSignal", ddlSelUser, "startVideoCall")
-        .then(() => {
-            console.log(`Sent video call signal to ${ddlSelUser}`);
-            // Handle the start of the video call as needed
-        })
-        .catch(err => console.error(err));
-
-    try {
-        // Get local media stream
-        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = stream;
-
-
-
-        // Join the room (replace 'room1' with your desired room name)
-        await connection.invoke("JoinRoom", "room1");
-
-        // Initialize peer connection
-        peerConnection = new RTCPeerConnection();
-
-        // Add local stream to peer connection
-        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-
-        // Handle incoming signals
-        connection.on("ReceiveSignal", (userFrom, userFromSignal) => {
-            let signal = JSON.parse(userFromSignal);
-            if (signal.iceCandidate) {
-                peerConnection.addIceCandidate(new RTCIceCandidate(signal.iceCandidate));
-            } else if (signal.sdp) {
-                peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-                if (signal.sdp.type === "offer") {
-                    peerConnection.createAnswer().then(answer => {
-                        return peerConnection.setLocalDescription(answer);
-                    }).then(() => {
-                        connection.invoke("SendSignal", userFrom, JSON.stringify({ "sdp": peerConnection.localDescription }));
-                    });
-                }
-            }
-        });
-
-        // Show notification for incoming call
-        //connection.on("ReceiveCall", (callerName) => {
-        //    showNotification(`Incoming call from ${callerName}`);
-        //});
-        // Send initial offer with user ID
-        let userToId = document.getElementById('ddlSelUser').value; // Replace with the actual user ID
-        let offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        connection.invoke("SendSignal", userToId, JSON.stringify({ "sdp": offer }));
-    } catch (error) {
-        console.error("Error starting call:", error);
+        ui.appendChild(li);
     }
 }
 
-function pickupCall() {
-    let localVideo = document.getElementById("localVideo");
-    let remoteVideo = document.getElementById("remoteVideo");
+connection.start()
 
-    // Create a new RTCPeerConnection
-    let peerConnection = new RTCPeerConnection();
+function sendPrivateMessage() {
+    let ddlSelUser = document.getElementById('ddlSelUser');
+    let ddlSelUserName = document.getElementById('ddlSelUserName');
+    let txtPrivateMessage = document.getElementById('txtPrivateMessage');
 
-    // Add local stream to peer connection (assuming you have obtained local stream earlier)
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then(localStream => {
-            localVideo.srcObject = localStream;
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-        })
-        .catch(error => console.error("Error getting local stream:", error));
+    let receiverId = ddlSelUser.value;
+    let receiverName = ddlSelUserName.value;
+    let message = txtPrivateMessage.value.trim();
 
-    // Set up event handlers for ICE candidates and remote stream
-    peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-            // Send the ICE candidate to the other peer
-            connection.invoke("SendSignal", ddlSelUser.value, JSON.stringify({ "iceCandidate": event.candidate }));
-        }
-    };
+    if (message) {
+        connection.invoke("SendPrivateMessage", receiverId, message, receiverName)
 
-    peerConnection.ontrack = event => {
-        // Display the remote stream in the remote video element
-        remoteVideo.srcObject = event.streams[0];
-    };
-
-    // Create an SDP offer
-    peerConnection.createOffer()
-        .then(offer => peerConnection.setLocalDescription(offer))
-        .then(() => {
-            // Send the SDP offer to the other peer
-            connection.invoke("SendSignal", ddlSelUser.value, JSON.stringify({ "sdp": peerConnection.localDescription }));
-        })
-        .catch(error => console.error("Error creating offer:", error));
-
-    // Set up a listener for incoming signals
-    connection.on("ReceiveSignal", (userFrom, userFromSignal) => {
-        const signal = JSON.parse(userFromSignal);
-
-        if (signal.iceCandidate) {
-            // Add the incoming ICE candidate
-            peerConnection.addIceCandidate(new RTCIceCandidate(signal.iceCandidate))
-                .catch(error => console.error("Error adding ICE candidate:", error));
-        } else if (signal.sdp) {
-            // Set the remote SDP description
-            peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp))
-                .then(() => {
-                    if (signal.sdp.type === "offer") {
-                        // Create an SDP answer
-                        return peerConnection.createAnswer();
-                    }
-                })
-                .then(answer => peerConnection.setLocalDescription(answer))
-                .then(() => {
-                    // Send the SDP answer to the other peer
-                    connection.invoke("SendSignal", userFrom, JSON.stringify({ "sdp": peerConnection.localDescription }));
-                })
-                .catch(error => console.error("Error handling SDP:", error));
-        }
-    });
+        txtPrivateMessage.value = '';
+    }
 }
 
 
-//function showNotification(message) {
-//    const notificationElement = document.getElementById('notification');
-//    notificationElement.innerText = message;
-
-//    // Show the notification
-//    notificationElement.style.display = 'block';
-
-//    // Automatically hide the notification after a few seconds (adjust as needed)
-//    setTimeout(() => {
-//        notificationElement.style.display = 'none';
-//    }, 5000); // 5 seconds
-//}
-
-//// Connect to SignalR hub
-//connection.start().then(() => {
-//    console.log("SignalR connected");
-//}).catch(err => console.error(err));
 
 
-////var connection = new signalR.HubConnectionBuilder().withUrl("/hubs/chat").build();
+//let peerConnection;
 
-//////Disable the send button until connection is established.
-////document.getElementById("sendButton").disabled = true;
+// Function to initialize Peer Connection
+const initializePeerConnection = () => {
+    peerConnection = new RTCPeerConnection(configuration);
 
-////connection.on("ReceiveMessage", function (user, message) {
-////    var li = document.createElement("li");
-////    document.getElementById("messagesList").appendChild(li);
-////    // We can assign user-supplied strings to an element's textContent because it
-////    // is not interpreted as markup. If you're assigning in any other way, you 
-////    // should be aware of possible script injection concerns.
-////    li.textContent = `${user} says ${message}`;
-////});
+    // Set up event handlers, if needed
+    peerConnection.onicecandidate = handleIceCandidate;
+    peerConnection.ontrack = handleRemoteTrack;
 
-////connection.start().then(function () {
-////    document.getElementById("sendButton").disabled = false;
-////}).catch(function (err) {
-////    return console.error(err.toString());
-////});
+};
 
-////document.getElementById("sendButton").addEventListener("click", function (event) {
-////    var user = document.getElementById("userInput").value;
-////    var message = document.getElementById("messageInput").value;
-////    connection.invoke("SendMessage", user, message).catch(function (err) {
-////        return console.error(err.toString());
-////    });
-////    event.preventDefault();
-////});
+// Function to handle ICE candidate events
+const handleIceCandidate = (event) => {
+    if (event.candidate) {
+        // Send the ICE candidate to the remote peer using SignalR
+        const receiverId = document.getElementById('ddlSelUser').value;
+        const iceCandidateMessage = JSON.stringify(event.candidate);
+
+        console.log('Sending ICE candidate to receiverId:', receiverId, 'Message:', iceCandidateMessage);
+
+        connection.invoke("SendIceCandidateToRemote", receiverId, iceCandidateMessage)
+            .catch(error => {
+                console.error("Error in SendIceCandidate:", error);
+                // Handle error if needed
+            });
+    }
+};
+
+
+const handleRemoteTrack = (event) => {
+    const remoteVideo = document.getElementById('remoteView');
+    if (remoteVideo.srcObject !== event.streams[0]) {
+        remoteVideo.srcObject = event.streams[0];
+    }
+};
+
+// Function to create and send offer
+const createOffer = async () => {
+    try {
+        initializePeerConnection();
+
+        // Assume you have the local video stream
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Add tracks to the Peer Connection
+        stream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, stream);
+        });
+        document.getElementById('selfView').srcObject = stream;
+
+        // Create offer
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        // Send the offer to the remote peer using SignalR
+        const receiverId = document.getElementById('ddlSelUser').value;
+        const offerMessage = JSON.stringify(peerConnection.localDescription);
+
+        //console.log('Sending offer to receiverId:', receiverId, 'Message:', offerMessage);
+
+        await connection.invoke("SendVideoOffer", receiverId, offerMessage);
+        console.log("SendVideoOffer invoked successfully");
+    } catch (error) {
+        console.error("Error in createOffer:", error);
+        // Handle error if needed
+    }
+};
+
+function handleOffer() {
+    // Assuming you have the peerConnection object available
+    remoteConnection = new RTCPeerConnection(configuration);
+
+    // Set up local video stream
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+            document.getElementById('selfView').srcObject = stream;
+
+            // Add audio and video tracks individually
+            stream.getTracks().forEach(track => {
+                remoteConnection.addTrack(track, stream);
+            });
+
+            remoteConnection.setRemoteDescription(offer);
+
+            // Process buffered ICE candidates if any
+            if (remoteConnection.signalingState === "stable" && bufferedIceCandidates.length > 0) {
+                bufferedIceCandidates.forEach(iceCandidate => {
+                    // Send the buffered ICE candidates to the peer using SignalR
+                    remoteConnection.addIceCandidate(iceCandidate).then(console.log("Ice added!!"));
+                });
+                console.log("Buffered ICE candidates before:", bufferedIceCandidates);
+
+                // Clear the buffer after processing
+                bufferedIceCandidates.length = 0;
+                console.log("Buffered ICE candidates after:", bufferedIceCandidates);
+
+            }
+        })
+        .then(() => {
+            // Create and set local answer
+            return remoteConnection.createAnswer();
+        })
+        .then(answer => remoteConnection.setLocalDescription(answer))
+        .then(() => {
+            // Send the answer to the remote peer using SignalR
+            const receiverId = document.getElementById('ddlSelUser').value;
+            connection.invoke("SendVideoAnswer", receiverId, JSON.stringify(remoteConnection.localDescription));
+        })
+        .then(() => {
+            // Handle success
+            console.log("SendVideoAnswer invoked successfully");
+            // Additional success handling (if needed)
+        })
+        .catch(error => {
+            // Handle errors
+            console.error("Error in handleOffer:", error);
+            // Additional error handling (if needed)
+        });
+
+    // Set up ICE candidate handling
+    remoteConnection.onicecandidate = e => {
+        if (e.candidate) {
+            // Send the ICE candidate to the remote peer using SignalR
+            const receiverId = document.getElementById('ddlSelUser').value;
+            connection.invoke("SendIceCandidate", receiverId, JSON.stringify(e.candidate))
+                .then(() => {
+                    // Handle success
+                    console.log("SendIceCandidate invoked successfully");
+                    // Additional success handling (if needed)
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error("Error in SendIceCandidate:", error);
+                    // Additional error handling (if needed)
+                });
+        }
+    };
+
+    // Set up remote stream handling
+    remoteConnection.ontrack = event => {
+        const remoteStream = event.streams[0];
+        document.getElementById('remoteView').srcObject = remoteStream;
+    };
+}

@@ -32,8 +32,10 @@ namespace InterviewSathi.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl=null)
         {
+            returnUrl ??= Url.Content("~/");
+            ViewBag.ReturnUrl = returnUrl;
             if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole("Admin")).Wait();
@@ -55,8 +57,10 @@ namespace InterviewSathi.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(string returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/blog");
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -173,7 +177,7 @@ namespace InterviewSathi.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string returnurl = null, string remoteError = null)
         {
-            returnurl = returnurl ?? Url.Content("~/");
+            returnurl = returnurl ?? Url.Content("~/Blog/Index");
             if (remoteError != null)
             {
                 ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
@@ -191,6 +195,7 @@ namespace InterviewSathi.Web.Controllers
                                isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
+                TempData["success"] = "Log in successful";
                 await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
                 return LocalRedirect(returnurl);
             }
@@ -217,7 +222,7 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfVM model,
             string returnurl = null)
         {
-            returnurl = returnurl ?? Url.Content("~/");
+            returnurl = returnurl ?? Url.Content("~/Blog/Index");
 
             if (ModelState.IsValid)
             {

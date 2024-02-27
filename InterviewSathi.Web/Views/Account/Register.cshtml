@@ -27,7 +27,7 @@
                                 <section>
                                     <p>User Gmail service to Register</p>
                                     <form asp-controller="Account" asp-action="ExternalLogin"
-                                          asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" role="form">
+                                          asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
                                         <div>
                                             <p class="mb-0">
                                                 @foreach (var provider in loginProviders)
@@ -45,6 +45,7 @@
                         </div>
                     }
                     <form asp-action="Register" asp-controller="Account" class="p-5">
+                        <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
                         <h5 class="fw-normal mb-4">Register a new account</h5>
                         <div class="form-group">
                             <label asp-for="Role" class="form-label">Select Role</label>

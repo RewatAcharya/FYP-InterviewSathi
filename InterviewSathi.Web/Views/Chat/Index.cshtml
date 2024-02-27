@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.ApplicationUser>
 @{
-    string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
+    string? loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
     ViewData["Title"] = "Chat";
     string newChat = ViewBag.ChatWith;
 }
@@ -79,8 +79,8 @@
                                          alt="Profile Picture" width="40" height="40">
                                     <div class="flex-grow-1 ml-3">
                                         @Html.DisplayFor(modelItem => item.Name)
-                                        <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
-                                    </div>
+@*                                         <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+ *@                                    </div>
                                 </div>
                             </a>
                         }
@@ -130,4 +130,4 @@
 </script>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/chatvideo.js"></script>
+<script src="~/js/chat.js"></script>
