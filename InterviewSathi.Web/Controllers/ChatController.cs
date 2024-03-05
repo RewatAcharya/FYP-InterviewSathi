@@ -61,5 +61,19 @@ namespace InterviewSathi.Web.Controllers
                 return Index(receiverId);
             }
         }
+
+        [HttpDelete("/Chat/delete-message/{id}")]
+        public async Task<IActionResult> DeleteMessage(string id)
+        {
+            var message = await _context.PrivateMessages.FindAsync(id);
+            if (message != null)
+            {
+                _context.PrivateMessages.Remove(message);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Message deleted successfully" });
+            }
+
+            return NotFound(new { error = "Message not found" });
+        }
     }
 }

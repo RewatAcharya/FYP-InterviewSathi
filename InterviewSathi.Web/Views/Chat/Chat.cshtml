@@ -3,6 +3,7 @@
     var messages = ViewBag.Messages as List<PrivateMessage>;
 }
 
+
 <div class="py-2 px-4 border-bottom d-lg-block">
     <div class="d-flex align-items-center py-1">
         <div class="position-relative">
@@ -29,7 +30,12 @@
             }
             else
             {
-                <li class="sent">Sent: @message.MessageContent</li>
+                <li class="sent">
+                    Sent: @message.MessageContent
+                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
+                        &times;
+                    </button>
+                </li>
             }
         }
     </ul>
@@ -44,19 +50,89 @@
 </div>
 
 
-<video id="selfView" autoplay muted height="200px" width="300px"></video>
-<video id="remoteView" autoplay height="200px" width="300px"></video>
+<video id="selfView" autoplay muted height="200px" width="300px" style="display: none;"></video>
+<video id="remoteView" autoplay height="200px" width="300px" style="display: none;" ></video>
 <button id="joinVideoButton" class="btn btn-info btn-lg mr-1 px-3" style="display: none;" onclick="handleOffer()">Join Video Call</button>
 <button id="hangUpButton" class="btn btn-danger" style="display: none;" onclick="hangUp()">Hang Up</button>
 
 
-@* 
-<button onclick="toggleVideo()">Toggle Video</button>
-<button onclick="toggleAudio()">Toggle Audio</button>
-<button onclick="toggleScreenSharing()">Toggle Media</button>
-<button onclick="toggleFullscreen()">Toggle Fullscreen</button>
+ 
+<button class="btn btn-dark" id="videoControl" onclick="toggleVideo()" style="display: none;">Toggle Video</button>
+<button class="btn btn-dark" id="audioControl" onclick="toggleAudio()" style="display: none;">Toggle Audio</button>
+<button class="btn btn-dark" id="screenControl" onclick="toggleScreenSharing()">Toggle Media</button>
+<button class="btn btn-dark" id="toggleFullscreenButton" onclick="toggleFullscreen()">Toggle Fullscreen</button>
 
-<video id="selfView" autoplay muted height="200px" width="300px"></video>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
-<script src="~/js/chatvideo.js"></script> *@
+<script>
+    $("#messagesList").on("click", ".delete-button", function () {
+        var messageId = $(this).data("message-id");
+
+        $.ajax({
+            url: "/Chat/delete-message/" + messageId,
+            type: "DELETE",
+            success: function (data) {
+                console.log('Message deleted successfully:', data);
+
+                $(this).closest('li').hide();
+            }.bind(this),
+            error: function (error) {
+                console.error('Error deleting message:', error);
+            }
+        });
+    });
+
+    // Function to toggle fullscreen for the video element
+    function toggleFullscreen() {
+        const remoteVideo = document.getElementById('remoteView');
+
+        if (!document.fullscreenElement) {
+            // If not in fullscreen, request fullscreen
+            if (remoteVideo.requestFullscreen) {
+                remoteVideo.requestFullscreen();
+            } else if (remoteVideo.mozRequestFullScreen) { // Firefox
+                remoteVideo.mozRequestFullScreen();
+            } else if (remoteVideo.webkitRequestFullscreen) { // Chrome, Safari, and Edge
+                remoteVideo.webkitRequestFullscreen();
+            } else if (remoteVideo.msRequestFullscreen) { // IE/Edge
+                remoteVideo.msRequestFullscreen();
+            }
+        } else {
+            // If already in fullscreen, exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari, and Edge
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+        }
+    }
+
+    // Event listener to handle changes in fullscreen mode
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    // Function to handle changes in fullscreen mode
+    function handleFullscreenChange() {
+        const remoteVideo = document.getElementById('remoteView');
+        const isFullscreen = document.fullscreenElement || document.mozFullScreen || document.webkitIsFullScreen || document.msFullscreenElement;
+
+        if (isFullscreen) {
+            // Adjust styles or perform actions when entering fullscreen
+            remoteVideo.style.width = '100%';
+            remoteVideo.style.height = '100%';
+        } else {
+            // Adjust styles or perform actions when exiting fullscreen
+            remoteVideo.style.width = '300px';
+            remoteVideo.style.height = '200px';
+        }
+    }
+
+</script>
+
+
+

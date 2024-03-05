@@ -22,29 +22,29 @@ namespace InterviewSathi.Web.Controllers
             _context = applicationDbContext;
         }
 
-        public IActionResult Index(string Id)
+        public async Task<IActionResult> Index(string Id)
         {
-            return View(_context.Friends.Include(friend => friend.SendingTo).Include(friend => friend.SendingBy)
-                .Where(x => x.SentTo == Id || x.SentBy == Id).ToList()
+            return View(await _context.Friends.Include(friend => friend.SendingTo).Include(friend => friend.SendingBy)
+                .Where(x => x.SentTo == Id || x.SentBy == Id).ToListAsync()
                 );
         }
 
-        public IActionResult Create(string id, string searchUser)
+        public async Task<IActionResult> Create(string id, string searchUser)
         {
             // Getting the list of user IDs who are already friends or have pending friend requests
-            var excludedUserIds = _context.Friends
+            var excludedUserIds = await _context.Friends
                 .Where(f => f.SentTo == id || f.SentBy == id)
                 .Select(f => f.SentTo == id ? f.SentBy : f.SentTo)
-                .ToList();
+                .ToListAsync();
 
             // Adding the current user ID to the excluded list to avoid showing them in the list
             excludedUserIds.Add(id);
 
             // Getting the list of users excluding those who are already friends or have pending requests
-            List<ApplicationUser> users = _context.ApplicationUsers
+            List<ApplicationUser> users = await _context.ApplicationUsers
                 .Where(x => !excludedUserIds.Contains(x.Id))
                 .Where(x => x.Name.Contains(searchUser) || searchUser == null)
-                .ToList();
+                .ToListAsync();
 
             ViewBag.Users = users;
             return View();
@@ -76,7 +76,7 @@ namespace InterviewSathi.Web.Controllers
             };
 
             _context.Notifications.Add(notification);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
                 $"Click the link below to view: </br>" +
@@ -88,7 +88,7 @@ namespace InterviewSathi.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Friend friend)
         {
-            var transaction = _context.Database.BeginTransaction();
+            var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
@@ -99,7 +99,7 @@ namespace InterviewSathi.Web.Controllers
             }
             catch (Exception ex)
             {
-                transaction.RollbackToSavepoint("BeforeAddingFriend");
+                await transaction.RollbackToSavepointAsync("BeforeAddingFriend");
                 Console.WriteLine(ex.ToString());
             }
 

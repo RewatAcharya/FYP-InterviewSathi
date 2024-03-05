@@ -4,11 +4,8 @@
     ViewData["Title"] = "Chat";
     string newChat = ViewBag.ChatWith;
 }
-<style>
-    body {
-        margin-top: 20px;
-    }
 
+<style>
     .chat-online {
         color: #34ce57
     }
@@ -58,33 +55,41 @@
 
 <main class="content">
     <div class="container p-0">
+        <div class="row">
+            <input type="text" id="userIdInput" style="display: none;">
+            <button id="goToUserButton" style="display: none" class="btn btn-primary"><span id="callNotification" class="alert"></span>Pick and Go to userId</button>
+        </div>
+        <audio id="notificationSound" preload="auto" volume="0.5">
+            <source src="~/audio/notification.mp3" type="audio/mpeg" />
+        </audio>
 
         <div class="card">
             <div class="row g-0">
                 <div class="col-12 col-lg-5 col-xl-3 border-right">
 
-                   @*  <div class="px-4 d-none d-md-block">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <input type="text" class="form-control my-3" id="SearchFriend" placeholder="Search...">
-                            </div>
-                        </div>
+                    @*  <div class="px-4 d-none d-md-block">
+                    <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                    <input type="text" class="form-control my-3" id="SearchFriend" placeholder="Search...">
+                    </div>
+                    </div>
                     </div> *@
-                        @foreach (var item in Model)
-                        {
-                            <a href="#" class="list-group-item list-group-item-action border-0 user-link" data-user-id="@item.Id">
-                                <div class="badge bg-success float-right">5</div>
-                                <div class="d-flex align-items-start">
-                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid"
-                                         alt="Profile Picture" width="40" height="40">
-                                    <div class="flex-grow-1 ml-3">
-                                        @Html.DisplayFor(modelItem => item.Name)
-@*                                         <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
- *@                                    </div>
+                    @foreach (var item in Model)
+                    {
+                        <a href="#" class="list-group-item list-group-item-action border-0 user-link" data-user-id="@item.Id">
+                            <div class="badge bg-success float-right">5</div>
+                            <div class="d-flex align-items-start">
+                                <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid"
+                                     alt="Profile Picture" width="40" height="40">
+                                <div class="flex-grow-1 ml-3">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                    @*                                         <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                *@
                                 </div>
-                            </a>
-                        }
-                    
+                            </div>
+                        </a>
+                    }
+
                     <hr class="d-block d-lg-none mt-1 mb-0">
                 </div>
                 <div class="col-12 col-lg-7 col-xl-9">
@@ -114,6 +119,19 @@
         });
     });
 
+    $("#goToUserButton").click(function () {
+        var enteredUserId = $("#userIdInput").val();
+        if (enteredUserId) {
+            loadChat(enteredUserId);
+        } else {
+            alert("Please enter a valid User ID.");
+        }
+        handleOffer();
+        document.getElementById('userIdInput').value = "";
+        document.getElementById('callNotification').textContent = "";
+        document.getElementById('goToUserButton').style.display = 'none';
+    });
+
     function loadChat(userId) {
         $.ajax({
             url: "/Chat/Chat/" + userId,
@@ -127,7 +145,10 @@
             }
         });
     }
+
 </script>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/chat.js"></script>
+<script src="~/js/chatvideo.js"></script>
+
+

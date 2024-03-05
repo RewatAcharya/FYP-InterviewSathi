@@ -45,7 +45,10 @@ namespace InterviewSathi.Web.Hubs
 
         public async Task SendVideoOffer(string receiverId, string message)
         {
-            await Clients.User(receiverId).SendAsync("ReceiveVideoOffer", message);
+            string? senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? senderName = _db.ApplicationUsers.FirstOrDefault(x => x.Id == senderId)?.Name;
+
+            await Clients.User(receiverId).SendAsync("ReceiveVideoOffer", message, senderId, receiverId, senderName);
         }
 
         public async Task SendVideoAnswer(string callerUserId, string answer)
@@ -63,31 +66,14 @@ namespace InterviewSathi.Web.Hubs
             await Clients.User(targetUserId).SendAsync("ReceiveIceCandidateFromLocal", iceCandidate, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
         }
 
-        //public async Task JoinRoom(string roomName)
-        //{
-        //    await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-        //    Console.WriteLine($"User {Context.User.Identity.Name} joined room {roomName}");
-        //}
+        public async Task SendScreenShareOffer(string targetUserId, string offer)
+        {
+            await Clients.User(targetUserId).SendAsync("ReceiveScreenOffer", offer, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
+        }
 
-        //public async Task SendSignal(string userToId, string signal)
-        //{
-        //    try
-        //    {
-        //        Console.WriteLine($"Sending signal to {userToId}: {signal}");
-
-        //        var userFrom = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        //        var callerName = Context.User.Identity.Name;
-
-        //        await Clients.User(userToId).SendAsync("ReceiveSignal", userFrom, signal);
-        //        await Clients.User(userToId).SendAsync("ReceiveCall", callerName);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception using a more detailed logging system
-        //        Console.Error.WriteLine($"Error in SendSignal: {ex.Message}");
-        //        throw; // Rethrow the exception to preserve the original behavior
-        //    }
-        //}
+        public async Task SendScreenShareAnswer(string targetUserId, string answer)
+        {
+            await Clients.User(targetUserId).SendAsync("ReceiveIceAnswer", answer, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
+        }
     }
 }
