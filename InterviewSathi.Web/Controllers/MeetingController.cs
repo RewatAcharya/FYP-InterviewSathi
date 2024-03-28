@@ -84,6 +84,7 @@ namespace InterviewSathi.Web.Controllers
                 transaction.RollbackToSavepoint("BeforeAddingMeeting");
                 Console.WriteLine(ex.ToString());
             }
+            TempData["success"] = "Successfully scheduled";
             return RedirectToAction("Experts", "Home");
         }
 
@@ -158,6 +159,17 @@ namespace InterviewSathi.Web.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Meeting", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
+        }
+
+        public async Task<IActionResult> Review(ReviewRating rr)
+        {
+            if (rr != null)
+            {
+                await _context.ReviewRatings.AddAsync(rr);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index", "Chat", new { id = rr.RatedBy });
         }
     }
 }

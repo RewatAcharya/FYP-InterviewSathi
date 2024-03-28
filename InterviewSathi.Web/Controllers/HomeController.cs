@@ -1,6 +1,8 @@
 using InterviewSathi.Web.Data;
+using InterviewSathi.Web.Migrations;
 using InterviewSathi.Web.Models;
 using InterviewSathi.Web.Models.Entities;
+using InterviewSathi.Web.Services;
 using InterviewSathi.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -65,7 +67,68 @@ namespace InterviewSathi.Web.Controllers
 
             return View(searchedExperts);
         }
-       
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> NewExpert()
+        {
+            // Getting the "Interviewer" role
+            var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
+
+            if (interviewerRole == null)
+            {
+                return NotFound("Role not found");
+            }
+
+            // Getting users with the "Interviewer" role
+            var usersWithInterviewerRole = await _userManager.GetUsersInRoleAsync("Interviewer");
+
+            var interviewerUsers = usersWithInterviewerRole.Select(user => new ExpertVM
+            {
+                UserId = user.Id,
+                UserName = user.Name,
+                Profile = user.ProfileURL,
+                DocURL = user.DocURL,
+                Email = user.Email,
+                IsVerified = user.IsVerified,
+            }).ToList();
+
+            return View(interviewerUsers);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            return View(await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id));
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(string id, string email, string message, int flexRadioDefault)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (flexRadioDefault == 1)
+            {
+                user.IsVerified = true;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                EmailService.SendMail(email, "InterviewSathi - Your Account Verification", $"We have your account verified " +
+                $"Now Enjoy and help and lets grow togther. </br> {message}"
+                );
+            }
+            else 
+            {
+                user.IsVerified = false;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                EmailService.SendMail(email, "InterviewSathi - Your Account Verification", $"We have your account verified " +
+                $"Please Provide a valid documnet </br> {message}"
+                );
+            }
+            return RedirectToAction("NewExpert", "Home");
+        }
+
         public IActionResult Privacy()
         {
             return View();

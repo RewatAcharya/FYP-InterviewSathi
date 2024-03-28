@@ -8,12 +8,51 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/InterviewSathi.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        .nav-item {
+            margin-top: 25px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark adminPanel">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                    <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Menu</span>
+                    </a>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                        <li class="nav-item ">
+                            <a asp-action="Index" asp-controller="Skill" class="text-decoration-none text-white align-middle px-0">
+                                <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Skill</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="NewExpert" asp-controller="Home" class="text-decoration-none text-white align-middle px-0">
+                                <i class="fs-4 bi-clipboard-plus"></i><span class="ms-1 d-none d-sm-inline">New Expert</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="PlatformReview" class="text-decoration-none text-white align-middle px-0">
+                                <i class="fs-4 bi-chat-left"></i><span class="ms-1 d-none d-sm-inline">Reports</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="ContactUs" class="text-decoration-none text-white align-middle px-0">
+                                <i class="fs-4 bi-person-rolodex"></i><span class="ms-1 d-none d-sm-inline">Contact Us</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="col py-3">
+                @RenderBody()
+            </div>
+        </div>
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

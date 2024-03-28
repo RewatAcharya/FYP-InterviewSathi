@@ -19,7 +19,14 @@ namespace InterviewSathi.Web.Models.Entities
         [DataType(DataType.Upload)]
         public IFormFile? CoverUpload { get; set; }
 
+        public string? DocURL { get; set; }
+
+        [NotMapped]
+        [DataType(DataType.Upload)]
+        public IFormFile? DocUpload { get; set; }
+
         public string? Bio { get; set; }
+        public bool? IsVerified { get; set; } = false;
         public DateTime CreatedAt { get; set; }
     }
 }

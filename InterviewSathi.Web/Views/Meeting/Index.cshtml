@@ -1,10 +1,77 @@
-﻿@model IEnumerable<InterviewSathi.Web.Models.Entities.Meeting>
+﻿@using Microsoft.CodeAnalysis.Elfie.Extensions
+@model IEnumerable<InterviewSathi.Web.Models.Entities.Meeting>
 
 @{
     string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
     ViewData["Title"] = "Index";
 }
 
+<div class="container">
+    <h1 class="text-center mb-4">Interview Schedules</h1>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Interview with</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.MeetingTime)</td>
+                        <td>@Html.DisplayFor(modelItem => item.MeetingDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.InterviewType)</td>
+                        <td>
+                            @if (loggedUser == item.SendingTo.Id)
+                            {
+                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+                                    <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle me-2" alt="Profile Picture" height="30px" width="30px" />
+                                    @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
+                                    <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle me-2" alt="Profile Picture" height="30px" width="30px" />
+                                    @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @if (loggedUser == item.SendingTo.Id && item.Status == false)
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" asp-controller="Meeting" class="btn btn-success btn-sm me-1" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Accept</a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" id="page">
+    </div>
+</div>
+
+@*
 <h1>Interview-Schedules</h1>
 
 <table class="table table-bordered bg-white">
@@ -78,4 +145,4 @@
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" id="page">
     </div>
-</div>
+</div> *@

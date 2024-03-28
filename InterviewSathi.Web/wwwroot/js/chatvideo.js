@@ -23,7 +23,7 @@ let isAudioEnabled = true;
 let isScreenSharing = false;
 
 
-//receive messages
+//receive private messages
 connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverId, message, chatId, receiverName) {
     if (senderId === loggedUser && receiverId === userId) {
         addMessage(`Sent: ${message}`, true, senderId, receiverId, chatId);
@@ -34,7 +34,7 @@ connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverI
     else {
         playNotificationSound();
 
-        // Show a browser notification
+        // Showing a browser notification
         if (Notification.permission === "granted") {
             new Notification("New Message", {
                 body: `${senderName}: ${message}`,
@@ -73,6 +73,7 @@ connection.on("ReceiveVideoOffer", function (message, senderId, receiverId, send
     if (senderId === userId && receiverId === loggedUser) {
         document.getElementById('joinVideoButton').style.display = 'block';
         document.getElementById('hangUpButton').style.display = 'block';
+       
         document.getElementById('startVideoButton').style.display = 'none';
     }
     else {
@@ -92,24 +93,7 @@ connection.on("ReceiveVideoOffer", function (message, senderId, receiverId, send
 
 
 //receive offer
-connection.on("ReceiveScreenOffer", function (message, senderId, receiverId) {
-    const offerObject = JSON.parse(message);
 
-    // offerObject has 'type' and 'sdp' properties
-    const { type, sdp } = offerObject;
-
-    // Creating an RTCSessionDescription object
-    offer = new RTCSessionDescription({
-        type: type,
-        sdp: sdp
-    });
-
-    console.log("You are receiving a offer:", offer.sdp);
-
-    remoteConnection.setRemoteDescription(offer);
-
-
-});
 
 //receive answer
 
@@ -199,6 +183,9 @@ connection.on("ReceiveIceCandidateFromLocal", function (message, senderId, recei
     console.log("Buffered ICE candidates:", bufferedIceCandidates);
 });
 
+connection.on("ReceiveScreenOffer", function (num, senderId, receiverId) {
+    hangup();
+});
 
 function addMessage(msg, isSent, senderId, recipientId, chatId) {
     if (!msg || !senderId || !recipientId) {
@@ -312,6 +299,11 @@ const createOffer = async () => {
         videoControl.style.display = 'block';
         let audioControl = document.getElementById('audioControl');
         audioControl.style.display = 'block';
+        document.getElementById('hangUpButton').style.display = 'block';
+        document.getElementById('videoControl').style.display = 'block';
+        document.getElementById('audioControl').style.display = 'block';
+        document.getElementById('screenControl').style.display = 'block';
+        document.getElementById('toggleFullscreenButton').style.display = 'block';
 
     } catch (error) {
         console.error("Error in createOffer:", error);
@@ -402,6 +394,8 @@ function handleOffer() {
         document.getElementById('hangUpButton').style.display = 'block';
         document.getElementById('videoControl').style.display = 'block';
         document.getElementById('audioControl').style.display = 'block';
+        document.getElementById('screenControl').style.display = 'block';
+        document.getElementById('toggleFullscreenButton').style.display = 'block';
         document.getElementById('joinVideoButton').style.display = 'none';
     };
 
@@ -421,7 +415,7 @@ const hangUp = () => {
         remoteConnection = null;
     }
 
-    // Stop the remote video stream (assuming it's in the 'remoteConnection' variable)
+    // Stop the remote video stream (assuming it's in the 'peerConnection' variable)
     if (peerConnection) {
         peerConnection.close();
         peerConnection = null;
@@ -438,10 +432,18 @@ const hangUp = () => {
     document.getElementById('audioControl').style.display = 'none';
     document.getElementById('hangUpButton').style.display = 'none';
     document.getElementById('joinVideoButton').style.display = 'none';
+    document.getElementById('screenControl').style.display = 'none';
+    document.getElementById('toggleFullscreenButton').style.display = 'none';
     document.getElementById('startVideoButton').style.display = 'block';
+
+    $('#hangUpModal').modal('show');
 };
 
 
+
+function confirmRatings() {
+    $('#hangUpModal').modal('hide');
+};
 
 // Add logging statements to functions
 
@@ -452,6 +454,15 @@ async function toggleVideo() {
         if (localStream) {
             localStream.getVideoTracks().forEach(track => track.enabled = isVideoEnabled);
             console.log(`Video ${isVideoEnabled ? 'enabled' : 'disabled'}`);
+
+            var videoButton = document.getElementById("videoControl");
+            if (!isVideoEnabled) {
+                videoButton.classList.remove("btn-outline-dark");
+                videoButton.classList.add("btn-dark");
+            } else {
+                videoButton.classList.remove("btn-dark");
+                videoButton.classList.add("btn-outline-dark");
+            }
         }
     } catch (error) {
         console.error('Error toggling video:', error);
@@ -465,6 +476,16 @@ async function toggleAudio() {
         if (localStream) {
             localStream.getAudioTracks().forEach(track => track.enabled = isAudioEnabled);
             console.log(`Audio ${isAudioEnabled ? 'enabled' : 'disabled'}`);
+
+            var audioButton = document.getElementById("audioControl");
+            if (!isAudioEnabled) {
+                audioButton.classList.remove("btn-outline-dark");
+                audioButton.classList.add("btn-dark");
+            } else {
+                audioButton.classList.remove("btn-dark");
+                audioButton.classList.add("btn-outline-dark");
+            }
+
         }
     } catch (error) {
         console.error('Error toggling audio:', error);
@@ -493,16 +514,7 @@ async function toggleScreenSharing() {
 
         // Update local video element
         selfView.srcObject = localStream;
-
-        //peerConnection.getSenders().forEach(sender => {
-        //    localStream.getTracks().forEach(track => sender.replaceTrack(track));
-        //});
-
-        // Remove existing tracks and add the new ones to the connection
-        //remoteConnection.getSenders().forEach(sender => {
-        //    localStream.getTracks().forEach(track => sender.replaceTrack(track));
-        //});
-        // Remove existing tracks and add the new ones to the connection
+        
         if (answerer === loggedUser) {
             remoteConnection.getSenders().forEach(sender => {
                 localStream.getTracks().forEach(track => {
@@ -525,28 +537,10 @@ async function toggleScreenSharing() {
                 });
             });
         }
-        // Add the screen-sharing track to the peer connection
-        //handleRemoteTrack();
     } catch (error) {
         console.error('Error toggling screen sharing:', error);
     }
 }
 
 
-function toggleFullscreen() {
-    try {
-        if (selfView.requestFullscreen) {
-            if (!document.fullscreenElement) {
-                selfView.requestFullscreen();
-                console.log('Entered fullscreen');
-            } else {
-                document.exitFullscreen();
-                console.log('Exited fullscreen');
-            }
-        } else if (selfView.mozRequestFullScreen) { // Firefox
-            // Similar handling for other browsers
-        }
-    } catch (error) {
-        console.error('Error toggling fullscreen:', error);
-    }
-}
+

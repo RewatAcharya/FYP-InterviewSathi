@@ -10,74 +10,50 @@
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
 }
 
-<div class="text-center p-2">
-    <a asp-action="Index" asp-controller="Profile" asp-route-id="@userId" class="text-decoration-none">
-        <img class="rounded-circle shadow-1-strong me-5"
-             src="~/images/Profiles/@myProfile.ProfileURL" alt="avatar" width="65"
-             height="60" />
-    </a>
-
-    <a asp-action="Create" asp-controller="Blog" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" class="btn shadow-lg btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-        <i class="bi bi-share-fill fs-4 me-2"></i>
-        <span class="d-none d-sm-inline">What's New...? @myProfile.Name</span>
-    </a>
-</div>
-
-
-
 @foreach (var item in Model)
 {
-    <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            <div class="card mb-3 shadow-lg rounded-1">
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow rounded-3">
                 <div class="card-body">
-                    <div class="d-flex flex-start align-items-center">
-                        @if (item.User.Id == userId)
-                        {
-                            <img class="rounded-circle shadow-1-strong me-3"
-                                 src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
-                                 height="60" />
-                            <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
-                                <p class="text-muted small mb-0">
-                                    @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
-                                </p>
-                            </a>
-                        }
-                        else
-                        {
-                            <img class="rounded-circle shadow-1-strong me-3"
-                                 src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60"
-                                 height="60" />
-                            <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
-                                <p class="text-muted small mb-0">
-                                    @item.CreatedAt.Date.ToString("MMM") @item.CreatedAt.Year
-                                </p>
-                            </a>
-                        }
+                    <div class="d-flex align-items-center">
+                        <img class="rounded-circle me-3" src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60" height="60" />
+                        <div>
+                            @if (item.User.Id == userId)
+                            {
+                                <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                    <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                    <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
+                                </a>
+                            }
+                            <p class="text-muted small mb-0">@item.CreatedAt.ToString("MMM yyyy")</p>
+                        </div>
                     </div>
-                    <p class="card-text p-2 bg-light">@item.Content</p>
+                    <p class="card-text mt-3">@item.Content</p>
                 </div>
                 @if (item.ImgPath != null)
                 {
-                    <img src="~/Images/Blogs/@item.ImgPath" class="bd-placeholder-img card-img-top img-fluid" alt="Blog Image" />
+                    <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top img-fluid" alt="Blog Image" />
                 }
-                <div class="blog-footer card-footer d-flex justify-content-between align-items-center">
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
                     <form class="likeForm" asp-action="Like" asp-controller="Blog">
                         <input name="BlogId" value="@item.Id" hidden />
                         <input name="UserId" value="@userId" hidden />
                         @if (likes.Any(x => x.LikedBy == userId && x.LikedBlog == item.Id))
                         {
-                            <button type="button" class="likedButton btn btn-outline-dark mb-2 mb-md-0">Liked @item.LikeCount</button>
+                            <button type="button" class="likedButton btn btn-sm btn-outline-primary">Liked <span class="badge bg-secondary">@item.LikeCount</span></button>
                         }
                         else
                         {
-                            <button type="button" class="likeButton btn btn-outline-dark mb-2 mb-md-0">Like @item.LikeCount</button>
+                            <button type="button" class="likeButton btn btn-sm btn-outline-primary">Like <span class="badge bg-secondary">@item.LikeCount</span></button>
                         }
                     </form>
-                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-outline-dark mb-2 mb-md-0">Comment</a>
+                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-sm btn-outline-dark">Comment</a>
                 </div>
             </div>
         </div>
@@ -85,10 +61,9 @@
 }
 
 
-
 <div class="pagination justify-content-center">
     <nav aria-label="Page navigation">
-        <ul class="pagination">
+        <ul class="pagination pagination-sm">
             @if (Model.HasPreviousPage)
             {
                 <li class="page-item">
@@ -130,10 +105,6 @@
 </div>
 
 
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog" id="page">
-    </div>
-</div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 

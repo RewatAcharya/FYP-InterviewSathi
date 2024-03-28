@@ -3,11 +3,10 @@
 @{
     ViewData["Title"] = "Edit";
 }
-
-        <form asp-action="Edit" enctype="multipart/form-data">
+<form asp-controller="Blog" asp-action="Edit" enctype="multipart/form-data">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Edit blog</h5>
+            <h5 class="modal-title" id="staticBackdropLabel">Edit Blog</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -17,26 +16,59 @@
             <input asp-for="PostedBy" class="form-control" hidden />
             <input asp-for="ImgPath" value="@Model.ImgPath" class="form-control" hidden />
 
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <textarea asp-for="Content" class="form-control"></textarea> 
+            <!-- Content Field -->
+            <div class="mb-3">
+                <label for="Content" class="form-label">Content</label>
+                <textarea id="Content" asp-for="Content" class="form-control" rows="5" placeholder="Enter your blog content here">@Model.Content</textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="BlogPath" class="control-label"></label>
-                <input asp-for="BlogPath" class="form-control" />
-                <img src="~/images/Blogs/@Model.ImgPath" alt="NoImage" height="30px" width="50px">
+
+            <!-- Blog Image Field -->
+            <div class="mb-3">
+                <label for="BlogPath" class="form-label">Blog Image</label>
+                <input type="file" id="BlogPath" asp-for="BlogPath" class="form-control" accept="image/*" onchange="previewImage(event)">
+                <small class="form-text text-muted">Upload a new image if you want to change the current one.</small>
+                <div id="imagePreview"></div> <!-- Preview container -->
+                @if (!string.IsNullOrEmpty(Model.ImgPath))
+                {
+                    <div>
+                        <img src="~/images/Blogs/@Model.ImgPath" alt="Blog Image" class="img-thumbnail mt-2" style="max-width: 200px;">
+                    </div>
+                }
                 <span asp-validation-for="BlogPath" class="text-danger"></span>
             </div>
-           
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <input type="submit" value="Create" class="btn btn-primary" />
-    </div>
-    </div>
-        </form>
-   
+</form>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    function previewImage(event) {
+        const preview = document.getElementById('imagePreview');
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+            const img = document.createElement('img');
+            img.src = reader.result;
+            img.classList.add('img-thumbnail', 'mt-2');
+            img.style.maxWidth = '200px';
+            preview.innerHTML = ''; // Clear previous preview
+            preview.appendChild(img);
+        }
+
+        if (file) {
+            reader.readAsDataURL(file); // Read file as data URL
+        } else {
+            preview.innerHTML = '<div class="text-muted">No image selected</div>';
+        }
+    }
+</script>

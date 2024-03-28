@@ -211,7 +211,7 @@ namespace InterviewSathi.Web.Controllers
                 }
                 return RedirectToAction("Index",
                                         "Profile",
-                                        new { username = _context.ApplicationUsers.FirstOrDefault(x => x.Id == blog.PostedBy)?.UserName?.ToString() });
+                                        new { id = _context.ApplicationUsers.FirstOrDefault(x => x.Id == blog.PostedBy)?.Id });
             }
             return PartialView(blog);
         }

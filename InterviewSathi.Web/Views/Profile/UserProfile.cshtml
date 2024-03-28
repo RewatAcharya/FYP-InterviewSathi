@@ -11,68 +11,59 @@
 }
 
 <div class="container mt-4">
-    <div class="row" style="z-index: 1; position: relative">
+    <div class="row">
         <!-- Cover photo -->
         <div class="col-md-12">
-            <img src="~/images/covers/@Model.CoverURL" class="opacity-75" height="200px" width="100%" alt="Cover Photo">
+            <img src="~/images/covers/@Model.CoverURL" class="img-fluid rounded" alt="Cover Photo">
         </div>
     </div>
 
-    <div class="row mt-3" style="z-index: 2; position: relative; top:-50px">
+    <div class="row mt-3">
         <div class="col-md-2">
             <!-- Profile picture -->
-            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle" width="150"
-                 height="150" alt="Profile Picture">
+            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle" width="150" height="150" alt="Profile Picture">
         </div>
 
         <div class="col-md-8 mt-3 text-dark p-3">
             <!-- User information -->
             <h2>
-                @Model.Name - @foreach (var role in ViewBag.Role)
+                @Model.Name @foreach (var role in ViewBag.Role)
                 {
-                    @role
+                    <span class="badge bg-secondary">@role</span>    
                 }
             </h2>
             <p>
-                @Model.Bio 
+                @Model.Bio
                 @foreach (var skill in skills)
                 {
-                    @skill.Skill.NameOfSkill
-                    <span>,</span>
+                    <span class="badge bg-secondary">@skill.Skill.NameOfSkill</span>
                 }
             </p>
             <!-- Button group with "Edit Profile" button -->
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-
-                    <span>Options</span>
-                    <span class="visually-hidden">Toggle Dropdown</span>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="optionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Options
                 </button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu" aria-labelledby="optionsDropdown">
                     <li><a class="dropdown-item" asp-route-id="@myId" asp-route-chat="@Model.Id" asp-action="Index" asp-controller="Chat">Send Message</a></li>
-                    <li>
-                        @if (count == 0)
-                        {
+                    @if (count == 0)
+                    {
+                        <li>
                             <form asp-action="CreateFriend" asp-controller="Friend">
-                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                <div class="form-group">
-                                    <input name="sendBy" class="form-control" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden>
-                                </div>
-                                <div class="form-group">
-                                    <input name="sendTo" class="form-control" value="@Model.Id" hidden>
-                                </div>
-                                <div class="form-group">
-                                    <input type="submit" value="Add Friend" class="dropdown-item" />
-                                </div>
+                                <input name="sendBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden>
+                                <input name="sendTo" value="@Model.Id" hidden>
+                                <button type="submit" class="dropdown-item">Add Friend</button>
                             </form>
-                        }
-                        else
-                        {
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
                             <form asp-action="DeleteFriend" asp-controller="Friend" asp-route-id="@ViewBag.FriendId" method="post" class="d-inline">
                                 <button type="submit" class="dropdown-item">Unfriend</button>
                             </form>
-                        }
-                    </li>
+                        </li>
+                    }
                     <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Create" asp-controller="Meeting">Schedule an Interview</a></li>
                 </ul>
             </div>
@@ -80,20 +71,17 @@
     </div>
 
     <!-- Timeline section -->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
         @foreach (var item in blogs)
         {
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <small class="justify-content-end align-items-end text-body-secondary">
-                            @item.CreatedAt.Date.ToString("MMM") @Model.CreatedAt.Year
-                        </small><br />
-                        @item.Content
+                        <p class="card-text">@item.Content</p>
                     </div>
                     @if (item.ImgPath != null)
                     {
-                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" height="250px" width="100%" />
+                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" height="250px" alt="Blog Image">
                     }
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <form class="likeForm" asp-action="Like" asp-controller="Blog">
@@ -101,21 +89,20 @@
                             <input name="UserId" value="@myId" hidden />
                             @if (likes.Any(x => x.LikedBy == myId && x.LikedBlog == item.Id))
                             {
-                                <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                                <button type="button" class="likedButton btn btn-primary">Liked @item.LikeCount</button>
                             }
                             else
                             {
-                                <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                                <button type="button" class="likeButton btn btn-outline-primary">Like @item.LikeCount</button>
                             }
                         </form>
-                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
+                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary">Comment</a>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
-
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>

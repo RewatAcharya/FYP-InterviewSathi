@@ -4,94 +4,85 @@
     string loggedUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
     ViewData["Title"] = "Index";
 }
-<p>
-    <a asp-action="Create" asp-route-id="@loggedUser">Create new friends</a>
-</p>
 
-<h4>New requests</h4>
-<table class="table table-borderless">
-    <thead>
-        <tr>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Where(x => x.Accepted == false && x.SentBy != loggedUser).OrderByDescending(x => x.CreatedAt))
-        {
-            <tr>
-                <td>
-                    @if (loggedUser == item.SendingTo.Id)
-                    {
-                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+<div class="container">
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <a asp-action="Create" asp-route-id="@loggedUser" class="btn btn-primary">Create new friends</a>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h4 class="mb-4">New Requests</h4>
+            @foreach (var item in Model.Where(x => x.Accepted == false && x.SentBy != loggedUser).OrderByDescending(x => x.CreatedAt))
+            {
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            @if (loggedUser == item.SendingTo.Id)
+                            {
+                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle" alt="Profile Picture" height="60" width="60" />
+                            }
+                            else
+                            {
+                                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle" alt="Profile Picture" height="60" width="60" />
+                            }
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">@Html.DisplayFor(modelItem => item.SendingBy.Name)</h5>
+                            <p class="card-text mb-0">@item.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                        <div class="ms-auto">
+                            <form asp-action="Edit" asp-route-id="@item.Id" method="post">
+                                <button type="submit" class="btn btn-primary">Accept</button>
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="ms-2">
+                                <button type="submit" class="btn btn-danger">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
 
-                            <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
+            <h4 class="mb-4">Friends</h4>
+            @foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
+            {
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            @if (loggedUser == item.SendingTo.Id)
+                            {
+                                <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle" alt="Profile Picture" height="60" width="60" />
+                            }
+                            else
+                            {
+                                <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle" alt="Profile Picture" height="60" width="60" />
+                            }
+                        </div>
+                        <div>
+                            @if (loggedUser == item.SendingTo.Id)
+                            {
+                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
+                                    @Html.DisplayFor(modelItem => item.SendingBy.Name)
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
+                                    @Html.DisplayFor(modelItem => item.SendingTo.Name)
+                                </a>
+                            }                            
+                            <p class="card-text mb-0">@item.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                        <div class="ms-auto">
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post">
+                                <button type="submit" class="btn btn-danger">Unfriend</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-                            @Html.DisplayFor(modelItem => item.SendingBy.Name)
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
-
-                            <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-
-                            @Html.DisplayFor(modelItem => item.SendingTo.Name)
-                        </a>
-                    }
-                </td>
-                <td>
-                    <form asp-action="Edit" asp-route-id="@item.Id" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-outline-dark">Accept</button>
-                    </form>
-                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-outline-dark">Reject</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<hr />
-
-<h4>Friends</h4>
-<table class="table table-borderless">
-    <thead>
-        <tr>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Where(x => x.Accepted != false).OrderByDescending(x => x.CreatedAt))
-        {
-            <tr>
-                <td>
-                    @if (loggedUser == item.SendingTo.Id)
-                    {
-                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentBy" class="text-decoration-none">
-
-                            <img src="~/Images/Profiles/@item.SendingBy.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-
-                            @Html.DisplayFor(modelItem => item.SendingBy.Name)
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.SentTo" class="text-decoration-none">
-
-                            <img src="~/Images/Profiles/@item.SendingTo.ProfileURL" class="rounded-circle img-fluid" alt="Profile Picture" height="30px" width="40px" />
-
-                            @Html.DisplayFor(modelItem => item.SendingTo.Name)
-                        </a>
-                    }
-                </td>
-                <td>
-                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-outline-dark">Unfriend</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>

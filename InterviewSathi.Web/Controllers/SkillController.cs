@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using InterviewSathi.Web.Data;
 using InterviewSathi.Web.Models.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -21,6 +22,7 @@ namespace InterviewSathi.Web.Controllers
         }
 
         // GET: Skill
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Skills.ToListAsync());
@@ -78,35 +80,16 @@ namespace InterviewSathi.Web.Controllers
             return RedirectToAction("ListUserSkill", "Skill", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
         }
 
-        // GET: Skill/Details/5
-        public async Task<IActionResult> Details(string? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var skill = await _context.Skills
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (skill == null)
-            {
-                return NotFound();
-            }
-
-            return View(skill);
-        }
-
         // GET: Skill/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return PartialView();
         }
 
-        // POST: Skill/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("NameOfSkill,DescofSkill,Id,CreatedAt")] Skill skill)
         {
             if (ModelState.IsValid)
@@ -120,6 +103,7 @@ namespace InterviewSathi.Web.Controllers
         }
 
         // GET: Skill/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string? id)
         {
             if (id == null)
@@ -140,6 +124,7 @@ namespace InterviewSathi.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id, [Bind("NameOfSkill,DescofSkill,Id,CreatedAt")] Skill skill)
         {
             if (id != skill.Id)
@@ -170,6 +155,7 @@ namespace InterviewSathi.Web.Controllers
             return PartialView(skill);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string Id)
         {
             var skill = await _context.Skills.FindAsync(Id);

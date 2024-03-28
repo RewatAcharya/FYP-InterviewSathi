@@ -43,11 +43,17 @@ namespace InterviewSathi.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DocURL")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsVerified")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -106,7 +112,6 @@ namespace InterviewSathi.Web.Migrations
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.Blog", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
@@ -130,13 +135,12 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("PostedBy");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.Comment", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CommentBlog")
@@ -160,13 +164,12 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("CommentBy");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.BlogsEntity.LikeCount", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -186,13 +189,42 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("LikedBy");
 
-                    b.ToTable("LikeCounts", (string)null);
+                    b.ToTable("LikeCounts");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.ContactUs", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsViewed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sender")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Sender");
+
+                    b.ToTable("ContactUs");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("Accepted")
@@ -215,13 +247,12 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Friends", (string)null);
+                    b.ToTable("Friends");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Meeting", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -257,13 +288,12 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Meetings", (string)null);
+                    b.ToTable("Meetings");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Notification", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
@@ -294,13 +324,42 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SentTo");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.PlatformReview", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PicURL")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReviewType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SendBy")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SendBy");
+
+                    b.ToTable("PlatformReviews");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.PrivateMessage", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -327,13 +386,44 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("PrivateMessages", (string)null);
+                    b.ToTable("PrivateMessages");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.ReviewRating", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RatedTo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Review")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RatedBy");
+
+                    b.HasIndex("RatedTo");
+
+                    b.ToTable("ReviewRatings");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Skill", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -349,13 +439,12 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Skills", (string)null);
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.UserSkill", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -375,7 +464,7 @@ namespace InterviewSathi.Web.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSkills", (string)null);
+                    b.ToTable("UserSkills");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -560,6 +649,15 @@ namespace InterviewSathi.Web.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.ContactUs", b =>
+                {
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("Sender");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.Friend", b =>
                 {
                     b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingBy")
@@ -617,6 +715,15 @@ namespace InterviewSathi.Web.Migrations
                     b.Navigation("SendingTo");
                 });
 
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.PlatformReview", b =>
+                {
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("SendBy");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.PrivateMessage", b =>
                 {
                     b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "SendingTo")
@@ -634,6 +741,25 @@ namespace InterviewSathi.Web.Migrations
                     b.Navigation("SendingBy");
 
                     b.Navigation("SendingTo");
+                });
+
+            modelBuilder.Entity("InterviewSathi.Web.Models.Entities.ReviewRating", b =>
+                {
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("RatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InterviewSathi.Web.Models.Entities.ApplicationUser", "User1")
+                        .WithMany()
+                        .HasForeignKey("RatedTo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("User1");
                 });
 
             modelBuilder.Entity("InterviewSathi.Web.Models.Entities.UserSkill", b =>

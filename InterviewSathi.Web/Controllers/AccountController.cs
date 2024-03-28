@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using InterviewSathi.Web.Models.Entities.BlogsEntity;
+using System.Reflection.Metadata;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 
 namespace InterviewSathi.Web.Controllers
@@ -15,17 +18,22 @@ namespace InterviewSathi.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IWebHostEnvironment _env;
+
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IWebHostEnvironment env)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _env = env; 
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Dashboard()
         {
             return View();
@@ -34,7 +42,7 @@ namespace InterviewSathi.Web.Controllers
         [HttpGet]
         public IActionResult Login(string returnUrl=null)
         {
-            returnUrl ??= Url.Content("~/");
+            returnUrl ??= Url.Content("~/Blog/Index");
             ViewBag.ReturnUrl = returnUrl;
             if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
             {
@@ -66,7 +74,7 @@ namespace InterviewSathi.Web.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
-        {
+        { 
             if (ModelState.IsValid)
             {
                 ApplicationUser user = new()
@@ -81,7 +89,16 @@ namespace InterviewSathi.Web.Controllers
                     CoverURL = "coverpic.jpg",
                     CreatedAt = DateTime.UtcNow
                 };
-
+                if (registerVM.DocUpload != null)
+                {
+                    string filename = Guid.NewGuid() + Path.GetExtension(registerVM.DocUpload.FileName);
+                    string imgpath = Path.Combine(_env.WebRootPath, "Images/Documents/", filename);
+                    using (FileStream streamread = new FileStream(imgpath, FileMode.Create))
+                    {
+                        registerVM.DocUpload.CopyTo(streamread);
+                    }
+                    user.DocURL = filename;
+                }
                 var result = await _userManager.CreateAsync(user, registerVM.Password);
 
                 if (result.Succeeded)
@@ -139,7 +156,7 @@ namespace InterviewSathi.Web.Controllers
                     }
                     if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
-                        return RedirectToAction("Dashboard");
+                        return RedirectToAction("Index", "Skill");
                     }
                     else
                     {
@@ -195,6 +212,7 @@ namespace InterviewSathi.Web.Controllers
                                isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
+
                 TempData["success"] = "Log in successful";
                 await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
                 return LocalRedirect(returnurl);
@@ -242,11 +260,23 @@ namespace InterviewSathi.Web.Controllers
                     CoverURL = "coverpic.jpg",
                     CreatedAt = DateTime.UtcNow
                 };
+                if (model.DocUpload != null)
+                {
+                    string filename = Guid.NewGuid() + Path.GetExtension(model.DocUpload.FileName);
+                    string imgpath = Path.Combine(_env.WebRootPath, "Images/Documents/", filename);
+                    using (FileStream streamread = new FileStream(imgpath, FileMode.Create))
+                    {
+                        model.DocUpload.CopyTo(streamread);
+                    }
+                    user.DocURL = filename;
+                }
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, model.Role);
+                    var roleClaim = new Claim(ClaimTypes.Role, model.Role);
+                    await _userManager.AddClaimAsync(user, roleClaim);
 
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)

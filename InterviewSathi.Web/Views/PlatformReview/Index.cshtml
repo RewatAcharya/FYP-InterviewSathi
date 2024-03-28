@@ -1,0 +1,85 @@
+﻿@model IEnumerable<PlatformReview>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_Admin";
+    int count = 1;
+}
+
+<ul class="nav nav-tabs" id="statusTabs">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" data-status="all" href="#">All</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-status="true" href="#">Old</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-status="false" href="#">New</a>
+    </li>
+</ul>
+
+<div class="container">
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table table-hover" id="reviewTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Message</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Picture</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="myTable">
+                    @foreach (var item in Model.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <tr class="review-row" data-status="@item.Status.ToString().ToLower()">
+                            <td>@count</td>
+                            <td>@item.User.Name</td>
+                            <td>@item.Message</td>
+                            <td>@item.ReviewType</td>
+                            <td>@(item.Status == false ? "New" : "Old")</td>
+                            <td><img src="~/Images/PlaformReview/@item.PicURL" height="50px" width="50px" /></td>
+                            <td>
+                                <a class="btn" asp-action="Edit" asp-controller="PlatformReview" asp-route-id="@item.Id">Detail</a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const statusTabs = document.querySelectorAll('#statusTabs .nav-link');
+
+    statusTabs.forEach(tab => {
+        tab.addEventListener('click', function (event) {
+            event.preventDefault();
+            const status = this.dataset.status;
+            filterReviews(status);
+            statusTabs.forEach(tab => tab.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    function filterReviews(status) {
+        const rows = document.querySelectorAll('.review-row');
+
+        rows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>

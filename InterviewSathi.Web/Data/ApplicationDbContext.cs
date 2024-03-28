@@ -23,6 +23,9 @@ namespace InterviewSathi.Web.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
+        public DbSet<ReviewRating> ReviewRatings { get; set; }
+        public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<PlatformReview> PlatformReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

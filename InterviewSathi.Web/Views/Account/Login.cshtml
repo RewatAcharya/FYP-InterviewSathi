@@ -13,72 +13,96 @@
     var loginProviders = schemes.ToList();
 }
 
+<style>
+    .login {
+        min-height: 100vh;
+    }
 
-<section class="vh-100 d-flex align-items-center justify-content-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-6">
-                <!-- Image Div -->
-                <div class="card">
-                    <img src="~/images/statics/loginpage.jpg" alt="login form" class="img-fluid h-100" />
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-5">
-                <div class="form-container">
-                    @if (loginProviders.Count() > 0)
-                    {
-                        <div class="p-3">
-                            <div class="p-3 text-center">
-                                <section>
-                                    <p>User Gmail service to Login</p>
-                                    <form asp-controller="Account" asp-action="ExternalLogin"
-                                          asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
-                                        <div>
-                                            <p>
-                                                @foreach (var provider in loginProviders)
-                                                {
-                                                    <button type="submit" name="provider" value="@provider.Name" class="btn btn-dark">
-                                                        <i class="bi bi-google"></i>
-                                                        @provider.Name
-                                                    </button>
-                                                }
-                                            </p>
-                                        </div>
-                                    </form>
-                                </section>
-                            </div>
+    .bg-image {
+        background-image: url('@Url.Content("~/images/statics/loginpage1.jpg")');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .login-heading {
+        font-weight: 300;
+    }
+
+    .btn-login {
+        font-size: 0.9rem;
+        letter-spacing: 0.05rem;
+        padding: 0.75rem 1rem;
+    }
+</style>
+
+<div class="container-fluid ps-md-0">
+    <div class="row g-0">
+        <div class="col-md-8 col-lg-6">
+            <div class="login d-flex align-items-center py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-9 col-lg-8 mx-auto">
+                            @if (loginProviders.Count() > 0)
+                            {
+                                <div class="">
+                                    <div class="p-3 text-center">
+                                        <section>
+                                            <h3 class="login-heading mb-4 fw-bold text-center">Welcome back! <br /> <span class="h5">Login into your account</span></h3>
+                                            <form asp-controller="Account" asp-action="ExternalLogin"
+                                                  asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
+                                                <div>
+                                                    <p>
+                                                        @foreach (var provider in loginProviders)
+                                                        {
+                                                            <button type="submit" name="provider" value="@provider.Name" class="btn btn-outline-success text-black">
+                                                                <i class="bi bi-google"></i>
+                                                                @provider.Name
+                                                            </button>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </form>
+                                        </section>
+                                    </div>
+                                </div>
+                            }
+                            <h5 class="login-heading mb-4 text-center">Or continue with</h5>
+                            <!-- Sign In Form -->
+                            <form asp-action="Login" asp-controller="Account">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" asp-for="Email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                    <label for="floatingInput">Email address</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" asp-for="Password">
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                    <label for="floatingPassword">Password</label>
+                                </div>
+                                <div class="d-grid">
+
+                                    <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Log In</button>
+                                    <div class="text-center">
+
+                                        <p class="mt-3 mb-2" style="color: #393f81;">
+                                            Don't have an account?
+                                            <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" style="color: #393f81;">Register here</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
+
                         </div>
-                    }
-                    <form asp-action="Login" asp-controller="Account">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
-                        <h5 class="fw-normal mb-4">Login Now</h5>
-                        <div class="form-group">
-                            <label asp-for="Email">Email</label>
-                            <input type="email" class="form-control" asp-for="Email">
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Password">Password</label>
-                            <input type="password" class="form-control" asp-for="Password">
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                        <div class="pt-3">
-                            <button class="btn btn-dark btn-block" type="submit">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                                Log in
-                            </button>
-                        </div>
-                        <p class="mt-3 mb-2" style="color: #393f81;">
-                            Already have an account?
-                            <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" style="color: #393f81;">Register here</a>
-                        </p>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
     </div>
-</section> 
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

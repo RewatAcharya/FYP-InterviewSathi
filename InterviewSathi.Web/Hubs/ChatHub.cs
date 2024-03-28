@@ -66,14 +66,10 @@ namespace InterviewSathi.Web.Hubs
             await Clients.User(targetUserId).SendAsync("ReceiveIceCandidateFromLocal", iceCandidate, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
         }
 
-        public async Task SendScreenShareOffer(string targetUserId, string offer)
+        public async Task SendHangUp(int num, string targetUserId)
         {
-            await Clients.User(targetUserId).SendAsync("ReceiveScreenOffer", offer, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
+            await Clients.User(targetUserId).SendAsync("ReceiveHangUp", num, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
         }
 
-        public async Task SendScreenShareAnswer(string targetUserId, string answer)
-        {
-            await Clients.User(targetUserId).SendAsync("ReceiveIceAnswer", answer, Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(), targetUserId);
-        }
     }
 }

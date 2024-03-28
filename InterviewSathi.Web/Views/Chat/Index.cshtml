@@ -17,8 +17,8 @@
     .chat-messages {
         display: flex;
         flex-direction: column;
-        max-height: 300px;
-        overflow-y: scroll
+        max-height: 400px;
+        overflow-y: scroll;
     }
 
     .received,
@@ -51,66 +51,105 @@
     .border-top {
         border-top: 1px solid #dee2e6 !important;
     }
+    /* Apply default styles to all buttons */
+    .btn-video,
+    .btn-audio,
+    .btn-screen,
+    .btn-fullscreen,
+    .btn-join,
+    .btn-hang {
+        display: none; /* Hide buttons by default */
+        margin-top: 10px; /* Adjust as needed */
+    }
+
+        /* Override display for buttons with display:block status */
+        .btn-video[style*="block"],
+        .btn-audio[style*="block"],
+        .btn-screen[style*="block"],
+        .btn-fullscreen[style*="block"],
+        .btn-join[style*="block"],
+        .btn-hang[style*="block"] {
+            display: block !important;
+        }
+
+    /* Add specific styles to the buttons */
+    .btn-join,
+    .btn-hang {
+        margin-right: 5px; /* Adjust as needed */
+    }
+
+    .btn-join {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+        .btn-join:hover,
+        .btn-hang:hover,
+        .btn-video:hover,
+        .btn-audio:hover,
+        .btn-screen:hover,
+        .btn-fullscreen:hover {
+            opacity: 0.8;
+        }
+
 </style>
 
-<main class="content">
-    <div class="container p-0">
-        <div class="row">
-            <input type="text" id="userIdInput" style="display: none;">
-            <button id="goToUserButton" style="display: none" class="btn btn-primary"><span id="callNotification" class="alert"></span>Pick and Go to userId</button>
-        </div>
-        <audio id="notificationSound" preload="auto" volume="0.5">
-            <source src="~/audio/notification.mp3" type="audio/mpeg" />
-        </audio>
-
-        <div class="card">
-            <div class="row g-0">
-                <div class="col-12 col-lg-5 col-xl-3 border-right">
-
-                    @*  <div class="px-4 d-none d-md-block">
-                    <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                    <input type="text" class="form-control my-3" id="SearchFriend" placeholder="Search...">
-                    </div>
-                    </div>
-                    </div> *@
+<div class="container">
+    <div class="row">
+        <input type="text" id="userIdInput" style="display: none;">
+        <button id="goToUserButton" style="display: none" class="btn btn-primary"><span id="callNotification" class="alert"></span>Pick and Go to userId</button>
+    </div>
+    <audio id="notificationSound" preload="auto" volume="0.5">
+        <source src="~/audio/notification.mp3" type="audio/mpeg" />
+    </audio>
+    <div class="row flex-nowrap">
+        <div id="sidebar" class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light adminPanel">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-dark min-vh-100">
+                <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                    <span class="fs-5 d-none d-sm-inline text-black">Chat</span>
+                </a>
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     @foreach (var item in Model)
                     {
-                        <a href="#" class="list-group-item list-group-item-action border-0 user-link" data-user-id="@item.Id">
-                            <div class="badge bg-success float-right">5</div>
-                            <div class="d-flex align-items-start">
-                                <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid"
-                                     alt="Profile Picture" width="40" height="40">
-                                <div class="flex-grow-1 ml-3">
-                                    @Html.DisplayFor(modelItem => item.Name)
-                                    @*                                         <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
-                                *@
+                        <li class="nav-item mt-3">
+
+                            <a href="#" class="text-decoration-none text-dark align-middle px-0 user-link" data-user-id="@item.Id">
+                                <div class="d-flex align-items-start">
+                                    <div class="user-info" data-toggle="tooltip" title="@Html.DisplayFor(modelItem => item.Name)">
+                                        <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid user-image" alt="Profile Picture" width="40px" height="60px" data-toggle="tooltip" title="@Html.DisplayFor(modelItem => item.Name)">
+                                    </div>
+                                    <div class="flex-grow-1 ml-3">
+                                        <span class="ms-1 d-none d-sm-inline">@Html.DisplayFor(modelItem => item.Name)</span>
+
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+
+                        </li>
                     }
 
-                    <hr class="d-block d-lg-none mt-1 mb-0">
-                </div>
-                <div class="col-12 col-lg-7 col-xl-9">
-                    <div id="chat-container" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="postEvent">
-                    </div>
+                </ul>
+
+            </div>
+        </div>
+        <div class="col py-3">
+            <div class="">
+                <div id="chat-container" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="postEvent">
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     var loggedUser = '@loggedUser';
     var userId = '@newChat';
 
-    // Load the chat after determining the userId
+    // Loading the chat after determining the userId
     loadChat(userId);
 
     $(document).ready(function () {
-        // Click event on user links
         $(".user-link").click(function (e) {
             e.preventDefault();
 
@@ -120,9 +159,9 @@
     });
 
     $("#goToUserButton").click(function () {
-        var enteredUserId = $("#userIdInput").val();
-        if (enteredUserId) {
-            loadChat(enteredUserId);
+        userId = $("#userIdInput").val();
+        if (userId) {
+            loadChat(userId);
         } else {
             alert("Please enter a valid User ID.");
         }
@@ -139,6 +178,29 @@
             type: "GET",
             success: function (result) {
                 $("#chat-container").html(result);
+
+                const stars = document.querySelectorAll('.rating i');
+                const starInput = document.getElementById('starInput');
+
+                stars.forEach(star => {
+                    star.style.color = 'gray'; 
+                });
+
+                stars.forEach(star => {
+                    star.addEventListener('click', function () {
+                        const rating = parseInt(star.getAttribute('data-rating'));
+                        starInput.value = rating;
+
+                        stars.forEach(s => {
+                            if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                                s.style.color = 'gold';  
+                            } else {
+                                s.style.color = 'gray'; 
+                            }
+                        });
+                    });
+                });
+                starInput.value = '';
             },
             error: function (error) {
                 console.error("Error loading chat:", error);

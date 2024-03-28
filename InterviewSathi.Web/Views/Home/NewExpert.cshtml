@@ -1,0 +1,82 @@
+﻿@using InterviewSathi.Web.ViewModels
+@model IEnumerable<ExpertVM>
+
+@{
+    Layout = "_Admin";
+    int count = 1;
+}
+
+<div class="container">
+    <ul class="nav nav-tabs" id="statusTabs">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" data-status="all" href="#">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="true" href="#">Verified</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="false" href="#">New</a>
+        </li>
+    </ul>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table table-hover" id="expertTable">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Profile</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var exp in Model)
+                    {
+                        <tr class="expert-row" data-status="@exp.IsVerified.ToString().ToLower()">
+                            <td>@count</td>
+                            <td>@exp.UserName</td>
+                            <td><img src="~/images/profiles/@exp.Profile" width="50" height="50"></td>
+                            <td><img src="~/images/Documents/@exp.DocURL" width="50" height="50"></td>
+
+                            <td>@(exp.IsVerified == false ? "New" : "Verified")</td>
+                            <td>
+                                <a class="btn" asp-action="Edit" asp-controller="Home" asp-route-id="@exp.UserId">Detail</a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const statusTabs = document.querySelectorAll('#statusTabs .nav-link');
+
+    statusTabs.forEach(tab => {
+        tab.addEventListener('click', function (event) {
+            event.preventDefault();
+            const status = this.dataset.status;
+            filterReviews(status);
+            statusTabs.forEach(tab => tab.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    function filterReviews(status) {
+        const rows = document.querySelectorAll('.expert-row');
+
+        rows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>

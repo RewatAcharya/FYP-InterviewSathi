@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InterviewSathi.Web.ViewModels
 {
@@ -22,6 +23,10 @@ namespace InterviewSathi.Web.ViewModels
 
         [Required]
         public string Name { get; set; }
+
+        [NotMapped]
+        [DataType(DataType.Upload)]
+        public IFormFile? DocUpload { get; set; }
 
         [Display(Name="Phone Number")]
         public string? PhoneNumber { get; set; }

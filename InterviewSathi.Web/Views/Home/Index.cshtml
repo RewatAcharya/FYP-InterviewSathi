@@ -1,95 +1,99 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
     ViewData["Title"] = "InterviewSathi-Home";
 }
 
-<div class="container p-4 shadow border border-white">
+<div class="container mt-5">
     <div class="row justify-content-center align-items-center">
-        <div class="col-lg-6 text-center" data-aos="fade-right" data-aos-duration="2000">
-            <h2 class="display-6 text-dark">Learn from Experts</h2>
-            <p class="lead">Contrary to popular belief, Lorem Ipsummm is not simply random text. It has roots in a piece of classical</p>
-            <a class="btn btn-outline-dark btn-lg align-item-center" asp-controller="Home" asp-action="Experts">Explore Our Experts</a>
+        <div class="col-lg-6" data-aos="fade-right" data-aos-duration="2000">
+            <h2 class="display-4 text-dark fw-bold">Learn from Experts</h2>
+            <p class="lead">Discover valuable insights and guidance from seasoned professionals to boost your career.</p>
+            <a href="@Url.Action("Experts", "Home")" class="btn btn-primary btn-lg mt-3">Explore Our Experts</a>
         </div>
         <div class="col-lg-6" data-aos="fade-left" data-aos-duration="2000">
-            <img src="~/images/statics/index1.jpg" class="img-fluid shadow-lg mt-2" style="max-height: 400px; width: 100%; border-radius: 10%;" alt="Home Image">
+            <img src="~/images/statics/home1.png" class="img-fluid mt-3 rounded" alt="Home Image">
         </div>
     </div>
 </div>
 
-<div class="container mt-4 p-4 shadow border border-white">
-    <div class="row">
-        <div class="col-md-6" data-aos="fade-right" data-aos-duration="2000">
-            <img src="~/images/statics/index2.jpg" class="img-fluid rounded" alt="Home Image" style="border: 30px;">
-        </div>
-        <div class="col" data-aos="fade-left" data-aos-duration="2000">
-            <h2 class="display-6">Why become an Interviewer?</h2>
-            <ul class="list-unstyled">
-                <li>
-                    <h3 class="pt-2">1. Empowers Others</h3>
-                    <p class="ps-4">Share your knowledge and insights to guide aspiring professionals.</p>
-                </li>
-                <li>
-                    <h3 class="pt-2">2. Build Your Profile</h3>
-                    <p class="ps-4">Create a personalized interviewer profile showcasing your expertise and career journey.</p>
-                </li>
-                <li>
-                    <h3 class="pt-2">3. Flexible Contribution</h3>
-                    <p class="ps-4">Conduct mock interviews, offer industry-specific tips, and participate in live Q&A sessions at your convenience.</p>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-
-<div class="container mt-4 p-4 shadow border border-white">
-    <div class="row">
-        <div class="col-md-6" data-aos="fade-right" data-aos-duration="2000">
-            <h2 class="display-6">Interview with Your Dream<br />in Three Simple Steps</h2>
-            <ul class="list-unstyled">
-                <li>
-                    <h3 class="pt-2">1. Select Experts</h3>
-                    <p class="ps-4">Choose from a pool of experienced professionals in your field.</p>
-                </li>
-                <li>
-                    <h3 class="pt-2">2. Schedule a Meeting</h3>
-                    <p class="ps-4">Find a convenient time to connect with your chosen experts.</p>
-                </li>
-                <li>
-                    <h3 class="pt-2">3. Start Meeting</h3>
-                    <p class="ps-4">Engage in a productive conversation and gain valuable insights.</p>
-                </li>
-            </ul>
-        </div>
-        <div class="col" data-aos="fade-left" data-aos-duration="2000">
-            <img src="~/images/statics/index3.jpg" class="img-fluid rounded" alt="Home Image" style="border: 30px;">
+<div class="mt-5 p-4 shadow border border-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6" data-aos="fade-right" data-aos-duration="2000">
+                <img src="~/images/statics/index2.jpg" class="img-fluid rounded" alt="Home Image">
+            </div>
+            <div class="col-md-6" data-aos="fade-left" data-aos-duration="2000">
+                <h2 class="display-4 mb-4">Why Become an Interviewer?</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <h3 class="fw-bold">Empowers Others</h3>
+                        <p>Share your knowledge and insights to guide aspiring professionals.</p>
+                    </li>
+                    <li class="mb-3">
+                        <h3 class="fw-bold">Build Your Profile</h3>
+                        <p>Create a personalized interviewer profile showcasing your expertise and career journey.</p>
+                    </li>
+                    <li>
+                        <h3 class="fw-bold">Flexible Contribution</h3>
+                        <p>Conduct mock interviews, offer industry-specific tips, and participate in live Q&A sessions at your convenience.</p>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
-
-<div class="container mt-4 p-4 shadow border border-white">
-    <div class="row text-center" data-aos="zoom-in" data-aos-duration="2000">
+<div class="mt-5 p-4 shadow border border-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6" data-aos="fade-right" data-aos-duration="2000">
+                <h2 class="display-4">Interview with Your Dream in Three Simple Steps</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <h3 class="fw-bold">Select Experts</h3>
+                        <p>Choose from a pool of experienced professionals in your field.</p>
+                    </li>
+                    <li class="mb-3">
+                        <h3 class="fw-bold">Schedule a Meeting</h3>
+                        <p>Find a convenient time to connect with your chosen experts.</p>
+                    </li>
+                    <li>
+                        <h3 class="fw-bold">Start Meeting</h3>
+                        <p>Engage in a productive conversation and gain valuable insights.</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6" data-aos="fade-left" data-aos-duration="2000">
+                <img src="~/images/statics/index3.jpg" class="img-fluid rounded" alt="Home Image">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mt-5 p-4 shadow border border-white">
+    <div class="row text-center">
         <div class="col">
-            <h2 class="display-6">What Our Friends Say About Us</h2>
+            <h2 class="display-4">What Our Friends Say About Us</h2>
         </div>
     </div>
-    <div class="row pt-4">
-        <div class="col-md-4">
-            <div class="card">
+    <div class="row justify-content-center">
+        <div class="col-md-4" data-aos="fade-up" data-aos-duration="2000">
+            <div class="card shadow">
                 <div class="card-body">
                     <p class="card-text">"This is a nice environment to practice technical interviews."</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
+        <div class="col-md-4" data-aos="fade-up" data-aos-duration="2000">
+            <div class="card shadow">
                 <div class="card-body">
                     <p class="card-text">"I found valuable insights and support from the community here."</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
+        <div class="col-md-4" data-aos="fade-up" data-aos-duration="2000">
+            <div class="card shadow">
                 <div class="card-body">
                     <p class="card-text">"Great platform to connect with experienced professionals."</p>
                 </div>
@@ -98,58 +102,47 @@
     </div>
 </div>
 
-
-
-<div class="container mt-4 p-4 shadow border border-white">
-    <div class="row">
-        <div class="col-md-6 text-start justify-content-evenly" data-aos="fade-right" data-aos-duration="2000">
-            <h2 class="display-6">Contact Us or Share Your Suggestions</h2>
-            <p>We value your feedback and are here to assist you. Feel free to get in touch or share your suggestions with us.</p>
-            <p class="pb-1 mbr-fonts-style display-7">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sed sollicitudin felis. Vestibulum vestibulum leo sed elit inter dum malesuada. Sed turpis. Etiam nisi nunc, viverra vitae euismod nec, convallis et arcu. Lorem ipsum dolor sit amet.
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sed sollicitudin felis
-            </p>
-            <p class="telephone mbr-fonts-style display-7">
-                Tel:  +977 9812345678
-            </p>
-            <p class="E-mail pb-1 mbr-fonts-style display-7">
-                E-mail: info@interviewsathi.com
-            </p>
+<div class="mt-5 p-4 shadow border border-white">
+    <div class="row align-items-center">
+        <div class="col-md-6" data-aos="fade-right" data-aos-duration="2000">
+            <h2 class="display-4">Contact Us or Share Your Suggestions</h2>
+            <p class="lead mb-4">We value your feedback and are here to assist you. Feel free to get in touch or share your suggestions with us.</p>
+            <p class="mb-1"><i class="bi bi-telephone"></i> Tel: +977 9812345678</p>
+            <p><i class="bi bi-envelope"></i> E-mail: info@interviewsathi.com</p>
         </div>
-        <div class="col-md-6 bg-transparent p-2" data-aos="fade-left" data-aos-duration="2000">
-            <form>
+        <div class="col-md-6" data-aos="fade-left" data-aos-duration="2000">
+            <form id="contactForm" asp-action="Create" asp-controller="ContactUs">
                 <div class="mb-3">
                     <label for="name" class="form-label">Your Name</label>
-                    <input type="text" class="form-control" id="name" placeholder="Enter your name">
+                    <input type="text" class="form-control" id="name" name="sendername" placeholder="Enter your name">
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Your Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
                 </div>
                 <div class="mb-3">
                     <label for="message" class="form-label">Your Message</label>
-                    <textarea class="form-control" id="message" rows="4" placeholder="Enter your message"></textarea>
+                    <textarea class="form-control" id="message" name="message" rows="4" placeholder="Enter your message"></textarea>
                 </div>
-                <button type="submit" class="btn btn-outline-dark btn-lg">Submit</button>
+                <button type="submit" id="submitBtn" class="btn btn-outline-dark btn-lg">Submit</button>
             </form>
         </div>
     </div>
 </div>
 
-
-
-<div class="container mt-4 p-4 shadow border border-white">
-    <div class="row text-center" data-aos="fade-up" data-aos-duration="2000">
-        <div class="col-md-8 mx-auto">
-            <h2 class="display-6">Sign Up with Us and Land Your Dream</h2>
-            <p class="lead">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical</p>
+@if (!SignInManager.IsSignedIn(User))
+{
+    <div class="mt-5 p-4 shadow border border-white">
+        <div class="row text-center" data-aos="fade-up" data-aos-duration="2000">
+            <div class="col-md-8 mx-auto">
+                <h2 class="display-4">Sign Up with Us and Land Your Dream</h2>
+                <p class="lead">Join our platform to unlock a world of opportunities and take your career to new heights.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                <a class="btn btn-primary btn-lg" href="@Url.Action("Register", "Account")">Sign Up</a>
+            </div>
         </div>
     </div>
-    <div class="row justify-content-center">
-        <div class="col-md-4 text-center">
-            <a class="btn btn-outline-dark btn-lg" href="@Url.Action("Register", "Account")">Sign Up</a>
-        </div>
-    </div>
-</div>
-
-
+}

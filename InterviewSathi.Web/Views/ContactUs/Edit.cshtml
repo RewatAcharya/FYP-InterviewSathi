@@ -1,0 +1,32 @@
+﻿@model ContactUs
+
+@{
+    Layout = "_Admin";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-md-8 col-lg-6 col-xl-5">
+            <form asp-controller="ContactUs" asp-action="Edit">
+                <input type="text" value="@Model.Id" hidden />
+                <div class="card shadow-lg bg-light text-dark p-4 rounded-3">
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label mb-1">Email</label>
+                        <input id="email" type="text" placeholder="Enter your email" value="@Model.Email" name="email" readonly class="form-control input-box rm-border">
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label mb-1">Message</label>
+                        <textarea id="message" placeholder="Enter your message" name="emailMessage" class="form-control input-box rm-border" rows="6"></textarea>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="col-md-12 px-0">
+                            <input type="submit" value="Submit" class="btn btn-primary btn-block rm-border">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

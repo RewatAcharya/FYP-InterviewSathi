@@ -3,16 +3,19 @@
 @{
     Layout = "_Admin";
     ViewData["Title"] = "Index";
+    int count = 1;
 }
 
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">New Skill</a> 
+    <a asp-action="Create" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        <i class="bi bi-plus-circle-fill"></i>
+        New Skill
+    </a>
 </p>
-<table class="table">
+<table class="table table-responsive table-hover">
     <thead>
         <tr>
+            <th>#</th>
             <th>
                 @Html.DisplayNameFor(model => model.NameOfSkill)
             </th>
@@ -26,6 +29,7 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>@count</td> 
                 <td>
                     @Html.DisplayFor(modelItem => item.NameOfSkill)
                 </td>
@@ -34,7 +38,7 @@
                 </td>
                 <td>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
 
                             <span>Options</span>
                             <span class="visually-hidden">Toggle Dropdown</span>
@@ -53,6 +57,7 @@
                     </div>
                 </td>
             </tr>
+            count++;
         }
     </tbody>
 </table>

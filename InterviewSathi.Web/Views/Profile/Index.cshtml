@@ -12,49 +12,49 @@
     <div class="row">
         <!-- Cover photo -->
         <div class="col-md-12">
-            <img src="~/images/covers/@Model.CoverURL" class="opacity-75 object-fit-cover" height="200px" width="100%" alt="Cover Photo">
+            <img src="~/images/covers/@Model.CoverURL" class="img-fluid rounded" alt="Cover Photo">
         </div>
     </div>
 
-    <div class="row mt-3" style="z-index: 2; position: relative; top:-50px">
+    <div class="row mt-3">
         <div class="col-md-2">
             <!-- Profile picture -->
-            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle object-fit-cover" width="150"
-                 height="150" alt="Profile Picture">
+            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle img-thumbnail" width="150" height="150" alt="Profile Picture">
         </div>
 
         <div class="col-md-8 mt-3 text-dark p-3">
             <!-- User information -->
             <h2>
-                @Model.Name - @foreach (var role in ViewBag.Role)
-                {
-                    @role
-                }
+                @Model.Name  <span class="badge bg-dark">
+                    @foreach (var role in ViewBag.Role)
+                    {
+                        @role
+                    }
+                </span>
             </h2>
-            <p>@Model.Bio 
+            <p>@Model.Bio</p> 
+            <p>
                 @foreach (var skill in skills)
                 {
-                    @skill.Skill.NameOfSkill
-                    <span>,</span>
+                    <span class="badge bg-dark">@skill.Skill.NameOfSkill</span>
                 }
             </p>
             <!-- Button group with "Edit Profile" button -->
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-
-                    <span>Options</span>
-                    <span class="visually-hidden">Toggle Dropdown</span>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Options
                 </button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li>
                         <a asp-route-Id="@Model.Id" asp-action="EditProfile" asp-controller="Profile" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Profile</a>
                     </li>
                     <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="ListUserSkill" asp-controller="Skill">Skills</a></li>
                     <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Friend">Friends</a></li>
                     <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Index" asp-controller="Meeting">Schedule</a></li>
+                    <li><a class="dropdown-item" asp-route-Id="@Model.Id" asp-action="Create" asp-controller="PlatformReview">Suggestion</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
+                        <form asp-area="" asp-controller="Account" asp-action="Logout">
                             <button type="submit" class="dropdown-item text-danger">Logout</button>
                         </form>
                     </li>
@@ -64,16 +64,36 @@
     </div>
 
     <!-- Timeline section -->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
         @foreach (var item in blogs)
         {
             <div class="col">
                 <div class="card">
+                    <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" alt="Blog Image">
                     <div class="card-body">
-                        <div class="position-absolute top-0 end-0">
-                            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <p class="card-text">@item.Content</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <form class="likeForm" asp-action="Like" asp-controller="Blog">
+                                <input name="BlogId" value="@item.Id" hidden />
+                                <input name="UserId" value="@Model.Id" hidden />
+                                @if (likes.Any(x => x.LikedBy == Model.Id && x.LikedBlog == item.Id))
+                                {
+                                    <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
+                                }
+                            </form>                           
+                            <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary">Comment</a>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Options
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <li>
                                     <a asp-route-Id="@item.Id" asp-action="Edit" asp-controller="Blog" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit Blog</a>
                                 </li>
@@ -82,33 +102,6 @@
                                 </li>
                             </ul>
                         </div>
-                        <p class="card-text">
-                            <small class="justify-content-end align-items-end text-body-secondary">
-                                @item.CreatedAt.Date.ToString("MMM") @Model.CreatedAt.Year
-                            </small><br />
-                            @item.Content
-
-
-                        </p>
-                    </div>
-                    @if (item.ImgPath != null)
-                    {
-                        <img src="~/Images/Blogs/@item.ImgPath" class="card-img" height="250px" width="100%" />
-                    }
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <form class="likeForm" asp-action="Like" asp-controller="Blog">
-                            <input name="BlogId" value="@item.Id" hidden />
-                            <input name="UserId" value="@Model.Id" hidden />
-                            @if (likes.Any(x => x.LikedBy == Model.Id && x.LikedBlog == item.Id))
-                            {
-                                <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">Liked @item.LikeCount</button>
-                            }
-                            else
-                            {
-                                <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">Like @item.LikeCount</button>
-                            }
-                        </form>
-                        <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">Comment</a>
                     </div>
                 </div>
             </div>
@@ -120,6 +113,7 @@
     <div class="modal-dialog" id="page">
     </div>
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>

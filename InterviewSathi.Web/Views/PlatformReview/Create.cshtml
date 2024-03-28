@@ -1,0 +1,46 @@
+﻿@model PlatformReview
+
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="container ps-md-0">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border border-2 shadow p-4">
+                <h2 class="text-center mb-4">Submit a Review</h2>
+                <form asp-action="Create" asp-controller="PlatformReview" enctype="multipart/form-data">
+                    <input asp-for="Id" value="@Guid.NewGuid().ToString()" hidden />
+                    <input asp-for="SendBy" value="@ViewBag.Id" hidden />
+
+                    <div class="mb-3">
+                        <label for="reviewType" class="form-label">Review Type</label>
+                        <select class="form-select" id="reviewType" asp-for="ReviewType" required>
+                            <option value="">Select Review Type</option>
+                            <option value="Bug">Bug</option>
+                            <option value="Bad Post">Bad Post</option>
+                            <option value="Spam">Spam</option>
+                            <option value="Inappropriate Content">Inappropriate Content</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a review type.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" placeholder="Enter Your Message" asp-for="Message" rows="3" required></textarea>
+                        <div class="invalid-feedback">Please enter a message.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="picUpload" class="form-label">Upload Picture</label>
+                        <input type="file" class="form-control" id="picUpload" asp-for="PicUpload">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,57 +6,46 @@
     ViewData["Title"] = "Create";
     var users = ViewBag.Users;
 }
+
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="col-md-6">
-                <p >
-                    <a asp-action="Index" asp-controller="Friend" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark mb-3">
-                        <i class="bi bi-arrow-return-left"></i>
-                    </a>
-                    <span class="h4">Find Friends</span>
-                </p>
+        <div class="col-md-8">
+            <div class="mb-3">
+                <a asp-action="Index" asp-controller="Friend" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-return-left"></i>
+                    Back to Friends
+                </a>
+                <span class="h4 ms-3">Find Friends</span>
             </div>
-            <div class="col-md-6">
-                <form asp-action="Create" asp-controller="Friend" method="get" class="mb-4 justify-items-end">
-                    <div class="input-group">
-                        <input name="searchUser" type="text" placeholder="Search by User Name" class="form-control" />
-                        <button type="submit" class="btn btn-outline-dark">Search</button>
-                    </div>
-                </form>
-            </div>
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in users)
-                    {
-                        <tr>
-                            <td>
-                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.Id" class="text-decoration-none d-flex align-items-center">
-                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle img-fluid me-2" alt="Profile Picture" height="40px" width="40px" />
-                                    @item.Name
-                                </a>
-                            </td>
-                            <td>
-                                <form asp-action="Create">
-                                    <input asp-for="SentBy" class="form-control" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
-                                    <input asp-for="SentTo" class="form-control" value="@item.Id" hidden />
-                                    <button type="submit" class="btn btn-outline-dark">Add Friend</button>
+            <form asp-action="Create" asp-controller="Friend" method="get" class="mb-4">
+                <div class="input-group">
+                    <input name="searchUser" type="text" placeholder="Search by User Name" class="form-control" />
+                    <button type="submit" class="btn btn-outline-dark">Search</button>
+                </div>
+            </form>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var item in users)
+                {
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle me-3" alt="Profile Picture" height="40px" width="40px" />
+                                    <h5 class="card-title">@item.Name</h5>
+                                </div>
+                                <form asp-action="Create" asp-controller="Friend" method="post">
+                                    <input asp-for="SentBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
+                                    <input asp-for="SentTo" value="@item.Id" hidden />
+                                    <button type="submit" class="btn btn-outline-primary">Add Friend</button>
                                 </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
-
 
 
 

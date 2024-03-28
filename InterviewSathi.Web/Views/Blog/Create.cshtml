@@ -5,25 +5,25 @@
 <form asp-action="Create" asp-controller="Blog" enctype="multipart/form-data">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Post a blog</h5>
+            <h5 class="modal-title text-center" id="staticBackdropLabel">Post a Blog</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-    <div class="form-group">
-        <label asp-for="Content" class="control-label"></label>
-        <textarea asp-for="Content" class="form-control" ></textarea>
-        <span asp-validation-for="Content" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="BlogPath" class="control-label"></label>
-        <input asp-for="BlogPath" class="form-control" />
-        <span asp-validation-for="BlogPath" class="text-danger"></span>
-    </div>
-    <input asp-for="PostedBy" class="form-control" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
-    </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea id="content" asp-for="Content" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label for="blogPath" class="form-label">Blog Image</label>
+                <input type="file" id="blogPath" asp-for="BlogPath" class="form-control">
+                <span asp-validation-for="BlogPath" class="text-danger"></span>
+            </div>
+            <input asp-for="PostedBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
+        </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <button type="submit" class="btn btn-primary">Post</button>
         </div>
     </div>
 </form>

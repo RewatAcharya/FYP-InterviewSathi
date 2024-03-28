@@ -1,0 +1,115 @@
+﻿@model PlatformReview
+@{
+    Layout = "_Admin";
+}
+
+
+<style>
+    body {
+        color: #ffffff
+    }
+
+    .box {
+        margin: auto
+    }
+
+    .card {
+        padding: 8%;
+        padding-top: 35px;
+        margin-top: 60px;
+        margin-bottom: 80px
+    }
+
+    textarea[name="message"] {
+        resize: none
+    }
+
+    #e-mail {
+        height: 45px
+    }
+
+    #message {
+        height: 120px
+    }
+
+
+    .rm-border:focus {
+        border-color: inherit;
+        -webkit-box-shadow: none;
+        box-shadow: none
+    }
+
+    form .form-control::-webkit-input-placeholder {
+        color: #9E9E9E
+    }
+
+    ::-moz-placeholder {
+        color: #9E9E9E !important
+    }
+
+    input.btn-purple {
+        background-color: #5C6BC0;
+        color: #ffffff
+    }
+
+    .hover-expand {
+        height: 100px;
+        width: 100px;
+        transition: width 0.3s, height 0.3s;
+    }
+
+        .hover-expand:hover {
+            height: 1056px;
+            width: 816px;
+        }
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="~/images/plaformreview/@Model.PicURL" class="img-fluid" alt="Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-md-8 col-lg-6 col-xl-5">
+            <form asp-controller="PlatformReview" asp-action="Edit">
+                <input type="text" value="@Model.Id" hidden />
+                <div class="card shadow-lg bg-light text-dark p-4">
+                    <div class="row mt-0">
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-outline-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">View Document</button>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Review</label>
+                        <input value="@Model.Message" readonly class="form-control input-box rm-border">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="email" class="mb-1">Email</label>
+                        <input id="email" type="text" placeholder="Enter your email" value="@Model.User.Email" name="email" readonly class="form-control input-box rm-border">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="message" class="mb-1">Message</label>
+                        <textarea id="message" placeholder="Enter your message" name="emailMessage" class="form-control input-box rm-border"></textarea>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <div class="col-md-12 px-0">
+                            <input type="submit" value="Submit" class="btn btn-block btn-primary rm-border">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

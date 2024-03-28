@@ -6,7 +6,10 @@ namespace InterviewSathi.Web.ViewModels
     {
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public string? Profile { get; internal set; }
-        public List<UserSkill> Skills { get; internal set; }
+        public string? Profile { get;  set; }
+        public string? DocURL { get;  set; }
+        public bool? IsVerified { get;  set; }
+        public List<UserSkill> Skills { get; set; }
+        public string? Email { get;  set; }
     }
 }

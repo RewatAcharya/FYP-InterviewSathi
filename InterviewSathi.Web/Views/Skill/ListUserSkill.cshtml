@@ -4,49 +4,47 @@
     ViewData["Title"] = "User skill";
 }
 
-<h1>Skills</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Skills</h1>
 
-<p>
-    <a asp-action="AddSkill" asp-controller="Skill" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Add Skill</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Skill.NameOfSkill)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Skill.DescofSkill)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @item.Skill.NameOfSkill
-                </td>
-                <td>
-                    @item.Skill.DescofSkill
-                </td>
-                <td>
-                    <form asp-action="DeleteSkill" asp-controller="Skill" asp-route-id="@item.Id">
-                        <button class="btn btn-outline-danger" type="submit">
-                            <span>
-                                <i class="bi bi-trash"></i>
-                            </span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <a asp-action="AddSkill" asp-controller="Skill" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-primary mb-3" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                <i class="bi bi-plus me-1"></i>Add New Skill
+            </a>
 
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Skill Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Skill.NameOfSkill</td>
+                                <td>@item.Skill.DescofSkill</td>
+                                <td>
+                                    <form asp-action="DeleteSkill" asp-controller="Skill" asp-route-id="@item.Id">
+                                        <button class="btn btn-danger btn-sm" type="submit">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog" id="page">
+    <div class="modal-dialog modal-lg" id="page">
     </div>
 </div>

@@ -14,93 +14,138 @@
     var loginProviders = schemes.ToList();
 }
 
-<section>
-    <div class="container-fluid h-100">
-        <div class="row justify-content-center align-items-center h-100">
+<style>
+    .login {
+        min-height: 100vh;
+    }
 
-            <div class="col-md-6 col-lg-6">
-                <div class="form-container px-4 rounded">
-                    @if (loginProviders.Count() > 0)
-                    {
-                        <div class="p-3">
-                            <div class="p-3 text-center">
-                                <section>
-                                    <p>User Gmail service to Register</p>
-                                    <form asp-controller="Account" asp-action="ExternalLogin"
-                                          asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
-                                        <div>
-                                            <p class="mb-0">
-                                                @foreach (var provider in loginProviders)
-                                                {
-                                                    <button type="submit" class="btn btn-dark mx-1" name="provider" value="@provider.Name">
-                                                        <i class="bi bi-google"></i>
-                                                        @provider.Name
-                                                    </button>
-                                                }
-                                            </p>
-                                        </div>
-                                    </form>
-                                </section>
-                            </div>
-                        </div>
-                    }
-                    <form asp-action="Register" asp-controller="Account" class="p-5">
-                        <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
-                        <h5 class="fw-normal mb-4">Register a new account</h5>
-                        <div class="form-group">
-                            <label asp-for="Role" class="form-label">Select Role</label>
-                            <div class="mb-3">
-                                <div class="btn-group" role="group" aria-label="Segmented Control">
-                                    <input type="radio" class="btn-check visually-hidden" asp-for="Role" value="Interviewer" id="option1" autocomplete="off">
-                                    <label class="btn btn-outline-dark" for="option1">Expert</label>
+    .bg-image {
+        background-image: url('@Url.Content("~/images/statics/signup.jpg")');
+        background-size: cover;
+        background-position: center;
+    }
 
-                                    <input type="radio" class="btn-check visually-hidden" asp-for="Role" value="Interviewee" id="option2" autocomplete="off">
-                                    <label class="btn btn-outline-dark" for="option2">Beginner</label>
+    .login-heading {
+        font-weight: 300;
+    }
+
+    .btn-login {
+        font-size: 0.9rem;
+        letter-spacing: 0.05rem;
+        padding: 0.75rem 1rem;
+    }
+</style>
+
+<div class="container-fluid ps-md-0">
+    <div class="row g-0">
+        <div class="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
+        <div class="col-md-8 col-lg-6">
+            <div class="login d-flex align-items-center py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-9 col-lg-8 mx-auto">
+                            @if (loginProviders.Count() > 0)
+                            {
+                                <div class="">
+                                    <div class="p-3 text-center">
+                                        <section>
+                                            <h3 class="login-heading mb-4 fw-bolder text-center">Get Started <br /> <span class="h5">Getting started is easy</span></h3>
+                                            <form asp-controller="Account" asp-action="ExternalLogin"
+                                                  asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" role="form">
+                                                <div>
+                                                    <p>
+                                                        @foreach (var provider in loginProviders)
+                                                        {
+                                                            <button type="submit" name="provider" value="@provider.Name" class="btn btn-outline-success text-black">
+                                                                <i class="bi bi-google"></i>
+                                                                @provider.Name
+                                                            </button>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </form>
+                                        </section>
+                                    </div>
                                 </div>
-                            </div>
-                            <span asp-validation-for="Role" class="text-danger"></span>
+                            }
+                            <h5 class="login-heading mb-4 text-center">Or continue with</h5>
+                            <!-- Sign In Form -->
+                            <form asp-action="Register" asp-controller="Account" enctype="multipart/form-data">
+                                <input asp-for="RedirectUrl" value="@ViewBag.ReturnUrl" hidden />
+                                <div class="form-group">
+                                    <div class="mb-3 text-center">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="radio" class="btn-check visually-hidden" asp-for="Role" value="Interviewer" id="option1" autocomplete="off" onchange="toggleDocumentInput()">
+                                                <label class="btn btn-outline-dark w-100" for="option1">Expert</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="radio" class="btn-check visually-hidden" asp-for="Role" value="Interviewee" id="option2" autocomplete="off" onchange="toggleDocumentInput()">
+                                                <label class="btn btn-outline-dark w-100" for="option2">Beginner</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Role" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="floatingInputName" placeholder="Name" asp-for="Name">
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                    <label for="floatingInputName">Name</label>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" asp-for="Email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                    <label for="floatingInput">Email address</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" asp-for="Password">
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                    <label for="floatingPassword">Password</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="confirmFloatingPassword" placeholder="Confirm Password" asp-for="ConfirmPassword">
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                    <label for="confirmFloatingPassword">Confirm Password</label>
+                                </div>
+                                <div class="form-group mb-3" id="documentInputContainer" style="display: none;">
+                                    <input asp-for="DocUpload" class="form-control" id="documentInput" required>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign Up</button>
+                                    <div class="text-center">
+                                        <p class="mt-3 mb-2" style="color: #393f81;">
+                                            Already have an account?
+                                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" style="color: #393f81;">Login here</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="form-group">
-                            <label asp-for="Name"></label>
-                            <input type="text" class="form-control" asp-for="Name">
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Email">Email</label>
-                            <input type="email" class="form-control" asp-for="Email">
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Password">Password</label>
-                            <input type="password" class="form-control" asp-for="Password">
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="ConfirmPassword">Confirm Password</label>
-                            <input type="password" class="form-control" asp-for="ConfirmPassword">
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-                        <div class="pt-3">
-                            <button class="btn btn-dark btn-block" type="submit">
-                                <i class="bi bi-arrow-right-circle"></i>
-                                Create Account
-                            </button>
-                            <p class="mt-3 mb-2" style="color: #393f81;">Already have an account? <a asp-controller="Account" asp-action="Login" style="color: #393f81;">Login here</a></p>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6">
-                <!-- Image Div -->
-                <div class="card">
-                    <img src="~/images/statics/loginpage.jpg" alt="login form" class="img-fluid h-100" />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
+<script>
+    window.onload = function () {
+        toggleDocumentInput();
+    }
+
+    function toggleDocumentInput() {
+        var expertRadio = document.getElementById('option1');
+        var documentInputContainer = document.getElementById('documentInputContainer');
+        if (expertRadio.checked) {
+            documentInputContainer.style.display = 'block';
+            document.getElementById('documentInput').setAttribute('required', 'required');
+        } else {
+            documentInputContainer.style.display = 'none';
+            documentInput.required = false;
+        }
+    }
+</script>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

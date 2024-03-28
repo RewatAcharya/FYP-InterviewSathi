@@ -3,6 +3,51 @@
     var messages = ViewBag.Messages as List<PrivateMessage>;
 }
 
+<style>
+    /* Chat container */
+    .container-chat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    /* Video elements */
+    #selfView,
+    #remoteView {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Button group */
+    .button-group,
+    .video-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    /* Individual buttons */
+    .btn {
+        margin: 0 5px;
+    }
+
+    .btn-join {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+        .btn-join:hover,
+        .btn-hang:hover,
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+</style>
+
 
 <div class="py-2 px-4 border-bottom d-lg-block">
     <div class="d-flex align-items-center py-1">
@@ -16,11 +61,10 @@
         </div>
         <div>
             <button id="startVideoButton" onclick="createOffer()" class="btn btn-info btn-lg mr-1 px-3 d-md-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video feather-lg"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></button>
-            <button class="btn btn-light border btn-lg px-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal feather-lg"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button>
         </div>
     </div>
 </div>
-<div class="chat-messages">
+<div class="chat-messages" id="chatmessages">
     <ul id="messagesList" class="list-unstyled p-4">
         @foreach (var message in messages)
         {
@@ -49,19 +93,63 @@
     </div>
 </div>
 
+<div class="container-chat">
+    <!-- Video elements -->
+    <div class="video-group">
+        <video id="selfView" autoplay muted height="200px" width="300px" style="display: none;"></video>
+        <video id="remoteView" autoplay height="200px" width="300px" style="display: none;"></video>
+    </div>
+    <!-- Button group for video controls -->
+    <div class="button-group">
+        <button class="btn btn-outline-dark" id="videoControl" onclick="toggleVideo()" style="display: none;">Toggle Video</button>
+        <button class="btn btn-outline-dark" id="audioControl" onclick="toggleAudio()" style="display: none;">Toggle Audio</button>
+        <button class="btn btn-outline-dark" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">Toggle Media</button>
+        <button class="btn btn-outline-dark" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">Toggle Fullscreen</button>
+    </div>
 
-<video id="selfView" autoplay muted height="200px" width="300px" style="display: none;"></video>
-<video id="remoteView" autoplay height="200px" width="300px" style="display: none;" ></video>
-<button id="joinVideoButton" class="btn btn-info btn-lg mr-1 px-3" style="display: none;" onclick="handleOffer()">Join Video Call</button>
-<button id="hangUpButton" class="btn btn-danger" style="display: none;" onclick="hangUp()">Hang Up</button>
+    <!-- Button group for video call controls -->
+    <div class="button-group">
+        <button class="btn btn-info btn-lg btn-join" id="joinVideoButton" onclick="handleOffer()">Join Video Call</button>
+        <button class="btn btn-danger btn-hang" id="hangUpButton" onclick="hangUp()">Hang Up</button>
+    </div>
+</div>
 
-
- 
-<button class="btn btn-dark" id="videoControl" onclick="toggleVideo()" style="display: none;">Toggle Video</button>
-<button class="btn btn-dark" id="audioControl" onclick="toggleAudio()" style="display: none;">Toggle Audio</button>
-<button class="btn btn-dark" id="screenControl" onclick="toggleScreenSharing()">Toggle Media</button>
-<button class="btn btn-dark" id="toggleFullscreenButton" onclick="toggleFullscreen()">Toggle Fullscreen</button>
-
+<div class="modal fade" id="hangUpModal" tabindex="-1" role="dialog" aria-labelledby="hangUpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hangUpModalLabel">Rate Your Partner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Review" asp-controller="Meeting">
+                <div class="modal-body">
+                    <input type="text" id="otherId" value="@Model.Id" name="ratedTo" hidden />
+                    <input type="text" id="myId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" name="ratedBy" hidden />
+                    <div class="form-group">
+                        <label for="rating" class="form-label">Rating</label>
+                        <div class="rating">
+                            <i class="bi bi-star fs-3" id="star1" data-rating="1"></i>
+                            <i class="bi bi-star fs-3" id="star2" data-rating="2"></i>
+                            <i class="bi bi-star fs-3" id="star3" data-rating="3"></i>
+                            <i class="bi bi-star fs-3" id="star4" data-rating="4"></i>
+                            <i class="bi bi-star fs-3" id="star5" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="starInput" name="star" />
+                    </div>
+                    <div class="form-group">
+                        <label for="review" class="form-label">Review</label>
+                        <textarea id="review" name="review" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
     $("#messagesList").on("click", ".delete-button", function () {
@@ -131,6 +219,7 @@
             remoteVideo.style.height = '200px';
         }
     }
+
 
 </script>
 
