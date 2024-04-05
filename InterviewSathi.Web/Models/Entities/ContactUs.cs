@@ -7,7 +7,7 @@ namespace InterviewSathi.Web.Models.Entities
         public string? SenderName { get; set; }
         public string? Email { get; set; }
         public string? Message { get; set; }
-        public bool? IsViewed { get; set; } = false;
+        public bool IsViewed { get; set; } = false;
 
         [ForeignKey("User")]
         public string? Sender { get; set; }

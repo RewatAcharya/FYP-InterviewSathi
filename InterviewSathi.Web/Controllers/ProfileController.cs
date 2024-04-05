@@ -29,7 +29,7 @@ namespace InterviewSathi.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string id)
         {
-            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == id).ToList();
+            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == id && x.IsDeleted == false).ToList();
             ViewBag.Blogs = blogs;
             ViewBag.like = _dbContext.LikeCounts.ToList();
             ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == id);
@@ -41,11 +41,11 @@ namespace InterviewSathi.Web.Controllers
         [Authorize]
         public async Task<IActionResult> UserProfile(string Id)
         {
-            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == Id).ToList();
+            var blogs = _dbContext.Blogs.Where(x => x.PostedBy == Id && x.IsDeleted == false).ToList();
             ViewBag.Blogs = blogs;
             ViewBag.Skills = _dbContext.UserSkills.Where(x => x.UserId == Id).Include(x => x.Skill).ToList();
             ViewBag.like = _dbContext.LikeCounts.ToList();
-            ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == Id);            
+            ApplicationUser? user = _dbContext.ApplicationUsers.FirstOrDefault(x => x.Id == Id);
             ViewBag.Role = await _userManager.GetRolesAsync(user);
             string? myId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
 
@@ -60,23 +60,38 @@ namespace InterviewSathi.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditProfile(string? id)
         {
-            if (id == null) 
-            { 
-                return NotFound(); 
-            }
-            var user = await _dbContext.ApplicationUsers.FindAsync(id);
-            if (user == null) 
+            long totalEarning = 0;
+            if (id == null)
             {
                 return NotFound();
             }
-            return PartialView(user);
+            var user = await _dbContext.ApplicationUsers.FindAsync(id);
+            
+            if (User.IsInRole("Interviewer"))
+            {
+                var results = _dbContext.Meetings.Where(x => x.SentTo == id).ToList();
+                if (results.Count > 0)
+                {
+                    foreach (var item in results.Where(x => x.MeetingType == true))
+                    {
+                        totalEarning += 5;
+                    }
+                }
+            }
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.TotalEarning = totalEarning;
+            return View(user);
         }
 
         [HttpPost]
         public async Task<IActionResult> EditProfile(ApplicationUser appUser)
         {
             ApplicationUser? applicationUser = await _dbContext.ApplicationUsers.FindAsync(appUser.Id);
-            
+
             if (ModelState.IsValid && applicationUser != null)
             {
                 if (appUser.ProfileUpload != null)
@@ -104,8 +119,10 @@ namespace InterviewSathi.Web.Controllers
 
                 _dbContext.Update(applicationUser);
                 await _dbContext.SaveChangesAsync();
+                TempData["success"] = "Profile successfully edited";
                 return RedirectToAction("Index", "Profile", new { id = applicationUser.Id });
             }
+            TempData["error"] = "Profile edit unsuccessful. Try again.";
             return View(appUser);
         }
     }

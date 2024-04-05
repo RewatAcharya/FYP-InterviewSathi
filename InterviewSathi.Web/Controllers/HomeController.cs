@@ -57,10 +57,36 @@ namespace InterviewSathi.Web.Controllers
                 Skills = _context.UserSkills.Where(x => x.UserId == user.Id).Include(x => x.Skill).ToList()
             }).ToList();
 
-            var searchedExperts = interviewerUsers
+            var interviewerUsersWithRatings = new List<(ExpertVM, double)>();
+
+            foreach (var interviewerUser in interviewerUsers)
+            {
+                // Getting all reviews where this user is rated
+                var reviewsForUser = await _context.ReviewRatings
+                    .Where(r => r.RatedTo == interviewerUser.UserId)
+                    .ToListAsync();
+
+                // Calculating the average rating
+                double averageRating = 0;
+                if (reviewsForUser.Any())
+                {
+                    averageRating = reviewsForUser.Average(r => r.Star);
+                }
+
+                // Adding user and average rating to the list
+                interviewerUsersWithRatings.Add((interviewerUser, averageRating));
+            }
+
+            // Sorting based on average rating in descending order
+            var sortedInterviewerUsers = interviewerUsersWithRatings
+                .OrderByDescending(u => u.Item2)
+                .Select(u => u.Item1)
+                .ToList();
+
+            var searchedExperts = sortedInterviewerUsers
                 .Where(x => (searchName == null || x.UserName.Contains(searchName, StringComparison.OrdinalIgnoreCase)))
                 .Where(x => (searchSkill == null || x.Skills.Any(y => y.Skill.NameOfSkill.Contains(searchSkill, StringComparison.OrdinalIgnoreCase))))
-            .ToList();
+                .ToList();
 
             var skills = _context.Skills.ToList();
             ViewBag.skillList = new SelectList(skills, nameof(Skill.NameOfSkill), nameof(Skill.NameOfSkill));

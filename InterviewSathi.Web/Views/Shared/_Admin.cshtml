@@ -7,9 +7,12 @@
     <title>@ViewData["Title"] - InterviewSathi</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/apexcharts.css"/>
     <link rel="stylesheet" href="~/InterviewSathi.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
     <style>
         .nav-item {
             margin-top: 25px;
@@ -17,6 +20,8 @@
     </style>
 </head>
 <body>
+    <partial name="Notifications" />
+
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark adminPanel">
@@ -26,8 +31,13 @@
                     </a>
                     <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                         <li class="nav-item ">
+                            <a asp-action="Index" asp-controller="Dashboard" class="text-decoration-none text-white align-middle px-0">
+                                <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item ">
                             <a asp-action="Index" asp-controller="Skill" class="text-decoration-none text-white align-middle px-0">
-                                <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Skill</span>
+                                <i class="fa fa-cogs"></i><span class="ms-1 d-none d-sm-inline">Skill</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -57,6 +67,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/apexcharts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

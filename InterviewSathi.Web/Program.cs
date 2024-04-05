@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Stripe;
 using System.Security.Claims;
 
 
@@ -47,7 +49,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //Adding identity service with user and role
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddScoped<MeetingService>();
 builder.Services.AddHostedService<EmailNotificationService>();
@@ -55,6 +57,7 @@ builder.Services.AddHostedService<EmailNotificationService>();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

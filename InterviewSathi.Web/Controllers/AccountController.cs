@@ -9,6 +9,9 @@ using System.Security.Claims;
 using InterviewSathi.Web.Models.Entities.BlogsEntity;
 using System.Reflection.Metadata;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using InterviewSathi.Web.Data;
+using Microsoft.EntityFrameworkCore;
+using InterviewSathi.Web.Services;
 
 
 namespace InterviewSathi.Web.Controllers
@@ -19,24 +22,20 @@ namespace InterviewSathi.Web.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IWebHostEnvironment _env;
-
+        private readonly ApplicationDbContext _context;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            ApplicationDbContext context)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _env = env; 
-        }
-
-        [Authorize(Roles = "Admin")]
-        public IActionResult Dashboard()
-        {
-            return View();
+            _context = context;
         }
 
         [HttpGet]
@@ -64,6 +63,41 @@ namespace InterviewSathi.Web.Controllers
             return View();
         }
 
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                foreach (var error in changePasswordResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                TempData["error"] = "Password Error";
+                return View(model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["success"] = "Password Changed!!";
+            return RedirectToAction("Index", "Profile", new { id = user.Id });
+        }
+
         [HttpGet]
         public IActionResult Register(string returnUrl = null)
         {
@@ -83,7 +117,7 @@ namespace InterviewSathi.Web.Controllers
                     Email = registerVM.Email,
                     PhoneNumber = registerVM.PhoneNumber,
                     NormalizedEmail = registerVM.Email.ToUpper(),
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     UserName = registerVM.Email,
                     ProfileURL = "ProfilePic.jpeg",
                     CoverURL = "coverpic.jpg",
@@ -112,19 +146,49 @@ namespace InterviewSathi.Web.Controllers
                         await _userManager.AddToRoleAsync(user, "Interviewee");
                     }
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
-                    {
-                        return RedirectToAction("Index", "Blog");
-                    }
-                    else
-                    {
-                        return LocalRedirect(registerVM.RedirectUrl);
-                    }
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    // Build the email confirmation link
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account",
+                        new { userId = user.Id, token = token }, Request.Scheme);
+
+                    EmailService.SendMail(user.Email, "Email Confirmation", $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>.");
+
+                    TempData["error"] = "Verify Email!!";
+                    return RedirectToAction("Login", "Account");
+                  
                 }
             }
             return View(registerVM);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                TempData["success"] = "Email Verified!!";
+                return RedirectToAction("Index", "Blog");
+            }
+            else
+            {
+                return RedirectToAction("Error", "Home");
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM loginVM)
@@ -140,6 +204,12 @@ namespace InterviewSathi.Web.Controllers
                     var user = await _userManager.FindByEmailAsync(loginVM.Email);
                     if (user != null)
                     {
+                        if (!user.EmailConfirmed)
+                        {
+                            ModelState.AddModelError("", "Please confirm your email before logging in.");
+                            return View(loginVM); 
+                        }
+
                         var role = await _userManager.GetRolesAsync(user);
                         var claims = new List<Claim>
                                {
@@ -156,7 +226,7 @@ namespace InterviewSathi.Web.Controllers
                     }
                     if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
-                        return RedirectToAction("Index", "Skill");
+                        return RedirectToAction("Index", "Dashboard");
                     }
                     else
                     {
@@ -207,14 +277,39 @@ namespace InterviewSathi.Web.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            //sign in the user with this external login provider. only if they have a login
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                // Add the roles as claims
+                var claims = new List<Claim>();
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                // Add these claims to the user's principal
+                var identity = (ClaimsIdentity)info.Principal.Identity;
+                identity.AddClaims(claims);
+            }
+
+                //sign in the user with this external login provider. only if they have a login
+                var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
                                isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
 
                 TempData["success"] = "Log in successful";
                 await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+                if (IsUserAdmin(info.Principal))
+                {
+                    // Redirect admin to the dashboard
+                    return RedirectToAction("Index", "Dashboard");
+                }
                 return LocalRedirect(returnurl);
             }
             else
@@ -233,6 +328,11 @@ namespace InterviewSathi.Web.Controllers
             }
         }
 
+        private bool IsUserAdmin(ClaimsPrincipal principal)
+        {
+            // Check if the principal contains a claim with the role "Admin"
+            return principal.IsInRole("Admin");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -258,6 +358,7 @@ namespace InterviewSathi.Web.Controllers
                     NormalizedEmail = model.Email.ToUpper(),
                     ProfileURL = "ProfilePic.jpeg",
                     CoverURL = "coverpic.jpg",
+                    EmailConfirmed = true,
                     CreatedAt = DateTime.UtcNow
                 };
                 if (model.DocUpload != null)

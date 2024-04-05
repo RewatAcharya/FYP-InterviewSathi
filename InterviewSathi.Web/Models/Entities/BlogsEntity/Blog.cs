@@ -15,6 +15,8 @@ namespace InterviewSathi.Web.Models.Entities.BlogsEntity
         public IFormFile? BlogPath { get; set; }
         public int LikeCount { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         [ForeignKey("User")]
         public string PostedBy { get; set; }
         public ApplicationUser? User { get; set; }

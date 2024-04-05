@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InterviewSathi.Web.Models.Entities
 {
@@ -11,6 +12,9 @@ namespace InterviewSathi.Web.Models.Entities
         [ForeignKey("SendingTo")]
         public string SentTo { get; set; }
         public string InterviewType { get; set; }
+
+        [Display(Name = "Payment Type")]
+        public bool MeetingType { get; set; } = false;  //where false is free
         public bool Status { get; set; } = false;
         public bool MeetingStatus { get; set; } = false;
 

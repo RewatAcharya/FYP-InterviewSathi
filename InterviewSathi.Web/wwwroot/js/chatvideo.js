@@ -71,9 +71,9 @@ connection.on("ReceiveVideoOffer", function (message, senderId, receiverId, send
 
     // showing all the buttons for the logged and pagged user only
     if (senderId === userId && receiverId === loggedUser) {
-        document.getElementById('joinVideoButton').style.display = 'block';
-        document.getElementById('hangUpButton').style.display = 'block';
-       
+        document.getElementById('joinVideoButton').style.display = 'inline-block';
+        document.getElementById('hangUpButton').style.display = 'inline-block';
+
         document.getElementById('startVideoButton').style.display = 'none';
     }
     else {
@@ -92,34 +92,7 @@ connection.on("ReceiveVideoOffer", function (message, senderId, receiverId, send
 });
 
 
-//receive offer
-
-
 //receive answer
-
-
-//receive ice
-
-//send message
-//send offer
-//send answer
-//send ice
-
-//toggle video
-//toggle audio
-//toggle screen
-//full screen
-
-//hangup call
-
-
-
-
-
-
-
-
-
 connection.on("ReceiveVideoAnswer", function (message) {
     const offerObject = JSON.parse(message);
 
@@ -135,14 +108,14 @@ connection.on("ReceiveVideoAnswer", function (message) {
     peerConnection.setRemoteDescription(answer)
         .then(console.log("Done!!"));
     document.getElementById('remoteView').srcObject = peerConnection.getRemoteStreams()[0];
+    document.getElementById('sidebar').style.display = 'none';
     document.getElementById('joinVideoButton').style.display = 'none';
     document.getElementById('startVideoButton').style.display = 'none';
-    document.getElementById('hangUpButton').style.display = 'block';
+    document.getElementById('hangUpButton').style.display = 'inline-block';
 
 });
 
-
-
+//receive ice
 connection.on("ReceiveIceCandidate", function (message, senderId, receiverId) {
     const iceCandidate = new RTCIceCandidate(JSON.parse(message));
     console.log(iceCandidate);
@@ -183,9 +156,6 @@ connection.on("ReceiveIceCandidateFromLocal", function (message, senderId, recei
     console.log("Buffered ICE candidates:", bufferedIceCandidates);
 });
 
-connection.on("ReceiveScreenOffer", function (num, senderId, receiverId) {
-    hangup();
-});
 
 function addMessage(msg, isSent, senderId, recipientId, chatId) {
     if (!msg || !senderId || !recipientId) {
@@ -202,8 +172,18 @@ function addMessage(msg, isSent, senderId, recipientId, chatId) {
     }
 }
 
+connection.on("ReceiveScreenOffer", function (num, senderId, receiverId) {
+    hangup();
+});
+
+
+
 connection.start()
 
+
+
+
+//send message
 function sendPrivateMessage() {
     let ddlSelUser = document.getElementById('ddlSelUser');
     let ddlSelUserName = document.getElementById('ddlSelUserName');
@@ -220,6 +200,7 @@ function sendPrivateMessage() {
     }
 }
 
+
 function playNotificationSound() {
     const notificationSound = document.getElementById("notificationSound");
     if (notificationSound) {
@@ -231,7 +212,6 @@ function playNotificationSound() {
 const initializePeerConnection = () => {
     peerConnection = new RTCPeerConnection(configuration);
 
-    // Set up event handlers, if needed
     peerConnection.onicecandidate = handleIceCandidate;
     peerConnection.ontrack = handleRemoteTrack;
 
@@ -240,7 +220,7 @@ const initializePeerConnection = () => {
 // Function to handle ICE candidate events
 const handleIceCandidate = (event) => {
     if (event.candidate) {
-        // Send the ICE candidate to the remote peer using SignalR
+        // Sending the ICE candidate to the remote peer using SignalR
         const receiverId = document.getElementById('ddlSelUser').value;
         const iceCandidateMessage = JSON.stringify(event.candidate);
 
@@ -249,7 +229,6 @@ const handleIceCandidate = (event) => {
         connection.invoke("SendIceCandidateToRemote", receiverId, iceCandidateMessage)
             .catch(error => {
                 console.error("Error in SendIceCandidate:", error);
-                // Handle error if needed
             });
     }
 };
@@ -257,7 +236,7 @@ const handleIceCandidate = (event) => {
 
 const handleRemoteTrack = (event) => {
     let videoRemote = document.getElementById('remoteView');
-    videoRemote.style.display = 'block';
+    videoRemote.style.display = 'inline-block';
     const remoteVideo = videoRemote;
     if (remoteVideo.srcObject !== event.streams[0]) {
         remoteVideo.srcObject = event.streams[0];
@@ -268,15 +247,14 @@ const handleRemoteTrack = (event) => {
 const createOffer = async () => {
     try {
         initializePeerConnection();
+
         offerer = loggedUser;
-        // Assume you have the local video stream
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        // Add tracks to the Peer Connection
         localStream.getTracks().forEach(track => {
             peerConnection.addTrack(track, localStream);
         });
         let peerVideo = document.getElementById('selfView');
-        peerVideo.style.display = 'block';
+        peerVideo.style.display = 'inline-block';
         peerVideo.srcObject = localStream;
 
         console.log('Local stream tracks:', localStream.getTracks());
@@ -289,31 +267,26 @@ const createOffer = async () => {
         const receiverId = document.getElementById('ddlSelUser').value;
         const offerMessage = JSON.stringify(peerConnection.localDescription);
 
-        //console.log('Sending offer to receiverId:', receiverId, 'Message:', offerMessage);
-
         await connection.invoke("SendVideoOffer", receiverId, offerMessage);
         console.log("SendVideoOffer invoked successfully");
 
+        document.getElementById('hangUpButton').style.display = 'inline-block';
+        document.getElementById('videoControl').style.display = 'inline-block';
+        document.getElementById('audioControl').style.display = 'inline-block';
+        document.getElementById('screenControl').style.display = 'inline-block';
 
-        let videoControl = document.getElementById('videoControl');
-        videoControl.style.display = 'block';
-        let audioControl = document.getElementById('audioControl');
-        audioControl.style.display = 'block';
-        document.getElementById('hangUpButton').style.display = 'block';
-        document.getElementById('videoControl').style.display = 'block';
-        document.getElementById('audioControl').style.display = 'block';
-        document.getElementById('screenControl').style.display = 'block';
-        document.getElementById('toggleFullscreenButton').style.display = 'block';
+        document.getElementById('toggleFullscreenButton').style.display = 'inline-block';
+        document.getElementById('startVideoButton').style.display = 'none';
+        console.log("startvideobutton clicked");
+        document.getElementById('sidebar').style.display = 'none';
 
     } catch (error) {
         console.error("Error in createOffer:", error);
-        // Handle error if needed
     }
 
 };
 
 function handleOffer() {
-    // Assuming you have the peerConnection object available
     remoteConnection = new RTCPeerConnection(configuration);
     answerer = loggedUser;
     // Set up local video stream
@@ -323,80 +296,75 @@ function handleOffer() {
             let peerVideo = document.getElementById('selfView');
             peerVideo.style.display = 'block';
             peerVideo.srcObject = localStream;
+            document.getElementById('startVideoButton').style.display = 'none';
+            console.log("Attempting to hide startVideoButton...");
 
-            // Add audio and video tracks individually
+            document.getElementById('video-col').style.display = 'block';
             localStream.getTracks().forEach(track => {
                 remoteConnection.addTrack(track, localStream);
             });
 
             remoteConnection.setRemoteDescription(offer);
 
-            // Process buffered ICE candidates if any
             if (remoteConnection.signalingState === "stable" && bufferedIceCandidates.length > 0) {
                 bufferedIceCandidates.forEach(iceCandidate => {
-                    // Send the buffered ICE candidates to the peer using SignalR
                     remoteConnection.addIceCandidate(iceCandidate).then(console.log("Ice added!!"));
                 });
                 console.log("Buffered ICE candidates before:", bufferedIceCandidates);
 
-                // Clear the buffer after processing
                 bufferedIceCandidates.length = 0;
                 console.log("Buffered ICE candidates after:", bufferedIceCandidates);
 
             }
         })
         .then(() => {
-            // Create and set local answer
             return remoteConnection.createAnswer();
         })
         .then(answer => remoteConnection.setLocalDescription(answer))
         .then(() => {
-            // Send the answer to the remote peer using SignalR
             const receiverId = document.getElementById('ddlSelUser').value;
             connection.invoke("SendVideoAnswer", receiverId, JSON.stringify(remoteConnection.localDescription));
         })
         .then(() => {
             // Handle success
             console.log("SendVideoAnswer invoked successfully");
-            // Additional success handling (if needed)
         })
         .catch(error => {
             // Handle errors
             console.error("Error in handleOffer:", error);
-            // Additional error handling (if needed)
         });
 
-    // Set up ICE candidate handling
+    // Setting up ICE candidate handling
     remoteConnection.onicecandidate = e => {
         if (e.candidate) {
-            // Send the ICE candidate to the remote peer using SignalR
             const receiverId = document.getElementById('ddlSelUser').value;
             connection.invoke("SendIceCandidate", receiverId, JSON.stringify(e.candidate))
                 .then(() => {
                     // Handle success
                     console.log("SendIceCandidate invoked successfully");
-                    // Additional success handling (if needed)
                 })
                 .catch(error => {
                     // Handle errors
                     console.error("Error in SendIceCandidate:", error);
-                    // Additional error handling (if needed)
                 });
         }
     };
 
-    // Set up remote stream handling
+    // Setting up remote stream handling
     remoteConnection.ontrack = event => {
         const remoteStream = event.streams[0];
         let remoteVideo = document.getElementById('remoteView');
-        remoteVideo.style.display = 'block';
+        remoteVideo.style.display = 'inline-block';
         remoteVideo.srcObject = remoteStream;
-        document.getElementById('hangUpButton').style.display = 'block';
-        document.getElementById('videoControl').style.display = 'block';
-        document.getElementById('audioControl').style.display = 'block';
-        document.getElementById('screenControl').style.display = 'block';
-        document.getElementById('toggleFullscreenButton').style.display = 'block';
+
+        document.getElementById('hangUpButton').style.display = 'inline-block';
+        document.getElementById('videoControl').style.display = 'inline-block';
+        document.getElementById('audioControl').style.display = 'inline-block';
+        document.getElementById('screenControl').style.display = 'inline-block';
+
         document.getElementById('joinVideoButton').style.display = 'none';
+
+        document.getElementById('sidebar').style.display = 'none';
     };
 
 }
@@ -409,23 +377,21 @@ const hangUp = () => {
         localStream = null;
     }
 
-    // Stop the remote video stream (assuming it's in the 'remoteConnection' variable)
     if (remoteConnection) {
         remoteConnection.close();
         remoteConnection = null;
     }
 
-    // Stop the remote video stream (assuming it's in the 'peerConnection' variable)
     if (peerConnection) {
         peerConnection.close();
         peerConnection = null;
     }
 
-    // Clear the video elements
+    // Clearing the video elements
     document.getElementById('selfView').srcObject = null;
     document.getElementById('remoteView').srcObject = null;
 
-    // Hide the Hang Up button
+    // Hiding the Hang Up button
     document.getElementById('selfView').style.display = 'none';
     document.getElementById('remoteView').style.display = 'none';
     document.getElementById('videoControl').style.display = 'none';
@@ -435,6 +401,11 @@ const hangUp = () => {
     document.getElementById('screenControl').style.display = 'none';
     document.getElementById('toggleFullscreenButton').style.display = 'none';
     document.getElementById('startVideoButton').style.display = 'block';
+    document.getElementById('startVideoButton').style.transition = 'opacity 0.5s ease -in -out';
+    //document.getElementById('startVideoButton').classList.add('show');
+    document.getElementById('sidebar').style.display = 'block';
+    //document.getElementById('sidebar').classList.add('show');
+
 
     $('#hangUpModal').modal('show');
 };
@@ -446,7 +417,6 @@ function confirmRatings() {
 };
 
 // Add logging statements to functions
-
 async function toggleVideo() {
     try {
         isVideoEnabled = !isVideoEnabled;
@@ -495,7 +465,6 @@ async function toggleAudio() {
 async function toggleScreenSharing() {
     try {
         if (isScreenSharing) {
-            // Stop the current tracks (video or screen share)
             localStream.getTracks().forEach(track => track.stop());
 
             // Get user media for video
@@ -514,7 +483,7 @@ async function toggleScreenSharing() {
 
         // Update local video element
         selfView.srcObject = localStream;
-        
+
         if (answerer === loggedUser) {
             remoteConnection.getSenders().forEach(sender => {
                 localStream.getTracks().forEach(track => {
@@ -526,7 +495,7 @@ async function toggleScreenSharing() {
                 });
             });
         }
-        else if(offerer === loggedUser) {
+        else if (offerer === loggedUser) {
             peerConnection.getSenders().forEach(sender => {
                 localStream.getTracks().forEach(track => {
                     console.log('Replacing track:', track);
@@ -541,6 +510,3 @@ async function toggleScreenSharing() {
         console.error('Error toggling screen sharing:', error);
     }
 }
-
-
-

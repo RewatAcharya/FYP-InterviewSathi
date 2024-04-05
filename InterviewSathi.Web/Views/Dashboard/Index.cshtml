@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "_Admin";
+
+}
+
+﻿<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-xl-4 mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="float-end mt-2">
+                        <div id="totalUsersRadialChart" data-colors='["--bs-success"]'></div>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0">Total Users</p>
+                        <h4 class="my-1">
+                            <span id="spanTotalUserCount">XX</span>
+                        </h4>
+                    </div>
+                    <p class="text-muted mt-3 mb-0" id="sectionUserCount"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4 mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="float-end mt-2">
+                        <div id="totalInterviewerUserRadialChart" data-colors='["--bs-warning"]'></div>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0">Total Interviewer</p>
+                        <h4 class="my-1">
+                            <span id="spanTotalInterviewerUserCount">XX</span>
+                        </h4>
+                    </div>
+                    <p class="text-muted mt-3 mb-0" id="sectionInterviewerUserCount"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4 mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="float-end mt-2">
+                        <div id="totalIntervieweeRadialChart" data-colors='["--bs-success"]'></div>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0">Total Interviewee</p>
+                        <h4 class="my-1">
+                            <span id="spanTotalIntervieweeCount">XX</span>
+                        </h4>
+                    </div>
+                    <p class="text-muted mt-3 mb-0" id="sectionIntervieweeCount"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4 mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col mt-0">
+                            <h5 class="card-title">Meetings Today</h5>
+                        </div>
+                    </div>
+                    <h1 class="mt-1 mb-3">
+                        @ViewBag.TotalMeetingToday
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4 mt-2">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col mt-0">
+                            <h5 class="card-title">Contact Us</h5>
+                        </div>
+                    </div>
+                    <h1 class="mt-1 mb-3">
+                        @ViewBag.TotalNewContact
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4 mt-2">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col mt-0">
+                            <h5 class="card-title">Reports</h5>
+                        </div>
+                    </div>
+                    <h1 class="mt-1 mb-3">
+                        @ViewBag.TotalNewReviwes
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-xl-8 mt-2">
+
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <p class="text-muted mb-0">New User and Interview Sessions In Past 30 Days</p>
+                    </div>
+                    <div id="freeAndPaidLineChart" data-colors='["--bs-warning","--bs-primary"]'>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-xl-4 mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="">
+                        <p class="text-muted mb-0">Meetings</p>
+                    </div>
+                    <div id="meetingsPieChart" data-colors='["--bs-warning","--bs-primary"]'>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="~/js/dashboard/Radial.js"></script>
+    <script src="~/js/dashboard/totalUserRadial.js"></script>
+    <script src="~/js/dashboard/totalInterviewerRadial.js"></script>
+    <script src="~/js/dashboard/totalIntervieweeRadial.js"></script>
+    <script src="~/js/dashboard/freePaidMeeting.js"></script>
+    <script src="~/js/dashboard/LineChart.js"></script>
+}

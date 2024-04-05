@@ -9,6 +9,8 @@ using System.Security.Claims;
 using System.Net;
 using System.Security.Policy;
 using InterviewSathi.Web.Models;
+using InterviewSathi.Web.Migrations;
+using Friend = InterviewSathi.Web.Models.Entities.Friend;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -59,10 +61,9 @@ namespace InterviewSathi.Web.Controllers
                 Id = Guid.NewGuid().ToString()
             };
 
-            _context.Add(friend);
+            await _context.AddAsync(friend);
             await _context.SaveChangesAsync();
 
-            string? email = _context.ApplicationUsers.Where(x => x.Id == friend.SentTo).First().Email;
             string? name = _context.ApplicationUsers.Where(x => x.Id == friend.SentBy).First().Name;
 
             Notification notification = new()
@@ -75,12 +76,8 @@ namespace InterviewSathi.Web.Controllers
                 CreatedAt = DateTime.UtcNow,
             };
 
-            _context.Notifications.Add(notification);
+            await _context.Notifications.AddAsync(notification);
             await _context.SaveChangesAsync();
-
-            EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
-                $"Click the link below to view: </br>" +
-                $"<a href=\"https://localhost:7236/Friend/Index/\" + {friend.SentTo}\">Link to follow</a>");
         }
 
 
@@ -89,18 +86,27 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> Create(Friend friend)
         {
             var transaction = await _context.Database.BeginTransactionAsync();
+            string? name = _context.ApplicationUsers.Where(x => x.Id == friend.SentBy).First().Name;
+            string? email = _context.ApplicationUsers.Where(x => x.Id == friend.SentTo).First().Email;
 
             try
             {
                 transaction.CreateSavepoint("BeforeAddingFriend");
                 await CreateFriendRequestAsync(friend.SentBy, friend.SentTo);
 
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+
+                EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
+                    $"Click the link below to view: </br>" +
+                    $"<a href=\"{domain}Friend/Index/{friend.SentTo}\">Link to follow</a>");
+
                 transaction.Commit();
+                TempData["success"] = "Request Successful";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                TempData["error"] = "Request Failed";
                 await transaction.RollbackToSavepointAsync("BeforeAddingFriend");
-                Console.WriteLine(ex.ToString());
             }
 
             return RedirectToAction("Index", "Friend", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
@@ -111,18 +117,27 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> CreateFriend(string sendBy, string sendTo)
         {
             var transaction = _context.Database.BeginTransaction();
+            string? name = _context.ApplicationUsers.Where(x => x.Id == sendBy).First().Name;
+            string? email = _context.ApplicationUsers.Where(x => x.Id == sendTo).First().Email;
 
             try
             {
                 transaction.CreateSavepoint("BeforeAddingFriend");
                 await CreateFriendRequestAsync(sendBy, sendTo);
 
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+
+                EmailService.SendMail(email, "InterviewSathi - New friend Request", $"You have a new friend request from {name}. " +
+                    $"Click the link below to view: </br>" +
+                    $"<a href=\"{domain}Friend/Index/{sendTo}\">Link to follow</a>");
+
                 transaction.Commit();
+                TempData["success"] = "Request Successful";
             }
             catch (Exception ex)
             {
-                transaction.RollbackToSavepoint("BeforeAddingFriend");
-                Console.WriteLine(ex.ToString());
+                TempData["error"] = "Request Failed";
+                await transaction.RollbackToSavepointAsync("BeforeAddingFriend");
             }
 
             return RedirectToAction("UserProfile", "Profile", new { id = sendTo });

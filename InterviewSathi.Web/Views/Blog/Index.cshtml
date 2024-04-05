@@ -110,7 +110,7 @@
 
 <script>
     $(document).ready(function () {
-        // Retrieve the like button state from local storage
+        // Retrieving the like button state from local storage
         var likeButtonState = localStorage.getItem('likeButtonState');
 
         // Handling the click for .likeButton
@@ -129,7 +129,7 @@
 
                     likeButton.removeClass("likeButton").addClass("likedButton");
 
-                    // Save the updated state to local storage
+                    // Saving the updated state to local storage
                     localStorage.setItem('likeButtonState', 'liked');
                 },
                 error: function (error) {
@@ -154,7 +154,7 @@
 
                     likedButton.removeClass("likedButton").addClass("likeButton");
 
-                    // Save the updated state to local storage
+                    // Saving the updated state to local storage
                     localStorage.setItem('likeButtonState', 'like');
                 },
                 error: function (error) {

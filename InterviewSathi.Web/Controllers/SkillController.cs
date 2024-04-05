@@ -77,6 +77,7 @@ namespace InterviewSathi.Web.Controllers
                 _context.UserSkills.Remove(skill);
             }
             await _context.SaveChangesAsync();
+            TempData["error"] = "Skill Deleted";
             return RedirectToAction("ListUserSkill", "Skill", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
         }
 
@@ -119,9 +120,6 @@ namespace InterviewSathi.Web.Controllers
             return PartialView(skill);
         }
 
-        // POST: Skill/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -164,6 +162,7 @@ namespace InterviewSathi.Web.Controllers
                 _context.Skills.Remove(skill);
             }
             await _context.SaveChangesAsync();
+            TempData["error"] = "Skill Deleted";
             return RedirectToAction("Index", "Skill");
         }
 

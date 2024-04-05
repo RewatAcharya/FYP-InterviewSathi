@@ -5,7 +5,11 @@ using InterviewSathi.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Stripe;
+using Stripe.Checkout;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -19,6 +23,7 @@ namespace InterviewSathi.Web.Controllers
             _context = context;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index(string id)
         {
             List<Meeting> meeting = await _context.Meetings.Where(x => (x.SentTo == id) || (x.SentBy == id)).Include(x => x.SendingTo).Include(x => x.SendingBy).ToListAsync();
@@ -31,7 +36,7 @@ namespace InterviewSathi.Web.Controllers
             return View();
         }
 
-        private async Task CreateMeetingRequestAsync(DateOnly date, TimeOnly time, string sentBy, string sentTo, string type)
+        private async Task CreateMeetingRequestAsync(DateOnly date, TimeOnly time, string sentBy, string sentTo, string type, bool paidStatus)
         {
             Meeting meeting = new Meeting()
             {
@@ -40,9 +45,10 @@ namespace InterviewSathi.Web.Controllers
                 InterviewType = type,
                 SentBy = sentBy,
                 SentTo = sentTo,
+                MeetingType = paidStatus
             };
 
-            _context.Add(meeting);
+            await _context.AddAsync(meeting);
             await _context.SaveChangesAsync();
 
             string? email = _context.ApplicationUsers.First(x => x.Id == meeting.SentTo).Email;
@@ -57,13 +63,9 @@ namespace InterviewSathi.Web.Controllers
                 CreatedAt = DateTime.UtcNow,
             };
 
-            _context.Notifications.Add(notification);
-            _context.SaveChanges();
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
 
-            EmailService.SendMail(email, "InterviewSathi - New Meeting Request", $"You have a new meeting request from {name} " +
-                $"schedule for Date: {date} and Time: {time}. " +
-                $"Go to your profile to see or Click the link below to view more detail: </br>" +
-                $"<a href=\"https://localhost:7236/Meeting/Index/\" + {meeting.SentTo}\">Link to follow</a>");
         }
 
         [HttpPost]
@@ -75,16 +77,70 @@ namespace InterviewSathi.Web.Controllers
             try
             {
                 transaction.CreateSavepoint("BeforeAddingMeeting");
-                await CreateMeetingRequestAsync(meeting.MeetingDate, meeting.MeetingTime, meeting.SentBy, meeting.SentTo, meeting.InterviewType);
+                await CreateMeetingRequestAsync(meeting.MeetingDate, meeting.MeetingTime, meeting.SentBy, meeting.SentTo, meeting.InterviewType, meeting.MeetingType);
 
-                transaction.Commit();
+                string? email = _context.ApplicationUsers.First(x => x.Id == meeting.SentTo).Email;
+                string? name = _context.ApplicationUsers.First(x => x.Id == meeting.SentBy).Name;
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                var successUrl = domain + $"meeting/index/{meeting.SentBy}";
+                var cancelUrl = domain + $"meeting/create/{meeting.SentTo}";
+
+                if (meeting.MeetingType == true)
+                {
+                    var options = new SessionCreateOptions()
+                    {
+                        LineItems = new List<SessionLineItemOptions>(),
+                        Mode = "payment",
+                        SuccessUrl = successUrl,
+                        CancelUrl = cancelUrl,
+                    };
+
+                    options.LineItems.Add(new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions()
+                        {
+                            UnitAmount = (long)(6 * 100),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions()
+                            {
+                                Name = email,
+                            },
+                        },
+                        Quantity = 1,
+                    });
+
+                    var service = new SessionService();
+                    Session session = service.Create(options);
+
+                    Response.Headers.Add("Location", session.Url);
+                    transaction.Commit();
+
+                    EmailService.SendMail(email, "InterviewSathi - New Meeting Request", $"You have a new meeting request from {name} " +
+        $"schedule for Date: {meeting.MeetingDate} and Time: {meeting.MeetingTime}. " +
+        $"Go to your profile to see or Click the link below to view more detail: </br>" +
+        $"<a href=\"{domain}Meeting/Index/{meeting.SentTo}\">Link to follow</a>");
+                    return new StatusCodeResult(303);
+
+                }
+                else
+                {
+                    transaction.Commit();
+
+                    EmailService.SendMail(email, "InterviewSathi - New Meeting Request", $"You have a new meeting request from {name} " +
+        $"schedule for Date: {meeting.MeetingDate} and Time: {meeting.MeetingTime}. " +
+        $"Go to your profile to see or Click the link below to view more detail: </br>" +
+        $"<a href=\"{domain}Meeting/Index/{meeting.SentTo}\">Link to follow</a>");
+
+                    return RedirectToAction("Index", "Meeting", new { id = meeting.SentBy });
+                }
             }
+
             catch (Exception ex)
             {
                 transaction.RollbackToSavepoint("BeforeAddingMeeting");
-                Console.WriteLine(ex.ToString());
+                TempData["error"] = "Try Again!!";
             }
-            TempData["success"] = "Successfully scheduled";
+
             return RedirectToAction("Experts", "Home");
         }
 
@@ -124,8 +180,14 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             var meeting = await _context.Meetings.FindAsync(id);
-            string sentName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentTo)?.Name;
-            string senderName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentBy)?.Name;
+            string? sentName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentTo)?.Name;
+            string? senderName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentBy)?.Name;
+            if (User.IsInRole("Interviewer") && meeting.MeetingType == true)
+            {
+                TempData["error"] = "You can not remove paid interview request.";
+                return RedirectToAction("Index", "Meeting", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
+            }
+
             if (meeting != null)
             {
                 _context.Meetings.Remove(meeting);
@@ -142,7 +204,7 @@ namespace InterviewSathi.Web.Controllers
                 CreatedAt = DateTime.UtcNow,
             };
 
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() == meeting.SentTo) 
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() == meeting.SentTo)
             {
                 notification.SentBy = meeting.SentTo;
                 notification.SentTo = meeting.SentBy;
@@ -169,6 +231,7 @@ namespace InterviewSathi.Web.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            TempData["success"] = "Review successfully submitted";
             return RedirectToAction("Index", "Chat", new { id = rr.RatedBy });
         }
     }

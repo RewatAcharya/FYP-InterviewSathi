@@ -30,7 +30,7 @@ namespace InterviewSathi.Web.Controllers
         public async Task<IActionResult> Index(int? page)
         {
             int pageSize = 5;
-            var blogsWithUsers = _context.Blogs.OrderByDescending(x => x.CreatedAt).Include(blog => blog.User);
+            var blogsWithUsers = _context.Blogs.Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreatedAt).Include(blog => blog.User);
             var paginatedBlogs = await PaginatedList<Blog>.CreateAsync(blogsWithUsers.AsNoTracking(), page ?? 1, pageSize);
             ViewBag.like = _context.LikeCounts.ToList();
             ViewBag.MyProfile = _context.ApplicationUsers.FirstOrDefault(x => x.Id == User.FindFirstValue(ClaimTypes.NameIdentifier).ToString());
@@ -62,9 +62,6 @@ namespace InterviewSathi.Web.Controllers
             return PartialView();
         }
 
-        // POST: Blog/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Blog blog)
@@ -174,9 +171,6 @@ namespace InterviewSathi.Web.Controllers
             return PartialView(blog);
         }
 
-        // POST: Blog/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Blog blog)
@@ -216,24 +210,24 @@ namespace InterviewSathi.Web.Controllers
             return PartialView(blog);
         }
 
-        // GET: Blog/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: Blog/Delete/5
+        //public async Task<IActionResult> Delete(string id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var blog = await _context.Blogs
-                .Include(b => b.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (blog == null)
-            {
-                return NotFound();
-            }
+        //    var blog = await _context.Blogs
+        //        .Include(b => b.User)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (blog == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return PartialView(blog);
-        }
+        //    return PartialView(blog);
+        //}
 
 
         [HttpPost, ActionName("DeleteComment")]
@@ -256,7 +250,8 @@ namespace InterviewSathi.Web.Controllers
             var blog = await _context.Blogs.FindAsync(id);
             if (blog != null)
             {
-                _context.Blogs.Remove(blog);
+                blog.IsDeleted = true;
+                _context.Blogs.Update(blog);
             }
 
             await _context.SaveChangesAsync();

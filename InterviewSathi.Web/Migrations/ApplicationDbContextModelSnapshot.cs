@@ -124,6 +124,9 @@ namespace InterviewSathi.Web.Migrations
                     b.Property<string>("ImgPath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
@@ -203,7 +206,7 @@ namespace InterviewSathi.Web.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsViewed")
+                    b.Property<bool>("IsViewed")
                         .HasColumnType("bit");
 
                     b.Property<string>("Message")
@@ -270,6 +273,9 @@ namespace InterviewSathi.Web.Migrations
 
                     b.Property<TimeOnly>("MeetingTime")
                         .HasColumnType("time");
+
+                    b.Property<bool>("MeetingType")
+                        .HasColumnType("bit");
 
                     b.Property<string>("SentBy")
                         .IsRequired()

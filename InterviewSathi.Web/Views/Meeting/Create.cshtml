@@ -30,53 +30,6 @@
         padding: 0.75rem 1rem;
     }
 </style>
-@* 
-<div class="container ps-md-0">
-    <div class="row g-0">
-        <div class="col-md-6 d-none d-md-block bg-image"></div>
-        <div class="col-sm-12 col-md-6">
-            <div class="expert d-flex align-items-center py-5">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-9 col-lg-8 mx-auto">
-                            <!-- Meeting In Form -->
-                            <form asp-action="Create" asp-controller="Meeting" class="border border-lg shadow p-5">
-                                <input asp-for="SentTo" value="@user.Id" hidden />
-                                <input asp-for="SentBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
-
-                                <h3 class="expert-heading mb-4 text-center">Schedule a meeting with @user.Name</h3>
-                                <div class="form-floating mb-3">
-                                    <input type="date" class="form-control" id="floatingInputDate" asp-for="MeetingDate">
-                                    <span asp-validation-for="MeetingDate" class="text-danger"></span>
-                                    <label for="floatingInputDate">Meeting Date</label>
-                                </div>
-                                <div class="form-floating mb-3">
-                                    <input type="time" class="form-control" id="floatingInputTime" asp-for="MeetingTime">
-                                    <span asp-validation-for="MeetingTime" class="text-danger"></span>
-
-                                    <label for="floatingInputTime">Meeting Time</label>
-                                </div>
-                                <div class="form-floating mb-3">
-                                    <select asp-for="InterviewType" class="form-control" id="SelectedOption">
-                                        <option value="Technical">Technical</option>
-                                        <option value="Pratical">Practical</option>
-                                        <option value="Behavioural">Behavioural</option>
-                                    </select>
-                                    <label for="SelectedOption" class="form-control">Select Interview Type</label>
-
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-lg btn-primary btn-schedule text-uppercase fw-bold mb-2" type="submit">Schedule Now</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
- *@
 
 <div class="container">
     <div class="row g-0">
@@ -110,6 +63,16 @@
                                     </select>
                                     <label for="interviewType">Select Interview Type</label>
                                 </div>
+                                <div class="form-floating mb-3">
+                                    <div class="form-check form-check">
+                                        <input class="form-check-input" type="radio" asp-for="MeetingType" value="false" id="freeMeetingType" checked>
+                                        <label class="form-check-label" for="freeMeetingType">Free</label>
+                                    </div>
+                                    <div class="form-check form-check">
+                                        <input class="form-check-input" type="radio" asp-for="MeetingType" value="true" id="paidMeetingType">
+                                        <label class="form-check-label" for="paidMeetingType">Buy me a Coffee $6</label>
+                                    </div>
+                                </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-lg text-uppercase fw-bold mb-2" type="submit">Schedule Now</button>
                                 </div>
@@ -121,3 +84,22 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date();
+        var dateInput = document.getElementById('meetingDate');
+        var timeInput = document.getElementById('meetingTime');
+
+        dateInput.min = today.toISOString().split('T')[0];
+
+        dateInput.addEventListener('change', function() {
+            if (this.value === today.toISOString().split('T')[0]) {
+                var hours = today.getHours().toString().padStart(2, '0');
+                var minutes = today.getMinutes().toString().padStart(2, '0');
+                timeInput.min = hours + ':' + minutes;
+            } else {
+                timeInput.min = null;
+            }
+        });
+    });
+</script>
