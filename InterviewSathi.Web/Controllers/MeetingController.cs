@@ -2,6 +2,7 @@
 using InterviewSathi.Web.Models;
 using InterviewSathi.Web.Models.Entities;
 using InterviewSathi.Web.Services;
+using InterviewSathi.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +73,13 @@ namespace InterviewSathi.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Meeting meeting)
         {
+            if (meeting.MeetingDate.ToDateTime(meeting.MeetingTime) <= DateTime.Now)
+            {
+                TempData["error"] = "Please select a date carefully.";
+                return RedirectToAction("Create", "Meeting", new { id = meeting.SentTo });
+            }
+
+
             var transaction = _context.Database.BeginTransaction();
 
             try

@@ -76,11 +76,16 @@
                                     <span asp-validation-for="Email" class="text-danger"></span>
                                     <label for="floatingInput">Email address</label>
                                 </div>
-                                <div class="form-floating mb-3">
+                                <div class="form-floating mb-3 position-relative">
                                     <input type="password" class="form-control" id="floatingPassword" placeholder="Password" asp-for="Password">
+                                    <button type="button" id="togglePassword" class="btn position-absolute me-1 end-0 top-50 translate-middle-y">
+                                        <i class="bi bi-eye-slash"></i> 
+                                    </button>
                                     <span asp-validation-for="Password" class="text-danger"></span>
                                     <label for="floatingPassword">Password</label>
                                 </div>
+
+
                                 <div class="d-grid">
 
                                     <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Log In</button>
@@ -108,3 +113,21 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#togglePassword').click(function () {
+            const passwordInput = $('#floatingPassword');
+            const passwordFieldType = passwordInput.attr('type');
+            if (passwordFieldType === 'password') {
+                passwordInput.attr('type', 'text');
+                $('#togglePassword i').removeClass('bi-eye-slash').addClass('bi-eye');
+            } else {
+                passwordInput.attr('type', 'password');
+                $('#togglePassword i').removeClass('bi-eye').addClass('bi-eye-slash');
+            }
+        });
+    });
+</script>
+

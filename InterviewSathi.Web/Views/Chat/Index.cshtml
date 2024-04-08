@@ -160,31 +160,15 @@
         var userId = $("#userIdInput").val();
         if (userId) {
             loadChat(userId);
-            // Call RemoveUI after loading the chat
         } else {
             alert("Please enter a valid User ID.");
         }
         handleOffer();
-        //RemoveUI();
         document.getElementById('userIdInput').value = "";
         document.getElementById('callNotification').textContent = "";
         document.getElementById('goToUserButton').style.display = 'none';
         document.getElementById('video-col').style.display = 'block';
     });
-
-    // function RemoveUI() {
-    //     var startVideoButton = document.getElementById('startVideoButton');
-    //     console.log("Start Video Button:", startVideoButton); // Check if the element is found
-    //     if (startVideoButton) {
-    //         console.log("Attempting to hide startVideoButton...");
-    //         console.log("Before hiding, startVideoButton display property:", startVideoButton.style.display);
-    //         startVideoButton.style.display = 'none';
-    //         console.log("After hiding, startVideoButton display property:", startVideoButton.style.display);
-    //     } else {
-    //         console.log("startVideoButton not found.");
-    //     }
-    // }
-
 
     function loadChat(userId) {
         $.ajax({

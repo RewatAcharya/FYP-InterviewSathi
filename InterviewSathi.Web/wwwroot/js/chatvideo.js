@@ -26,10 +26,10 @@ let isScreenSharing = false;
 //receive private messages
 connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverId, message, chatId, receiverName) {
     if (senderId === loggedUser && receiverId === userId) {
-        addMessage(`Sent: ${message}`, true, senderId, receiverId, chatId);
+        addMessage(message, true, senderId, receiverId, chatId);
     }
     else if (senderId === userId && receiverId === loggedUser) {
-        addMessage(`Received: ${message}`, false, senderId, receiverId, chatId);
+        addMessage(message}, false, senderId, receiverId, chatId);
     }
     else {
         playNotificationSound();

@@ -148,15 +148,18 @@ namespace InterviewSathi.Web.Controllers
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    // Build the email confirmation link
                     var confirmationLink = Url.Action("ConfirmEmail", "Account",
                         new { userId = user.Id, token = token }, Request.Scheme);
 
                     EmailService.SendMail(user.Email, "Email Confirmation", $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>.");
 
-                    TempData["error"] = "Verify Email!!";
+                    TempData["error"] = "We have sent a code in Email - Please Confirm!!";
                     return RedirectToAction("Login", "Account");
                   
+                }
+                else
+                {
+                    TempData["error"] = "Email already taken! Try different email";
                 }
             }
             return View(registerVM);
@@ -189,41 +192,35 @@ namespace InterviewSathi.Web.Controllers
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager
-                    .PasswordSignInAsync(loginVM.Email, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
+                var user = await _userManager.FindByEmailAsync(loginVM.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(nameof(loginVM.Email), "Email not found.");
+                    return View(loginVM);
+                }
 
+                var result = await _signInManager.PasswordSignInAsync(loginVM.Email, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(loginVM.Email);
-                    if (user != null)
+                    var role = await _userManager.GetRolesAsync(user);
+                    var claims = new List<Claim>
                     {
-                        if (!user.EmailConfirmed)
-                        {
-                            ModelState.AddModelError("", "Please confirm your email before logging in.");
-                            return View(loginVM); 
-                        }
+                        new(ClaimTypes.Name, user.Id),
+                        new("UserName", user.Name),
+                        new(ClaimTypes.Role, role.FirstOrDefault())
+                    };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    TempData["success"] = "Log in successful";
 
-                        var role = await _userManager.GetRolesAsync(user);
-                        var claims = new List<Claim>
-                               {
-                                   new(ClaimTypes.Name, user.Id),
-                                   new("UserName", user.Name),
-                                   new(ClaimTypes.Role, role.FirstOrDefault())
-                               };
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        TempData["success"] = "Log in successful";
+                    // Sign in the user and issue the authentication cookie
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                        // Sign in the user and issue the authentication cookie
-                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                    }
                     if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
                         return RedirectToAction("Index", "Dashboard");
@@ -242,10 +239,9 @@ namespace InterviewSathi.Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Invalid login attempt.");
+                    ModelState.AddModelError(nameof(loginVM.Password), "Invalid password.");
                 }
             }
-
             return View(loginVM);
         }
 
