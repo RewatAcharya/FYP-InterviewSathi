@@ -1,72 +1,9 @@
 ﻿@using InterviewSathi.Web.Models.Entities
 @model ApplicationUser
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     Layout = "_Admin";
 }
-
-<style>
-    body {
-        color: #ffffff
-    }
-
-    .box {
-        margin: auto
-    }
-
-    .card {
-        padding: 8%;
-        padding-top: 35px;
-        margin-top: 60px;
-        margin-bottom: 80px
-    }
-
-    textarea[name="message"] {
-        resize: none
-    }
-
-    #e-mail {
-        height: 45px
-    }
-
-    #message {
-        height: 120px
-    }
-
-
-    .rm-border:focus {
-        border-color: inherit;
-        -webkit-box-shadow: none;
-        box-shadow: none
-    }
-
-    form .form-control::-webkit-input-placeholder {
-        color: #9E9E9E
-    }
-
-    ::-moz-placeholder {
-        color: #9E9E9E !important
-    }
-
-    input.btn-purple {
-        background-color: #5C6BC0;
-        color: #ffffff
-    }
-
-    .hover-expand {
-        height: 100px;
-        width: 100px;
-        transition: width 0.3s, height 0.3s;
-    }
-
-        .hover-expand:hover {
-            height: 1056px;
-            width: 816px;
-        }
-</style>
 
 <!-- Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
@@ -83,45 +20,46 @@
     </div>
 </div>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-11 col-md-8 col-lg-6 col-xl-5">
-            <form asp-controller="Home" asp-action="Edit">
-                <input type="text" value="@Model.Id" hidden />
-                <div class="card shadow-lg bg-light text-dark p-4">
+<div class="card mb-4">
+    <div class="card-body">
+        <form asp-controller="Home" asp-action="Edit">
+            <input type="text" value="@Model.Id" hidden />
+            <div class="card shadow-lg" style="background-color: #172a45; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);">
+                <div class="card-body text-dark p-4">
                     <div class="row mt-0">
                         <div class="col-md-12">
-                            <button type="button" class="btn btn-outline-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">View Document</button>
-                            <p>Inform <a class="text-dark" asp-action="UserProfile" asp-controller="Profile" asp-route-id="@Model.Id">@Model.Name</a> about the Verification.</p>
+                            <button type="button" class="btn btn-outline-light mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">View Document</button>
+                            <p style="color: #fff;">Inform <a class="text-light" asp-action="UserProfile" asp-controller="Profile" asp-route-id="@Model.Id">@Model.Name</a> about the Verification.</p>
                         </div>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="email" class="mb-1">Email</label>
-                        <input id="email" type="text" placeholder="Enter your email" value="@Model.Email" name="email" readonly class="form-control input-box rm-border">
+                        <label for="email" class="mb-1" style="color: #fff;">Email</label>
+                        <input id="email" type="text" placeholder="Enter your email" value="@Model.Email" name="email" readonly class="form-control input-box rm-border  bg-dark text-white">
                     </div>
                     <div class="form-group mb-3">
-                        <label for="message" class="mb-1">Message</label>
-                        <textarea id="message" placeholder="Enter your message" name="message" class="form-control input-box rm-border"></textarea>
+                        <label for="message" class="mb-1" style="color: #fff;">Message</label>
+                        <textarea id="message" placeholder="Enter your message" name="message" class="form-control input-box rm-border bg-dark text-white" required></textarea>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="radio" name="flexRadioDefault" value="1" id="flexRadioDefault1">
-                        <label class="form-check-label" for="flexRadioDefault1">
+                        <label class="form-check-label" for="flexRadioDefault1" style="color: #fff;">
                             Verify
                         </label>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="radio" name="flexRadioDefault" value="0" id="flexRadioDefault2" checked>
-                        <label class="form-check-label" for="flexRadioDefault2">
+                        <label class="form-check-label" for="flexRadioDefault2" style="color: #fff;">
                             Don't Verify
                         </label>
                     </div>
                     <div class="form-group mb-0">
                         <div class="col-md-12 px-0">
-                            <input type="submit" value="Submit" class="btn btn-block btn-primary rm-border">
+                            <input type="submit" value="Send Info" class="btn btn-block btn-primary rm-border">
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+

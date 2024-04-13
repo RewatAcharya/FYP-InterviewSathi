@@ -10,12 +10,12 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="mb-3">
-                <a asp-action="Index" asp-controller="Friend" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark">
+            <div class="mb-4 d-flex align-items-center">
+                <a asp-action="Index" asp-controller="Friend" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" class="btn btn-outline-dark me-3">
                     <i class="bi bi-arrow-return-left"></i>
                     Back to Friends
                 </a>
-                <span class="h4 ms-3">Find Friends</span>
+                <h4 class="m-0">Find Friends</h4>
             </div>
             <form asp-action="Create" asp-controller="Friend" method="get" class="mb-4">
                 <div class="input-group">
@@ -27,17 +27,27 @@
                 @foreach (var item in users)
                 {
                     <div class="col">
-                        <div class="card">
-                            <div class="card-body">
+                        <div class="card mb-4">
+                            <div class="card-body d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
-                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle me-3" alt="Profile Picture" height="40px" width="40px" />
-                                    <h5 class="card-title">@item.Name</h5>
+                                    <img src="~/Images/Profiles/@item.ProfileURL" class="rounded-circle me-3" alt="Profile Picture" height="60" width="60" />
+                                    <div>
+                                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.Id" class="text-decoration-none">
+                                            <h5 class="card-title mb-0">@item.Name</h5>
+                                        </a>
+                                        @if (!string.IsNullOrEmpty(item.Bio))
+                                        {
+                                            <p class="card-text mb-0">@item.Bio</p>
+                                        }
+                                    </div>
                                 </div>
-                                <form asp-action="Create" asp-controller="Friend" method="post">
-                                    <input asp-for="SentBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
-                                    <input asp-for="SentTo" value="@item.Id" hidden />
-                                    <button type="submit" class="btn btn-outline-primary">Add Friend</button>
-                                </form>
+                                <div class="ms-auto">
+                                    <form asp-action="Create" asp-controller="Friend" method="post">
+                                        <input asp-for="SentBy" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString()" hidden />
+                                        <input asp-for="SentTo" value="@item.Id" hidden />
+                                        <button type="submit" class="btn btn-primary btn-sm">Add Friend</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -46,7 +56,6 @@
         </div>
     </div>
 </div>
-
 
 
 @section Scripts {

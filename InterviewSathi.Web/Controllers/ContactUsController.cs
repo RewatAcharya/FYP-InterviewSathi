@@ -45,7 +45,10 @@ namespace InterviewSathi.Web.Controllers
                 result.IsViewed = true;
                 _context.ContactUs.Update(result);
                 await _context.SaveChangesAsync();
-                EmailService.SendMail(contactUs.Email, "InterviewSathi - Info from Contact Us", $"{emailMessage}");
+                if (emailMessage != null)
+                {
+                    EmailService.SendMail(contactUs.Email, "InterviewSathi - Info from Contact Us", $"{emailMessage}");
+                }
 
                 TempData["success"] = "Successfully send the information to the user.";
                 return RedirectToAction("Index", "ContactUs");

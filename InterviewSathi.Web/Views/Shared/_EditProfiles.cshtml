@@ -8,24 +8,24 @@
 <div class="container">
     <div class="row flex-nowrap">
         <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
-            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-dark min-vh-100">
                 <a asp-action="Index" asp-controller="Profile" asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                     <span class="fs-5 d-none d-sm-inline">Home</span>
                 </a>
                 <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item mt-2">
                         <a class="text-decoration-none text-dark align-middle px-0" asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" asp-action="ListUserSkill" asp-controller="Skill">
-                            <i class="fs-4 bi-clipboard-plus"></i><span class="ms-1 d-none d-sm-inline">Skills</span>
+                            <i class="bi bi-clipboard-plus fs-4 me-2"></i><span class="ms-1">Skills</span>
                         </a>
                     </li>
                     <li class="nav-item mt-2">
                         <a class="text-decoration-none text-dark align-middle px-0" asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" asp-action="Index" asp-controller="Meeting">
-                            <i class="bi bi-calendar2-event fs-4"></i><span class="ms-1 d-none d-sm-inline">Meetings</span>
+                            <i class="bi bi-calendar2-event fs-4 me-2"></i><span class="ms-1">Meetings</span>
                         </a>
                     </li>
                     <li class="nav-item mt-2">
                         <a asp-action="EditProfile" asp-controller="Profile" asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" class="text-decoration-none text-dark align-middle px-0">
-                            <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Edit-Profile</span>
+                            <i class="bi bi-house fs-4 me-2"></i><span class="ms-1">Edit Profile</span>
                         </a>
                     </li>
                     @if (User.Identity.IsAuthenticated)
@@ -35,20 +35,17 @@
                         {
                             <li class="nav-item mt-2">
                                 <a asp-action="ChangePassword" asp-controller="Account" class="text-decoration-none text-dark align-middle px-0">
-                                    <i class="fa fa-cogs"></i><span class="ms-1 d-none d-sm-inline">Password</span>
+                                    <i class="fa fa-cogs fs-4 me-2"></i><span class="ms-1">Password</span>
                                 </a>
                             </li>
                         }
                     }
                     <li class="nav-item mt-2">
                         <a asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" asp-action="Create" asp-controller="PlatformReview" class="text-decoration-none text-dark align-middle px-0">
-                            <i class="fas fa-lightbulb"></i><span class="ms-1 d-none d-sm-inline">Suggestion</span>
+                            <i class="fas fa-lightbulb fs-4 me-2"></i><span class="ms-1">Suggestion</span>
                         </a>
                     </li>
-
-
                 </ul>
-
             </div>
         </div>
         <div class="col py-3">

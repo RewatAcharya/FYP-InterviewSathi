@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - InterviewSathi</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/apexcharts.css"/>
     <link rel="stylesheet" href="~/InterviewSathi.Web.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         .nav-item {
@@ -24,10 +26,10 @@
 
     <div class="container-fluid">
         <div class="row flex-nowrap">
-            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark adminPanel">
+            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 adminPanel shadow" style="background-color: #172a45">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                    <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5 d-none d-sm-inline">Menu</span>
+                    <a asp-action="Index" asp-controller="Blog" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Go to Application</span>
                     </a>
                     <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                         <li class="nav-item ">
@@ -54,6 +56,13 @@
                             <a asp-action="Index" asp-controller="ContactUs" class="text-decoration-none text-white align-middle px-0">
                                 <i class="fs-4 bi-person-rolodex"></i><span class="ms-1 d-none d-sm-inline">Contact Us</span>
                             </a>
+                        </li>
+                        <li class="nav-item">
+                            <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
+                                <button type="submit" class="btn text-danger btn-outline-light" data-toggle="tooltip" title="Logout">
+                                    Logout
+                                </button>
+                            </form>
                         </li>
                     </ul>
 

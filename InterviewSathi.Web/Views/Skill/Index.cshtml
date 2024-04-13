@@ -6,7 +6,7 @@
     int count = 1;
 }
 
-<p>
+@* <p>
     <a asp-action="Create" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
         <i class="bi bi-plus-circle-fill"></i>
         New Skill
@@ -61,8 +61,88 @@
         }
     </tbody>
 </table>
+ *@
+<style>
+    .btn-outline-dark {
+        color: #fff;
+        border-color: #fff;
+    }
 
+        .btn-outline-dark:hover {
+            color: #000;
+            background-color: #fff;
+        }
 
+    .dropdown-toggle::after {
+        display: none;
+    }
+</style>
+
+<div class="container">
+    <p>
+        <a asp-action="Create" class="btn btn-outline-dark" data-ajax="true" data-ajax-method="get"
+           data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            <i class="bi bi-plus-circle-fill"></i>
+            New Skill
+        </a>
+    </p>
+    <div class="card">
+        <div class="card-header">
+            <h5>Skills</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name of Skill</th>
+                        <th>Desc of Skill</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NameOfSkill)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DescofSkill)
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        Options
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item"
+                                               data-ajax="true" data-ajax-method="get" data-ajax-update="#page"
+                                               data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit</a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form class="form-inline" asp-action="Delete" asp-controller="Skill"
+                                                  asp-route-id="@item.Id">
+                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" id="page">

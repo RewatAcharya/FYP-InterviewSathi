@@ -29,7 +29,7 @@ connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverI
         addMessage(message, true, senderId, receiverId, chatId);
     }
     else if (senderId === userId && receiverId === loggedUser) {
-        addMessage(message}, false, senderId, receiverId, chatId);
+        addMessage(message, false, senderId, receiverId, chatId);
     }
     else {
         playNotificationSound();
@@ -58,7 +58,6 @@ connection.on("ReceivePrivateMessage", function (senderId, senderName, receiverI
 connection.on("ReceiveVideoOffer", function (message, senderId, receiverId, senderName) {
     const offerObject = JSON.parse(message);
 
-    // offerObject has 'type' and 'sdp' properties
     const { type, sdp } = offerObject;
 
     // Creating an RTCSessionDescription object
@@ -99,7 +98,7 @@ connection.on("ReceiveVideoAnswer", function (message) {
     // Assuming offerObject has 'type' and 'sdp' properties
     const { type, sdp } = offerObject;
 
-    // Create an RTCSessionDescription object
+    // Creating an RTCSessionDescription object
     answer = new RTCSessionDescription({
         type: type,
         sdp: sdp
@@ -122,13 +121,10 @@ connection.on("ReceiveIceCandidate", function (message, senderId, receiverId) {
 
     peerConnection.addIceCandidate(iceCandidate)
         .then(() => {
-            // Handle success for the local peer
             console.log("ICE candidate added successfully for the local peer");
         })
         .catch((error) => {
-            // Handle errors for the local peer
             console.error("Error adding ICE candidate for the local peer:", error);
-            // Additional error handling for the local peer (if needed)
         });
 });
 
@@ -141,13 +137,10 @@ connection.on("ReceiveIceCandidateFromLocal", function (message, senderId, recei
     if (remoteConnection && remoteConnection.signalingState === "stable") {
         remoteConnection.addIceCandidate(iceCandidate)
             .then(() => {
-                // Handle success for the remote peer
                 console.log("ICE candidate added successfully for the remote peer");
             })
             .catch((error) => {
-                // Handle errors for the remote peer
                 console.error("Error adding ICE candidate for the remote peer:", error);
-                // Additional error handling for the remote peer (if needed)
             });
     } else {
         console.warn("Buffering ICE candidate for the remote peer.");
@@ -371,7 +364,6 @@ function handleOffer() {
 
 // Function to handle the Hang Up button click
 const hangUp = () => {
-    // Stop the local video stream
     if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
         localStream = null;
@@ -399,13 +391,9 @@ const hangUp = () => {
     document.getElementById('hangUpButton').style.display = 'none';
     document.getElementById('joinVideoButton').style.display = 'none';
     document.getElementById('screenControl').style.display = 'none';
-    document.getElementById('toggleFullscreenButton').style.display = 'none';
     document.getElementById('startVideoButton').style.display = 'block';
     document.getElementById('startVideoButton').style.transition = 'opacity 0.5s ease -in -out';
-    //document.getElementById('startVideoButton').classList.add('show');
     document.getElementById('sidebar').style.display = 'block';
-    //document.getElementById('sidebar').classList.add('show');
-
 
     $('#hangUpModal').modal('show');
 };

@@ -210,25 +210,6 @@ namespace InterviewSathi.Web.Controllers
             return PartialView(blog);
         }
 
-        //// GET: Blog/Delete/5
-        //public async Task<IActionResult> Delete(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var blog = await _context.Blogs
-        //        .Include(b => b.User)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (blog == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return PartialView(blog);
-        //}
-
 
         [HttpPost, ActionName("DeleteComment")]
         public async Task<IActionResult> DeleteComment(string id, string backurl)

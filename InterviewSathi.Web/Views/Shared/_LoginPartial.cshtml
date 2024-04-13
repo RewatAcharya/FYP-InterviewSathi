@@ -35,4 +35,13 @@
             <span class="d-lg-none">Post</span>
         </a>
     </li>
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-action="Index" asp-controller="Dashboard" >
+                <i class="bi bi-speedometer2"></i>
+                <span class="d-lg-none">Dashboard</span>
+            </a>
+        </li>
+    }
 }

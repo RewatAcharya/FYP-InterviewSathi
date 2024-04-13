@@ -38,7 +38,6 @@ namespace InterviewSathi.Web.Controllers
 
         public async Task<IActionResult> Experts(string? searchName = null, string? searchSkill = null)
         {
-            // Getting the "Interviewer" role
             var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
 
             if (interviewerRole == null)
@@ -46,7 +45,6 @@ namespace InterviewSathi.Web.Controllers
                 return NotFound("Role not found");
             }
 
-            // Getting users with the "Interviewer" role
             var usersWithInterviewerRole = await _userManager.GetUsersInRoleAsync("Interviewer");
 
             var interviewerUsers = usersWithInterviewerRole.Select(user => new ExpertVM
@@ -61,23 +59,19 @@ namespace InterviewSathi.Web.Controllers
 
             foreach (var interviewerUser in interviewerUsers)
             {
-                // Getting all reviews where this user is rated
                 var reviewsForUser = await _context.ReviewRatings
                     .Where(r => r.RatedTo == interviewerUser.UserId)
                     .ToListAsync();
 
-                // Calculating the average rating
                 double averageRating = 0;
                 if (reviewsForUser.Any())
                 {
                     averageRating = reviewsForUser.Average(r => r.Star);
                 }
 
-                // Adding user and average rating to the list
                 interviewerUsersWithRatings.Add((interviewerUser, averageRating));
             }
 
-            // Sorting based on average rating in descending order
             var sortedInterviewerUsers = interviewerUsersWithRatings
                 .OrderByDescending(u => u.Item2)
                 .Select(u => u.Item1)

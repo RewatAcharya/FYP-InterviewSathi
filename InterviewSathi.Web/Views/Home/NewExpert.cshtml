@@ -7,53 +7,65 @@
 }
 
 <div class="container">
-    <ul class="nav nav-tabs" id="statusTabs">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" data-status="all" href="#">All</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-status="true" href="#">Verified</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-status="false" href="#">New</a>
-        </li>
-    </ul>
-    <div class="row">
-        <div class="table-responsive">
-            <table class="table table-hover" id="expertTable">
-
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Profile</th>
-                        <th>Document</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var exp in Model)
-                    {
-                        <tr class="expert-row" data-status="@exp.IsVerified.ToString().ToLower()">
-                            <td>@count</td>
-                            <td>@exp.UserName</td>
-                            <td><img src="~/images/profiles/@exp.Profile" width="50" height="50"></td>
-                            <td><img src="~/images/Documents/@exp.DocURL" width="50" height="50"></td>
-
-                            <td>@(exp.IsVerified == false ? "New" : "Verified")</td>
-                            <td>
-                                <a class="btn" asp-action="Edit" asp-controller="Home" asp-route-id="@exp.UserId">Detail</a>
-                            </td>
-                        </tr>
-                        count++;
-                    }
-                </tbody>
-            </table>
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs" id="statusTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" data-status="all" href="#">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-status="true" href="#">Verified</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-status="false" href="#">New</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table" id="expertTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Profile</th>
+                                <th>Document</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var exp in Model)
+                            {
+                                <tr class="expert-row" data-status="@exp.IsVerified.ToString().ToLower()">
+                                    <td>@count</td>
+                                    <td>@exp.UserName</td>
+                                    <td><img src="~/images/profiles/@exp.Profile" width="50" height="50" class="profile-img rounded-circle"></td>
+                                    <td><img src="~/images/Documents/@exp.DocURL" width="50" height="50" class="document-img"></td>
+                                    <td>
+                                        @if (exp.IsVerified == true)
+                                        {
+                                            <span class="badge badge-success">Verified</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">New</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-primary" asp-action="Edit" asp-controller="Home" asp-route-id="@exp.UserId">Detail</a>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 
 <script>
     const statusTabs = document.querySelectorAll('#statusTabs .nav-link');

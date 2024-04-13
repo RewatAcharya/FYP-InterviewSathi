@@ -17,7 +17,7 @@ namespace InterviewSathi.Web.Controllers
 
         public IActionResult Index(string id, string? chat = null)
         {
-            // Assuming id is the user ID for whom you want to find recent chat users
+            // id is the user ID for whom you want to find recent chat users
             var recentChatUsers = _context.PrivateMessages
                 .Where(msg => msg.SenderId == id || msg.ReceiverId == id)
                 .GroupBy(msg => msg.SenderId == id ? msg.ReceiverId : msg.SenderId)
@@ -26,7 +26,6 @@ namespace InterviewSathi.Web.Controllers
                 .Select(userId => _context.Users.FirstOrDefault(u => u.Id == userId))
                 .ToList();
 
-            // Assuming you have a User entity with an Id property
             var firstUser = recentChatUsers.FirstOrDefault();
 
             if (chat != null)

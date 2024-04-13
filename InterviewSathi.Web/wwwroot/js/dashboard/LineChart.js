@@ -49,20 +49,20 @@ function loadLineChart(id, data) {
             categories: data.categories,
             labels: {
                 style: {
-                    colors: "#000000",
+                    colors: "#fff",
                 },
             }
         },
         yaxis: {
             labels: {
                 style: {
-                    colors: "#000000",
+                    colors: "#fff",
                 },
             }
         },
         legend: {
             labels: {
-                colors: "#000000",
+                colors: "#fff",
             },
         },
         tooltip: {

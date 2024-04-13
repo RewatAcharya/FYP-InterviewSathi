@@ -4,6 +4,7 @@ using InterviewSathi.Web.Models.Entities;
 using InterviewSathi.Web.Services;
 using InterviewSathi.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
@@ -18,22 +19,46 @@ namespace InterviewSathi.Web.Controllers
     public class MeetingController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public MeetingController(ApplicationDbContext context)
+        public MeetingController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [Authorize]
         public async Task<IActionResult> Index(string id)
         {
-            List<Meeting> meeting = await _context.Meetings.Where(x => (x.SentTo == id) || (x.SentBy == id)).Include(x => x.SendingTo).Include(x => x.SendingBy).ToListAsync();
+            List<Meeting> meeting = await _context.Meetings
+                .Where(x => (x.SentTo == id) || (x.SentBy == id))
+                .Include(x => x.SendingTo)
+                .Include(x => x.SendingBy)
+                .ToListAsync();
             return View(meeting);
         }
 
-        public IActionResult Create(string id)
+        public async Task<IActionResult> Create(string id)
         {
-            ViewBag.SelectedUser = _context.ApplicationUsers.FirstOrDefault(x => x.Id == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var firstRole = roles.FirstOrDefault();
+
+            ViewBag.SelectedUser = user;
+            ViewBag.FirstRole = firstRole;
+
             return View();
         }
 
@@ -52,8 +77,10 @@ namespace InterviewSathi.Web.Controllers
             await _context.AddAsync(meeting);
             await _context.SaveChangesAsync();
 
-            string? email = _context.ApplicationUsers.First(x => x.Id == meeting.SentTo).Email;
-            string? name = _context.ApplicationUsers.First(x => x.Id == meeting.SentBy).Name;
+            string? email = _context.ApplicationUsers
+                .First(x => x.Id == meeting.SentTo).Email;
+            string? name = _context.ApplicationUsers
+                .First(x => x.Id == meeting.SentBy).Name;
 
             Notification notification = new()
             {
@@ -187,13 +214,14 @@ namespace InterviewSathi.Web.Controllers
 
         public async Task<IActionResult> Delete(string id)
         {
+            var deletingUser = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
             var meeting = await _context.Meetings.FindAsync(id);
             string? sentName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentTo)?.Name;
             string? senderName = _context.ApplicationUsers.FirstOrDefault(x => x.Id == meeting.SentBy)?.Name;
-            if (User.IsInRole("Interviewer") && meeting.MeetingType == true)
+            if (meeting.SentBy != deletingUser && User.IsInRole("Interviewer") && meeting.MeetingType == true)
             {
                 TempData["error"] = "You can not remove paid interview request.";
-                return RedirectToAction("Index", "Meeting", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() });
+                return RedirectToAction("Index", "Meeting", new { id = deletingUser });
             }
 
             if (meeting != null)

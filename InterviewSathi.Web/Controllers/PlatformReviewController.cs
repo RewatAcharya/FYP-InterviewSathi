@@ -63,7 +63,6 @@ namespace InterviewSathi.Web.Controllers
         }
 
         //edit by admin to change status to read
-
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
@@ -83,7 +82,10 @@ namespace InterviewSathi.Web.Controllers
                 result.Status = true;
                 _context.PlatformReviews.Update(result);
                 await _context.SaveChangesAsync();
-                EmailService.SendMail(result.User.Email, "InterviewSathi - Reply from Suggestions", $"{emailMessage}");
+                if (emailMessage != null)
+                {
+                    EmailService.SendMail(result.User.Email, "InterviewSathi - Reply from Suggestions", $"{emailMessage}");
+                }
 
                 TempData["success"] = "Successfully send the information to the user.";
                 return RedirectToAction("Index", "PlatformReview");

@@ -68,10 +68,13 @@
                                         <input class="form-check-input" type="radio" asp-for="MeetingType" value="false" id="freeMeetingType" checked>
                                         <label class="form-check-label" for="freeMeetingType">Free</label>
                                     </div>
-                                    <div class="form-check form-check">
-                                        <input class="form-check-input" type="radio" asp-for="MeetingType" value="true" id="paidMeetingType">
-                                        <label class="form-check-label" for="paidMeetingType">Buy me a Coffee $6</label>
-                                    </div>
+                                    @if (ViewBag.FirstRole == "Interviewer")
+                                    {
+                                        <div class="form-check form-check">
+                                            <input class="form-check-input" type="radio" asp-for="MeetingType" value="true" id="paidMeetingType">
+                                            <label class="form-check-label" for="paidMeetingType">Buy me a Coffee $6</label>
+                                        </div>
+                                    }
                                 </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-lg text-uppercase fw-bold mb-2" type="submit">Schedule Now</button>
