@@ -90,7 +90,10 @@
 
                                     <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Log In</button>
                                     <div class="text-center">
-
+                                        <p class="mt-3 mb-2" style="color: #393f81;">
+                                            Forgot password?
+                                            <a asp-controller="Account" asp-action="ForgotPassword" style="color: #393f81;">Reset Password</a>
+                                        </p>
                                         <p class="mt-3 mb-2" style="color: #393f81;">
                                             Don't have an account?
                                             <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" style="color: #393f81;">Register here</a>

@@ -93,7 +93,5 @@ namespace InterviewSathi.Web.Controllers
             return RedirectToAction("Edit", "PlatformReview", new { id = review.Id });
         }
 
-        //no delete as it is important
-
     }
 }

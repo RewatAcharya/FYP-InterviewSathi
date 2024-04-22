@@ -14,6 +14,8 @@
             <input asp-for="LikeCount" class="form-control" hidden />
             <input asp-for="CreatedAt" class="form-control" hidden />
             <input asp-for="PostedBy" class="form-control" hidden />
+            <input asp-for="Title" class="form-control" hidden />
+            <input asp-for="Category" class="form-control" hidden />
             <input asp-for="ImgPath" value="@Model.ImgPath" class="form-control" hidden />
 
             <!-- Content Field -->
@@ -28,7 +30,7 @@
                 <label for="BlogPath" class="form-label">Blog Image</label>
                 <input type="file" id="BlogPath" asp-for="BlogPath" class="form-control" accept="image/*" onchange="previewImage(event)">
                 <small class="form-text text-muted">Upload a new image if you want to change the current one.</small>
-                <div id="imagePreview"></div> <!-- Preview container -->
+                <div id="imagePreview"></div> 
                 @if (!string.IsNullOrEmpty(Model.ImgPath))
                 {
                     <div>
@@ -61,12 +63,12 @@
             img.src = reader.result;
             img.classList.add('img-thumbnail', 'mt-2');
             img.style.maxWidth = '200px';
-            preview.innerHTML = ''; // Clear previous preview
+            preview.innerHTML = ''; 
             preview.appendChild(img);
         }
 
         if (file) {
-            reader.readAsDataURL(file); // Read file as data URL
+            reader.readAsDataURL(file); 
         } else {
             preview.innerHTML = '<div class="text-muted">No image selected</div>';
         }

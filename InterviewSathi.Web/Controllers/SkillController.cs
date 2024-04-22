@@ -9,6 +9,7 @@ using InterviewSathi.Web.Data;
 using InterviewSathi.Web.Models.Entities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using InterviewSathi.Web.Models;
 
 namespace InterviewSathi.Web.Controllers
 {
@@ -96,8 +97,9 @@ namespace InterviewSathi.Web.Controllers
             if (ModelState.IsValid)
             {
                 skill.Id = Guid.NewGuid().ToString();
-                _context.Add(skill);
-                await _context.SaveChangesAsync();
+                await _context.AddAsync(skill);
+                await _context.SaveChangesAsync();                
+
                 return RedirectToAction(nameof(Index));
             }
             return PartialView(skill);

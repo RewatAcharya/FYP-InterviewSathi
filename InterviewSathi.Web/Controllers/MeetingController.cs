@@ -30,15 +30,21 @@ namespace InterviewSathi.Web.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Index(string id)
+        public async Task<IActionResult> Index(string id, int? month)
         {
+            month ??= DateTime.Today.Month;
             List<Meeting> meeting = await _context.Meetings
                 .Where(x => (x.SentTo == id) || (x.SentBy == id))
                 .Include(x => x.SendingTo)
                 .Include(x => x.SendingBy)
                 .ToListAsync();
+            if (month.HasValue)
+            {
+                meeting = meeting.Where(m => m.MeetingDate.Month == month.Value && m.MeetingDate.Year == DateTime.UtcNow.Year).ToList();
+            }
             return View(meeting);
         }
+
 
         public async Task<IActionResult> Create(string id)
         {

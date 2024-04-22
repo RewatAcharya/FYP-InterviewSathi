@@ -6,29 +6,44 @@
     ViewData["Title"] = "Comment";
     var comments = ViewBag.result as List<Comment>;
     var myId = ViewBag.MyId as ApplicationUser;
+
+    var wordCount = Model.Content.Split(new char[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+    var minutesToRead = (int)Math.Ceiling((double)wordCount / 200);
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <a href="@ViewBag.BackUrl" class="btn btn-outline-dark me-3">
-                            <i class="bi bi-arrow-return-left"></i>
-                        </a>
-                        <img class="rounded-circle shadow-sm me-3" src="~/images/Profiles/@Model.User.ProfileURL" alt="avatar" width="60" height="60" />
-                        <div>
-                            <h6 class="fw-bold text-primary mb-1">@Model.User.Name</h6>
-                            <p class="text-muted small mb-0">@Model.CreatedAt.Date.ToString("MMM") @Model.CreatedAt.Year</p>
+<main id="main">
+    <section class="single-post-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 post-content" data-aos="fade-up">
+                  
+                    <!-- ======= Single Post Content ======= -->
+                    <div class="single-post">
+                        <div class="post-meta p-2">
+                            <span class="date">
+                                <a href="@ViewBag.BackUrl" class="btn btn-outline-dark me-3">
+                                    <i class="bi bi-arrow-return-left"></i>
+                                </a>@Model.Category
+                            </span> <span class="mx-1">&bullet;</span>@Model.CreatedAt.ToString("dd MMMM yyyy")<span>
+                            </span>
                         </div>
-                    </div>
-                    <p class="mt-3 mb-4 pb-2">@Model.Content</p>
-                    @if (Model.ImgPath != null)
-                    {
-                        <img src="~/Images/Blogs/@Model.ImgPath" class="img-fluid rounded" alt="Blog Image" />
-                    }
-                    <div class="card-footer py-3" style="background-color: #f8f9fa;">
+                        <div class="d-flex align-items-center m-2">
+                         
+                            <img class="rounded-circle shadow-sm me-3" src="~/images/Profiles/@Model.User.ProfileURL" alt="avatar" width="60" height="60" />
+                            <div>
+                                <h6 class="fw-bold text-primary mb-1">@Model.User.Name</h6>
+                            </div>
+                        </div>
+                        <h3 class="mb-5">@Model.Title</h3>
+                        <span class="text-muted read-time">Read Time: @minutesToRead minutes</span>
+
+                        <p class="mt-3 mb-4 pb-2">@Model.Content</p>
+
+                        <!-- Add your images and additional content here -->
+                        @if (Model.ImgPath != null)
+                        {
+                            <img src="~/Images/Blogs/@Model.ImgPath" class="img-fluid mb-4" alt="Blog Image" />
+                        }
                         <div class="d-flex align-items-center">
                             <img class="rounded-circle shadow-sm me-3" src="~/images/Profiles/@myId.ProfileURL" alt="avatar" width="40" height="40" />
                             <form asp-action="Comment" asp-controller="Blog" method="post" class="w-100">
@@ -41,49 +56,54 @@
                                 </div>
                             </form>
                         </div>
+                        <div class="comments">
+                            <h5 class="comment-title py-4">@comments.Count Comments</h5>
+                            @if (comments.Any())
+                            {
+                                foreach (var item in comments)
+                                {
+                                    <div class="comment mb-4">
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar avatar-sm rounded-circle">
+                                                    <img src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="25" height="25" class="rounded-circle me-2" />
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-2 ms-sm-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="me-2">@item.User.Name</h6>
+                                                        <span class="text-muted">@item.CreatedAt.ToString("dd MMMM yyyy")</span>
+                                                    </div>
+                                                    @if (item.CommentBy == myId.Id || Model.User.Id == myId.Id)
+                                                    {
+                                                        <form asp-action="DeleteComment" asp-controller="Blog" asp-route-id="@item.Id" class="align-self-start">
+                                                            <input name="BackUrl" value="@ViewBag.BackUrl" hidden />
+                                                            <button class="btn btn-outline-danger" type="submit">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                                <div class="comment-body mt-2">
+                                                    @item.Content
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p>No Comments Yet</p>
+                            }
+                        </div>
+
+
                     </div>
+
                 </div>
             </div>
         </div>
-
-        <div class="col-md-6" style="max-height: 625px; overflow-y: auto;">
-            @if (comments.Any())
-            {
-                foreach (var item in comments)
-                {
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <p>@item.Content</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <img src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="25" height="25" class="rounded-circle me-2" />
-                                    <p class="small mb-0">@item.User.Name</p>
-                                </div>
-                                @if (item.CommentBy == myId.Id || Model.User.Id == myId.Id)
-                                {
-                                    <form asp-action="DeleteComment" asp-controller="Blog" asp-route-id="@item.Id">
-                                        <input name="BackUrl" value="@ViewBag.BackUrl" hidden />
-                                        <button class="btn btn-outline-danger" type="submit">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <p>No Comments Yet</p>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-</div>
-
-
-
+    </section>
+</main>

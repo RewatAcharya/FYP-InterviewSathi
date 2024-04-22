@@ -10,37 +10,73 @@
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString();
 }
 
+<style>
+    .card {
+        border-radius: 0px 30px 0 20px;
+    }
+
+    .blog-image{
+        border-radius: 25px;
+    }
+</style>
+
 @foreach (var item in Model)
 {
-    <div class="row mb-4">
+    var wordCount = item.Content.Split(new char[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+    var minutesToRead = (int)Math.Ceiling((double)wordCount / 200);
+
+    <div class="blog-card row mb-4">
         <div class="col-md-8 offset-md-2">
-            <div class="card shadow rounded-3">
+            <div class="card shadow rounded-5">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <img class="rounded-circle me-3" src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60" height="60" />
-                        <div>
-                            @if (item.User.Id == userId)
-                            {
-                                <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                    <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
-                                </a>
-                            }
-                            else
-                            {
-                                <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
-                                    <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
-                                </a>
-                            }
-                            <p class="text-muted small mb-0">@item.CreatedAt.ToString("MMM yyyy")</p>
+                    <div class="row">
+
+                        <div class="col author-info">
+                            <div class="d-flex align-items-start">
+                                <img class="rounded-circle me-3 avatar" src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60" height="60" />
+                                <div>
+                                    @if (item.User.Id == userId)
+                                    {
+                                        <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                            <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                            <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
+                                        </a>
+                                    }
+                                    <p class="text-muted small mb-0">@item.CreatedAt.ToString("MMM yyyy")</p>
+                                    <p class="text-muted read-time">Read Time: @minutesToRead minutes</p>
+
+                                </div>
+                            </div>
+                            <div class="card-text mt-3 content-preview">
+                                <p class="fw-bolder">
+                                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="text-decoration-none text-black">
+                                        @item.Title
+                                    </a>
+                                </p>
+
+                                @Html.Raw(item.Content.Length > 300 ? item.Content.Substring(0, 300) + "..." : item.Content)
+                                @if (item.Content.Length > 300)
+                                {
+                                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="text-decoration-none">Continue</a>
+                                }
+
+                            </div>
                         </div>
+                        @if (!string.IsNullOrEmpty(item.ImgPath))
+                        {
+                            <div class="col-md-6">
+                                <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top img-fluid blog-image" alt="Blog Image" />
+                            </div>
+                        }
                     </div>
-                    <p class="card-text mt-3">@item.Content</p>
                 </div>
-                @if (item.ImgPath != null)
-                {
-                    <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top img-fluid" alt="Blog Image" />
-                }
-                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center interaction-buttons">
+
                     <form class="likeForm" asp-action="Like" asp-controller="Blog">
                         <input name="BlogId" value="@item.Id" hidden />
                         <input name="UserId" value="@userId" hidden />
@@ -53,13 +89,12 @@
                             <button type="button" class="likeButton btn btn-sm btn-outline-primary">Like <span class="badge bg-secondary">@item.LikeCount</span></button>
                         }
                     </form>
-                    <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-sm btn-outline-dark">Comment</a>
+                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="btn btn-sm btn-outline-dark">Comment</a>
                 </div>
             </div>
         </div>
     </div>
 }
-
 
 <div class="pagination justify-content-center">
     <nav aria-label="Page navigation">
@@ -103,7 +138,7 @@
         </ul>
     </nav>
 </div>
-
+ 
 
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -164,4 +199,4 @@
         });
     });
 
-</script>
+    </script> 

@@ -4,7 +4,6 @@
 
 function loadCustomerAndBookingLineChart() {
 
-
     $.ajax({
         url: "/Dashboard/GetMemberAndMeetingLineChartData",
         type: 'GET',

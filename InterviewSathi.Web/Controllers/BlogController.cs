@@ -59,7 +59,7 @@ namespace InterviewSathi.Web.Controllers
         // GET: Blog/Create
         public IActionResult Create()
         {
-            return PartialView();
+            return View();
         }
 
         [HttpPost]
@@ -68,7 +68,7 @@ namespace InterviewSathi.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return PartialView(blog);
+                return View(blog);
             }
             try
             {
@@ -85,6 +85,7 @@ namespace InterviewSathi.Web.Controllers
 
                 _context.Add(blog);
                 await _context.SaveChangesAsync();
+                TempData["success"] = "Blog Shared";
                 return RedirectToAction("Index", "Blog");
             }
             catch (Exception ex)

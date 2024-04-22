@@ -21,11 +21,25 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        @@media (max-width: 991.98px) {
+            .navbar-nav {
+                display: flex;
+                justify-content: flex-end;
+                align-items: end; 
+                text-align: end; 
+            }
+
+            .navbar-nav .nav-item {
+                margin: 0 10px;
+             }
+        }
+    </style>
+
 </head>
 <body>
     <partial name="Notifications" />
     <header>
-        <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light mb-3 fixed-top mask-custom shadow-0">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index"><span style="color: #5e9693;">Interview</span><span style="color: #000;">Sathi</span></a>
@@ -64,32 +78,12 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav">
-                        <li class="nav-item me-3 me-lg-0">
-                            <a class="nav-link" href="#">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item me-3 me-lg-0">
-                            <a class="nav-link" href="#">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item me-3 me-lg-0">
-                            <a class="nav-link" href="#">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </li> 
-                        <li class="nav-item me-3 me-lg-0">
-                            <a class="nav-link" href="#">
-                                <i class="fab fa-linkedin"></i>
-                            </a>
-                        </li>
-
                         @if (!SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login" data-toggle="tooltip" title="Sign In">
-                                    <i class="bi bi-box-arrow-in-right"></i>
+                                <a class="nav-link btn" asp-controller="Account" asp-action="Login" data-toggle="tooltip" title="Sign In">
+                                    <i class="fa fa-sign-in"></i>
+                                    <span>Login</span>
                                 </a>
                             </li>
                         }
@@ -98,7 +92,9 @@
                             <li class="nav-item">
                                 <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout">
                                     <button type="submit" class="nav-link btn" data-toggle="tooltip" title="Logout">
-                                        <i class="bi bi-box-arrow-in-left"></i>
+                                        <i class="fa fa-sign-out"></i>
+                                        <span>Logout</span>
+
                                     </button>
                                 </form>
                             </li>
@@ -108,7 +104,7 @@
                 </div>
             </div>
         </nav>
-        <!-- Navbar -->
+
     </header>
 
     <div class="container-fluid margin-top">

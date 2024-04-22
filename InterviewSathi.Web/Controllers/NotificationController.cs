@@ -16,7 +16,7 @@ namespace InterviewSathi.Web.Controllers
 
         public IActionResult Index(string id)
         {
-            var notification = _context.Notifications.Where(x => x.SentTo == id).Include(x => x.SendingBy).OrderByDescending(x => x.CreatedAt).ToList();
+            var notification = _context.Notifications.Where(x => x.SentTo == id || x.SentTo == null).Include(x => x.SendingBy).OrderByDescending(x => x.CreatedAt).ToList();
             return View(notification);
         }
 

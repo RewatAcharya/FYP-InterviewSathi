@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using InterviewSathi.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using InterviewSathi.Web.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 namespace InterviewSathi.Web.Controllers
@@ -60,6 +61,102 @@ namespace InterviewSathi.Web.Controllers
 
         public IActionResult AccessDenied()
         {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, token = token }, protocol: HttpContext.Request.Scheme);
+                EmailService.SendMail(model.Email, "Reset Password",
+                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string userId, string token)
+        {
+            // Validate the token and userId
+            if (userId == null || token == null)
+            {
+                return RedirectToAction(nameof(ResetPasswordInvalid));
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return RedirectToAction(nameof(ResetPasswordInvalid));
+            }
+
+            var isValidToken = await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
+            if (!isValidToken)
+            {
+                return RedirectToAction(nameof(ResetPasswordInvalid));
+            }
+
+            var model = new ResetPasswordVM { UserId = userId, Token = token };
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ResetPasswordInvalid()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+            if (result.Succeeded)
+            {
+                TempData["success"] = "Password reset successful";
+                return RedirectToAction(nameof(Login));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
             return View();
         }
 
@@ -216,7 +313,19 @@ namespace InterviewSathi.Web.Controllers
                         new(ClaimTypes.Role, role.FirstOrDefault())
                     };
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    TempData["success"] = "Log in successful";
+
+                    if (!user.EmailConfirmed) 
+                    {
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
+                        EmailService.SendMail(user.Email, "Email Confirmation", $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>.");
+
+                        TempData["error"] = "We have sent a code in Email - Please Confirm!!";
+                    }
+                    else
+                    {
+                        TempData["success"] = "Log in successful";
+                    }
 
                     // Sign in the user and issue the authentication cookie
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));

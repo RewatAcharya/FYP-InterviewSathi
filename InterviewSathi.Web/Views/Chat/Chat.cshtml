@@ -4,7 +4,7 @@
 }
 
 
-    <style>
+<style>
     body {
         background-color: #f5f5f5;
         margin: 0;
@@ -140,7 +140,7 @@
         display: inline-block;
         vertical-align: middle;
     }
-    </style>
+</style>
 
 
 <div class="container-chat container">
@@ -193,22 +193,22 @@
         <div class="chat-column">
             <div class="chat-messages" id="chatmessages">
                 <ul id="messagesList" class="list-unstyled">
-                        @foreach (var message in messages)
+                    @foreach (var message in messages)
+                    {
+                        if (message.SenderId == Model.Id)
                         {
-                            if (message.SenderId == Model.Id)
-                            {
-                                <li class="received">@message.MessageContent</li>
-                            }
-                            else
-                            {
-                                <li class="sent">
-                                    @message.MessageContent
-                                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
-                                        &times;
-                                    </button>
-                                </li>
-                            }
+                            <li class="received">@message.MessageContent</li>
                         }
+                        else
+                        {
+                            <li class="sent">
+                                @message.MessageContent
+                                <button class="delete-button btn btn-sm" data-message-id="@message.Id">
+                                    &times;
+                                </button>
+                            </li>
+                        }
+                    }
                 </ul>
             </div>
             <!-- Input Box for Sending Messages -->
@@ -222,439 +222,6 @@
     </div>
 </div>
 
-@*
-
-<style>
-    .container-chat {
-        display: flex;
-        flex-direction: row;
-        height: 100vh;
-    }
-
-    .video-column {
-        flex: 0 0 auto;
-        width: 300px;
-        overflow: hidden;
-    }
-
-    .chat-column {
-        flex: 1;
-        overflow-y: auto;
-    }
-
-    .chat-messages {
-        max-height: calc(100vh - 200px); /* Adjust as needed */
-        overflow-y: auto;
-    }
-
-    .button-group {
-        margin-top: 10px;
-    }
-
-    .border-bottom {
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .received,
-    .sent {
-        max-width: 70%;
-        border-radius: 8px;
-        display: flex;
-        margin: 5px;
-        padding: 10px;
-        word-wrap: break-word;
-    }
-
-    .received {
-        margin-right: auto;
-        background-color: #f1f1f1;
-        color: black;
-    }
-
-    .sent {
-        flex-direction: row-reverse;
-        margin-left: auto;
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .delete-button {
-        margin-left: 5px;
-    }
-</style>
-
-
-<div class="container bg-info">
-    <!-- First Row -->
-    <div class="row">
-        <div class="col">
-            <!-- Top Section -->
-            <div class="py-2 px-4 border-bottom d-lg-block">
-                <div class="d-flex align-items-center py-1">
-                    <div class="position-relative">
-                        <img id="profile-pic" src="~/Images/Profiles/@Model.ProfileURL" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-                    </div>
-                    <div class="flex-grow-1 pl-3">
-                        <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@Model.Id" class="text-black text-decoration-none">
-                            <strong>@Model.Name</strong>
-                        </a>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn btn-info btn-lg btn-join" id="joinVideoButton" onclick="handleOffer()">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="btn btn-danger btn-hang" id="hangUpButton" onclick="hangUp()">
-                            <i class="fas fa-phone-alt"></i>
-                        </button>
-                        <button id="startVideoButton" onclick="createOffer()" class="btn btn-info btn-lg mr-1 px-3 d-md-inline-block">
-                            <i class="fas fa-video"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Second Row -->
-    <div class="row">
-        <!-- Hidden Column (Initially) -->
-        <div class="col-md-4" id="video-col" style="display: none; display: none!important;">
-            <div class="video-column">
-                <!-- Video elements -->
-                <div class="video-group">
-                    <video id="selfView" autoplay height="200px" width="300px" style="display: none;"></video>
-                    <video id="remoteView" autoplay height="200px" width="300px" style="display: none;"></video>
-                </div>
-                <!-- Button group for video controls -->
-                <div class="button-group d-grid">
-                    <button class="btn btn-outline-dark me-2" id="videoControl" onclick="toggleVideo()" style="display: none;">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="audioControl" onclick="toggleAudio()" style="display: none;">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">
-                        <i class="fas fa-desktop"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Visible Column -->
-        <div class="col">
-            <div class="chat-column col-md-12">
-                <div class="chat-messages" id="chatmessages">
-                    <ul id="messagesList" class="list-unstyled p-4">
-                        @foreach (var message in messages)
-                        {
-                            if (message.SenderId == Model.Id)
-                            {
-                                <li class="received">Received: @message.MessageContent</li>
-                            }
-                            else
-                            {
-                                <li class="sent">
-                                    Sent: @message.MessageContent
-                                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
-                                        &times;
-                                    </button>
-                                </li>
-                            }
-                        }
-                    </ul>
-                </div>
-                <!-- Input Box for Sending Messages -->
-                <div class="flex-grow-0 py-3 px-4 border-top">
-                    <div class="input-group">
-                        <input type="text" id="ddlSelUser" value="@Model.Id" hidden>
-                        <input type="text" id="ddlSelUserName" value="@Model.Name" hidden>
-                        <input type="text" id="txtPrivateMessage" class="form-control" placeholder="Type your message">
-                        <button id="sendButton" class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Container for Video and Chat -->
-<div class="container">
-    <div class="row">
-        <!-- Video Column -->
-        <div class="col-md-6">
-            <div class="video-column" style="display: none;">
-                <!-- Video elements -->
-                <div class="video-group">
-                    <video id="selfView" autoplay height="300px" width="300px" style="display: none;"></video>
-                    <video id="remoteView" autoplay height="300px" width="300px" style="display: none;"></video>
-                </div>
-                <!-- Button group for video controls -->
-                <div class="button-group d-grid">
-                    <button class="btn btn-outline-dark me-2" id="videoControl" onclick="toggleVideo()" style="display: none;">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="audioControl" onclick="toggleAudio()" style="display: none;">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">
-                        <i class="fas fa-desktop"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Chat Column -->
-        <div class="col">
-            <div class="chat-column col-md-12">
-                <div class="chat-messages" id="chatmessages">
-                    <ul id="messagesList" class="list-unstyled p-4">
-                        @foreach (var message in messages)
-                        {
-                            if (message.SenderId == Model.Id)
-                            {
-                                <li class="received">Received: @message.MessageContent</li>
-                            }
-                            else
-                            {
-                                <li class="sent">
-                                    Sent: @message.MessageContent
-                                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
-                                        &times;
-                                    </button>
-                                </li>
-                            }
-                        }
-                    </ul>
-                </div>
-                <!-- Input Box for Sending Messages -->
-                <div class="flex-grow-0 py-3 px-4 border-top">
-                    <div class="input-group">
-                        <input type="text" id="ddlSelUser" value="@Model.Id" hidden>
-                        <input type="text" id="ddlSelUserName" value="@Model.Name" hidden>
-                        <input type="text" id="txtPrivateMessage" class="form-control" placeholder="Type your message">
-                        <button id="sendButton" class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Top Section -->
-<div class="py-2 px-4 border-bottom d-lg-block">
-    <div class="d-flex align-items-center py-1">
-        <div class="position-relative">
-            <img id="profile-pic" src="~/Images/Profiles/@Model.ProfileURL" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-        </div>
-        <div class="flex-grow-1 pl-3">
-            <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@Model.Id" class="text-black text-decoration-none">
-                <strong>@Model.Name</strong>
-            </a>
-        </div>
-        <div class="button-group">
-            <button class="btn btn-info btn-lg btn-join" id="joinVideoButton" onclick="handleOffer()">
-                <i class="fas fa-audio"></i>
-            </button>
-            <button class="btn btn-danger btn-hang" id="hangUpButton" onclick="hangUp()">
-                <i class="fas fa-phone-alt"></i>
-            </button>
-            <button id="startVideoButton" onclick="createOffer()" class="btn btn-info btn-lg mr-1 px-3 d-md-inline-block">
-                <i class="fas fa-video"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Container for Video and Chat -->
-<div class="container-chat container">
-    <div class="row">
-        <!-- Video Column -->
-        <div class="col-md-6" id="video-col">
-            <div class="video-column" style="display: none;">
-                <!-- Video elements -->
-                <div class="video-group">
-                    <video id="selfView" autoplay muted height="200px" width="300px" style="display: none;"></video>
-                    <video id="remoteView" autoplay height="200px" width="300px" style="display: none;"></video>
-                </div>
-                <!-- Button group for video controls -->
-              <div class="button-group">
-                    <button class="btn btn-outline-dark" id="videoControl" onclick="toggleVideo()" style="display: none;">Toggle Video</button>
-                    <button class="btn btn-outline-dark" id="audioControl" onclick="toggleAudio()" style="display: none;">Toggle Audio</button>
-                    <button class="btn btn-outline-dark" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">Toggle Media</button>
-                    <button class="btn btn-outline-dark" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">Toggle Fullscreen</button>
-                </div> 
-                <div class="button-group d-grid">
-                    <button class="btn btn-outline-dark me-2" id="videoControl" onclick="toggleVideo()" style="display: none;">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="audioControl" onclick="toggleAudio()" style="display: none;">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">
-                        <i class="fas fa-desktop"></i>
-                    </button>
-                    <button class="btn btn-outline-dark me-2" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-        <!-- Chat Column -->
-        <div class="col">
-            <div class="chat-column">
-                <div class="chat-messages" id="chatmessages">
-                    <ul id="messagesList" class="list-unstyled p-4">
-                        @foreach (var message in messages)
-                        {
-                            if (message.SenderId == Model.Id)
-                            {
-                                <li class="received">Received: @message.MessageContent</li>
-                            }
-                            else
-                            {
-                                <li class="sent">
-                                    Sent: @message.MessageContent
-                                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
-                                        &times;
-                                    </button>
-                                </li>
-                            }
-                        }
-                    </ul>
-                </div>
-                <!-- Input Box for Sending Messages -->
-                <div class="flex-grow-0 py-3 px-4 border-top">
-                    <div class="input-group">
-                        <input type="text" id="ddlSelUser" value="@Model.Id" hidden>
-                        <input type="text" id="ddlSelUserName" value="@Model.Name" hidden>
-                        <input type="text" id="txtPrivateMessage" class="form-control" placeholder="Type your message">
-                        <button id="sendButton" class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Chat container */
-    .container-chat {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    /* Video elements */
-    #selfView,
-    #remoteView {
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    /* Button group */
-    .button-group,
-    .video-group {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-
-    /* Individual buttons */
-    .btn {
-        margin: 0 5px;
-    }
-
-    .btn-join {
-        background-color: #17a2b8;
-        border-color: #17a2b8;
-    }
-
-        .btn-join:hover,
-        .btn-hang:hover,
-        .btn:hover {
-            opacity: 0.8;
-        }
-
-</style>
-
-<div class="py-2 px-4 border-bottom d-lg-block">
-    <div class="d-flex align-items-center py-1">
-        <div class="position-relative">
-            <img id="profile-pic" src="~/Images/Profiles/@Model.ProfileURL" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-        </div>
-        <div class="flex-grow-1 pl-3">
-            <a asp-action="UserProfile" asp-controller="Profile" asp-route-id="@Model.Id" class="text-black text-decoration-none">
-                <strong>@Model.Name</strong>
-            </a>
-        </div>
-        <div>
-            <button id="startVideoButton" onclick="createOffer()" class="btn btn-info btn-lg mr-1 px-3 d-md-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video feather-lg"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></button>
-        </div>
-    </div>
-</div>
-<div class="chat-messages" id="chatmessages">
-    <ul id="messagesList" class="list-unstyled p-4">
-        @foreach (var message in messages)
-        {
-            if (message.SenderId == Model.Id)
-            {
-                <li class="received">Received: @message.MessageContent</li>
-            }
-            else
-            {
-                <li class="sent">
-                    Sent: @message.MessageContent
-                    <button class="delete-button btn btn-sm" data-message-id="@message.Id">
-                        &times;
-                    </button>
-                </li>
-            }
-        }
-    </ul>
-</div>
-<div class="flex-grow-0 py-3 px-4 border-top">
-    <div class="input-group">
-        <input type="text" id="ddlSelUser" value="@Model.Id" hidden>
-        <input type="text" id="ddlSelUserName" value="@Model.Name" hidden>
-        <input type="text" id="txtPrivateMessage" class="form-control" placeholder="Type your message">
-        <button id="sendButton" class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>
-    </div>
-</div>
-
-<div class="container-chat">
-    <!-- Video elements -->
-    <div class="video-group">
-        <video id="selfView" autoplay muted height="200px" width="300px" style="display: none;"></video>
-        <video id="remoteView" autoplay height="200px" width="300px" style="display: none;"></video>
-    </div>
-    <!-- Button group for video controls -->
-    <div class="button-group">
-        <button class="btn btn-outline-dark" id="videoControl" onclick="toggleVideo()" style="display: none;">Toggle Video</button>
-        <button class="btn btn-outline-dark" id="audioControl" onclick="toggleAudio()" style="display: none;">Toggle Audio</button>
-        <button class="btn btn-outline-dark" id="screenControl" onclick="toggleScreenSharing()" style="display: none;">Toggle Media</button>
-        <button class="btn btn-outline-dark" id="toggleFullscreenButton" onclick="toggleFullscreen()" style="display: none;">Toggle Fullscreen</button>
-    </div>
-
-    <!-- Button group for video call controls -->
-    <div class="button-group">
-        <button class="btn btn-info btn-lg btn-join" id="joinVideoButton" onclick="handleOffer()">Join Video Call</button>
-        <button class="btn btn-danger btn-hang" id="hangUpButton" onclick="hangUp()">Hang Up</button>
-    </div>
-</div>
- *@
 
 <div class="modal fade" id="hangUpModal" tabindex="-1" role="dialog" aria-labelledby="hangUpModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -752,11 +319,9 @@
         const isFullscreen = document.fullscreenElement || document.mozFullScreen || document.webkitIsFullScreen || document.msFullscreenElement;
 
         if (isFullscreen) {
-            // Adjust styles or perform actions when entering fullscreen
             remoteVideo.style.width = '100%';
             remoteVideo.style.height = '100%';
         } else {
-            // Adjust styles or perform actions when exiting fullscreen
             remoteVideo.style.width = '300px';
             remoteVideo.style.height = '200px';
         }
@@ -768,17 +333,14 @@
     document.getElementById('video-col').style.display = 'none';
 
     document.getElementById('startVideoButton').addEventListener('click', function () {
-        // Show the video column
         document.getElementById('video-col').style.display = 'block';
     });
 
     document.getElementById('joinVideoButton').addEventListener('click', function () {
-        // Show the video column
         document.getElementById('video-col').style.display = 'block';
     });
-    
+
     document.getElementById('hangUpButton').addEventListener('click', function () {
-        // Show the video column
         document.getElementById('video-col').style.display = 'none';
     });
 </script>

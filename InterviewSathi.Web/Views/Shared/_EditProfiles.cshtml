@@ -5,9 +5,22 @@
     Layout = "_Layout";
 }
 
+<style>
+    .sidebar {
+        background-color: #f8f9fa; 
+        padding-top: 20px; 
+        padding-bottom: 20px; 
+    }
+
+    .main-content {
+        overflow-y: auto; 
+        height: calc(100vh - 40px);
+    }
+</style>
+
 <div class="container">
     <div class="row flex-nowrap">
-        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar">
             <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-dark min-vh-100">
                 <a asp-action="Index" asp-controller="Profile" asp-route-Id="@User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                     <span class="fs-5 d-none d-sm-inline">Home</span>
@@ -48,7 +61,7 @@
                 </ul>
             </div>
         </div>
-        <div class="col py-3">
+        <div class="col py-3 main-content">
             @RenderBody()
         </div>
     </div>

@@ -6,26 +6,52 @@
     var skills = ViewBag.Skills;
     var likes = ViewBag.like as List<LikeCount>;
     var blogs = ViewBag.Blogs;
+    string imgurl = Model.CoverURL;
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <!-- Cover photo -->
-        <div class="col-md-12">
-            <img src="~/images/covers/@Model.CoverURL" class="img-fluid rounded" alt="Cover Photo">
-        </div>
-    </div>
+<style>
+    .cover-photo {
+        background-image: url('@Url.Content($"~/images/covers/{imgurl}")');
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 300px; 
+        background-size: cover;
+        background-position: center;
+        opacity: 0.5; 
+        z-index: -1;
+    }
 
-    <div class="row mt-3">
-        <div class="col-md-2">
-            <!-- Profile picture -->
-            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle img-thumbnail" width="150" height="150" alt="Profile Picture">
+    .profile-info {
+        position: relative;
+        z-index: 1;
+        margin-top: 200px; 
+    }
+
+    .card {
+        border-radius: 0px 30px 0 20px;
+    }
+
+    .blog-image {
+        border-radius: 25px;
+    }
+</style>
+
+<div class="container m-4">
+
+    <div class="cover-photo" style=""></div>
+
+    <div class="row profile-info">
+        <!-- Profile picture -->
+        <div class="col-md-3">
+            <img src="~/images/Profiles/@Model.ProfileURL" class="rounded-circle img-fluid" width="250" height="150" alt="Profile Picture">
         </div>
 
-        <div class="col-md-8 mt-3 text-dark p-3">
-            <!-- User information -->
+        <!-- User information -->
+        <div class="col-md-9 text-dark p-3">
             <h2>
-                @Model.Name  <span class="badge bg-dark">
+                @Model.Name <span class="badge bg-dark">
                     @foreach (var role in ViewBag.Role)
                     {
                         @role
@@ -59,62 +85,93 @@
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
-        @foreach (var item in blogs)
-        {
-            <div class="col">
-                <div class="card">
-                    <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top" alt="Blog Image">
-                    <div class="card-body">
-                        <p class="card-text">@item.Content</p>
+@foreach (var item in blogs)
+{
+    var wordCount = item.Content.Split(new char[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+    var minutesToRead = (int)Math.Ceiling((double)wordCount / 200);
+
+    <div class="blog-card row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow rounded-5">
+                <div class="card-body">
+                    <div class="row">
+
+                        <div class="col author-info">
+                            <div class="d-flex align-items-start">
+                                <img class="rounded-circle me-3 avatar" src="~/images/Profiles/@item.User.ProfileURL" alt="avatar" width="60" height="60" />
+                                <div>
+                                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.User.Id" class="text-decoration-none">
+                                        <h6 class="fw-bold text-black mb-1">@item.User.Name</h6>
+                                    </a>
+
+                                    <p class="text-muted small mb-0">@item.CreatedAt.ToString("MMM yyyy")</p>
+                                    <p class="text-muted read-time">Read Time: @minutesToRead minutes</p>
+
+                                </div>
+                            </div>
+                            <div class="card-text mt-3 content-preview">
+                                <p class="fw-bolder">
+                                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="text-decoration-none text-black">
+                                        @item.Title
+                                    </a>
+                                </p>
+
+                                @Html.Raw(item.Content.Length > 300 ? item.Content.Substring(0, 300) + "..." : item.Content)
+                                @if (item.Content.Length > 300)
+                                {
+                                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="text-decoration-none">Continue</a>
+                                }
+
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(item.ImgPath))
+                        {
+                            <div class="col-md-6">
+                                <img src="~/Images/Blogs/@item.ImgPath" class="card-img-top img-fluid blog-image" alt="Blog Image" />
+                            </div>
+                        }
                     </div>
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <!-- Like Button -->
-                            <form class="likeForm" asp-action="Like" asp-controller="Blog">
-                                <input name="BlogId" value="@item.Id" hidden />
-                                <input name="UserId" value="@Model.Id" hidden />
-                                @if (likes.Any(x => x.LikedBy == Model.Id && x.LikedBlog == item.Id))
-                                {
-                                    <button type="button" class="likedButton btn btn-primary mb-2 mb-md-0">
-                                        <i class="fas fa-thumbs-up"></i> @item.LikeCount
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button type="button" class="likeButton btn btn-primary mb-2 mb-md-0">
-                                        <i class="far fa-thumbs-up"></i> @item.LikeCount
-                                    </button>
-                                }
-                            </form>
-                            <!-- Comment Button -->
-                            <a asp-action="Comment" asp-controller="Blog" asp-route-id="@item.Id" asp-route-backUrl="@Context.Request.Path" class="btn btn-secondary mb-2 mb-md-0">
-                                <i class="far fa-comment"></i>
-                            </a>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary mb-2 mb-md-0 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li>
-                                    <a asp-route-Id="@item.Id" asp-action="Edit" asp-controller="Blog" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                                        <i class="fas fa-edit"></i> Edit Blog
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-route-Id="@item.Id" asp-action="Delete" asp-controller="Blog" data-ajax="true" data-ajax-method="post" data-ajax-confirm="Are you sure?" data-ajax-complete="deletePage">
-                                        <i class="fas fa-trash-alt"></i> Delete Blog
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center interaction-buttons">
+
+                    <form class="likeForm" asp-action="Like" asp-controller="Blog">
+                        <input name="BlogId" value="@item.Id" hidden />
+                        <input name="UserId" value="@Model.Id" hidden />
+                        @if (likes.Any(x => x.LikedBy == Model.Id && x.LikedBlog == item.Id))
+                        {
+                            <button type="button" class="likedButton btn btn-sm btn-outline-primary">Liked <span class="badge bg-secondary">@item.LikeCount</span></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="likeButton btn btn-sm btn-outline-primary">Like <span class="badge bg-secondary">@item.LikeCount</span></button>
+                        }
+                    </form>
+                    <a href="@Url.Action("Comment", "Blog", new { id = item.Id, backUrl = Context.Request.Path })" class="btn btn-sm btn-outline-dark">Comment</a>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary mb-2 mb-md-0 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a asp-route-Id="@item.Id" asp-action="Edit" asp-controller="Blog" class="dropdown-item" data-ajax="true" data-ajax-method="get" data-ajax-update="#page" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                    <i class="fas fa-edit"></i> Edit Blog
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-route-Id="@item.Id" asp-action="Delete" asp-controller="Blog" data-ajax="true" data-ajax-method="post" data-ajax-confirm="Are you sure?" data-ajax-complete="deletePage">
+                                    <i class="fas fa-trash-alt"></i> Delete Blog
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        }
+        </div>
     </div>
-</div>
+}
+
+
 
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" id="page">
